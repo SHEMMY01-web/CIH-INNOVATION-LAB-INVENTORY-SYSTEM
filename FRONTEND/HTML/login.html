@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/login.css" />
+    <title>Login</title>
+  </head>
+  <body>
+    <section class="auth-section">
+      <div class="auth-container form_section">
+        <div class="logo">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="CIH Logo" />
+          <h1>Inventory</h1>
+        </div>
+        <div class="auth-header welcome">
+          <h1>Welcome,</h1>
+          <p>Please Login here</p>
+        </div>
+        <div>
+          <form action="dashboard.html">
+            <div class="form-group">
+              <input type="email" required placeholder="Email" />
+            </div>
+            <div class="form-group">
+              <input type="password" required placeholder="Password" />
+            </div>
+            <div class="forgot">
+              <div class="remember">
+                <input type="checkbox" id="remember_me" />
+                <label for="remember_me">Remember Me</label>
+              </div>
+              <a href="forgot_password.html">Forgot Password?</a>
+            </div>
+            <input type="submit" class="btn-primary login-btn" value="Login" />
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

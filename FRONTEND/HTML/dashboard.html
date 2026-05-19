@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/dashboard.css" />
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+          <h2>Inventory</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item active">
+            <span class="nav-icon">⊞</span> Dashboard
+          </a>
+          <a href="items.html" class="nav-item">
+            <span class="nav-icon">👜</span> Items
+          </a>
+          <a href="tools.html" class="nav-item">
+            <span class="nav-icon">🔧</span> Tools
+          </a>
+          <a href="assets.html" class="nav-item">
+            <span class="nav-icon">📊</span> Assets
+          </a>
+          <a href="project.html" class="nav-item">
+            <span class="nav-icon">📁</span> Project
+          </a>
+          <a href="request.html" class="nav-item">
+            <span class="nav-icon">➕</span> Requested & Returned
+          </a>
+          <a href="on_hand.html" class="nav-item">
+            <span class="nav-icon">📦</span> On hand
+          </a>
+          <a href="grn_report.html" class="nav-item">
+            <span class="nav-icon">📄</span> GRN Report
+          </a>
+        </nav>
+
+        <div class="theme-toggle">
+          <button class="toggle-btn active">☀️ Light</button>
+          <button class="toggle-btn">🌙 Dark</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Navbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1>Hello Mathias 👋</h1>
+            <p>Good Morning</p>
+          </div>
+          
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search">
+            </div>
+            
+            <button class="notification-btn">
+              <span class="bell-icon">🔔</span>
+            </button>
+            
+            <div class="user-profile">
+              <div class="avatar"></div>
+              <div class="user-info">
+                <strong>Mathias W.</strong>
+                <span>Store Manager</span>
+              </div>
+              <span class="dropdown-icon">▼</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-grid">
+          
+          <!-- Tables Row -->
+          <div class="tables-row">
+            <!-- Item List -->
+            <div class="card table-card">
+              <div class="card-header">
+                <h3>Item List</h3>
+                <a href="#" class="view-all">View All</a>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Image</th>
+                    <th>Store</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Gas Kitting</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>22 House Store</td>
+                    <td>1 pcs</td>
+                  </tr>
+                  <tr>
+                    <td>Condet</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>HQ Main Store</td>
+                    <td>3 pcs</td>
+                  </tr>
+                  <tr>
+                    <td>Condet</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>HQ Main Store</td>
+                    <td>5 pcs</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Asset List -->
+            <div class="card table-card">
+              <div class="card-header">
+                <h3>Asset List</h3>
+                <a href="#" class="view-all">View All</a>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Asset Name</th>
+                    <th>Image</th>
+                    <th>Store</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Gas Kitting</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>22 House Store</td>
+                    <td>1 pcs</td>
+                  </tr>
+                  <tr>
+                    <td>Condet</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>HQ Main Store</td>
+                    <td>3 pcs</td>
+                  </tr>
+                  <tr>
+                    <td>Condet</td>
+                    <td><div class="img-placeholder"></div></td>
+                    <td>HQ Main Store</td>
+                    <td>5 pcs</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary Cards Row -->
+          <div class="summary-row">
+            <div class="card summary-card">
+              <h3>Item Summary</h3>
+              <div class="summary-stats">
+                <div class="stat">
+                  <div class="icon orange">📦</div>
+                  <h4>868</h4>
+                  <p>Quantity in Hand</p>
+                </div>
+                <div class="stat">
+                  <div class="icon purple">⏱️</div>
+                  <h4>200</h4>
+                  <p>To be received</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <h3>Product Summary</h3>
+              <div class="summary-stats">
+                <div class="stat">
+                  <div class="icon blue">👤</div>
+                  <h4>31</h4>
+                  <p>Number of Suppliers</p>
+                </div>
+                <div class="stat">
+                  <div class="icon purple">📋</div>
+                  <h4>21</h4>
+                  <p>Number of Categories</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <h3>Total items</h3>
+              <div class="summary-stats">
+                <div class="stat">
+                  <div class="icon light-blue">👤</div>
+                  <h4>31</h4>
+                  <p>Total Number of Items</p>
+                </div>
+                <div class="stat">
+                  <div class="icon purple">📋</div>
+                  <h4>21</h4>
+                  <p>To be received</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <h3>Total assets</h3>
+              <div class="summary-stats">
+                <div class="stat">
+                  <div class="icon light-blue">👤</div>
+                  <h4>31</h4>
+                  <p>Total Number of assets</p>
+                </div>
+                <div class="stat">
+                  <div class="icon purple">📋</div>
+                  <h4>21</h4>
+                  <p>To be received</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

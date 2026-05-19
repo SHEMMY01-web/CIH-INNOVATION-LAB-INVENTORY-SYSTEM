@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
+    <title>All Assets</title>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+          <h2>Inventory</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">⊞</span> Dashboard
+          </a>
+          <a href="items.html" class="nav-item">
+            <span class="nav-icon">👜</span> Items
+          </a>
+          <a href="tools.html" class="nav-item">
+            <span class="nav-icon">🔧</span> Tools
+          </a>
+          <a href="assets.html" class="nav-item active">
+            <span class="nav-icon">📊</span> Assets
+          </a>
+          <a href="project.html" class="nav-item">
+            <span class="nav-icon">📁</span> Project
+          </a>
+          <a href="request.html" class="nav-item">
+            <span class="nav-icon">➕</span> Requested & Returned
+          </a>
+          <a href="on_hand.html" class="nav-item">
+            <span class="nav-icon">📦</span> On hand
+          </a>
+          <a href="grn_report.html" class="nav-item">
+            <span class="nav-icon">📄</span> GRN Report
+          </a>
+        </nav>
+
+        <div class="theme-toggle">
+          <button class="toggle-btn active">☀️ Light</button>
+          <button class="toggle-btn">🌙 Dark</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Navbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1>All Assets</h1>
+            <p>Assets detail Information</p>
+          </div>
+          
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search">
+            </div>
+            
+            <button class="notification-btn">
+              <span class="bell-icon">🔔</span>
+            </button>
+            
+            <div class="user-profile">
+              <div class="avatar"></div>
+              <div class="user-info">
+                <strong>Mathias W.</strong>
+                <span>Store Manager</span>
+              </div>
+              <span class="dropdown-icon">▼</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Table Container -->
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search Asset">
+            </div>
+            <div class="toolbar-actions">
+              <a href="#batch-modal" class="action-btn" style="text-decoration: none;">
+                <span>📦</span>
+              </a>
+              <button class="action-btn primary">
+                <span>⬇</span> Download
+              </button>
+              <a href="#add-modal" class="action-btn primary" style="text-decoration: none;">
+                <span>⊕</span> Add Asset
+              </a>
+              <a href="#filter-modal" class="action-btn" style="text-decoration: none;">
+                <span>⧼⧽</span> Filter
+              </a>
+            </div>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="list-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox"></th>
+                  <th>Asset name ↕</th>
+                  <th>Image</th>
+                  <th>Model</th>
+                  <th>Type</th>
+                  <th>Store</th>
+                  <th>Amount</th>
+                  <th>Project</th>
+                  <th>Account</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td>Gas Kitting</td>
+                  <td><div class="item-image"></div></td>
+                  <td>G-7893</td>
+                  <td>IE Project Items</td>
+                  <td>22 House Store</td>
+                  <td>1 pcs</td>
+                  <td>HQ</td>
+                  <td>Activated</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td>Condet</td>
+                  <td><div class="item-image"></div></td>
+                  <td>Co-7898</td>
+                  <td>IE Project Items</td>
+                  <td>HQ Main Store</td>
+                  <td>3 pcs</td>
+                  <td>HQ</td>
+                  <td>Activated</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td>Condet</td>
+                  <td><div class="item-image"></div></td>
+                  <td>G-7893</td>
+                  <td>IE Project Items</td>
+                  <td>HQ Main Store</td>
+                  <td>5 pcs</td>
+                  <td>HQ</td>
+                  <td>Need Invitation</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td>Condet</td>
+                  <td><div class="item-image"></div></td>
+                  <td>G-7893</td>
+                  <td>IE Project Items</td>
+                  <td>HQ Main Store</td>
+                  <td>5 pcs</td>
+                  <td>HQ</td>
+                  <td>Activated</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-bar">
+            <div class="showing-entries">
+              Showing 
+              <select>
+                <option>10</option>
+                <option>20</option>
+                <option>50</option>
+              </select>
+            </div>
+            
+            <div class="total-records">
+              Showing 1 to 10 out of 40 records
+            </div>
+
+            <div class="pagination-controls">
+              <button class="page-btn">❮</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">4</button>
+              <button class="page-btn">❯</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Side Panel Modal -->
+    <div id="add-modal" class="side-modal-overlay">
+      <div class="side-modal-panel">
+        <div class="modal-header">
+          <h2>Add New Assets</h2>
+          <a href="#" class="close-btn">&times;</a>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-grid" style="margin-top: 10px;">
+            <div class="form-group">
+              <label>Type <span class="required">*</span></label>
+              <select><option>Choose type</option></select>
+            </div>
+            <div class="form-group">
+              <label>Asset Name <span class="required">*</span></label>
+              <input type="text" placeholder="Enter assets name">
+            </div>
+            
+            <div class="form-group">
+              <label>Image <span class="required">*</span></label>
+              <div class="file-input-wrapper">
+                <input type="file">
+                <div class="file-input-display">
+                  Choose file <span>📎</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Status <span class="required">*</span></label>
+              <select><option>Choose Status</option></select>
+            </div>
+
+            <div class="form-group">
+              <label>Serial Number <span class="required">*</span></label>
+              <input type="text" placeholder="Enter serial number">
+            </div>
+            <div class="form-group">
+              <label>Item Numberr <span class="required">*</span></label>
+              <input type="text" placeholder="Enter assets number">
+            </div>
+
+            <div class="form-group">
+              <label>Unit of Measurement <span class="required">*</span></label>
+              <select><option>Choose unit of Measurement</option></select>
+            </div>
+            <div class="form-group">
+              <label>Amount <span class="required">*</span></label>
+              <input type="text" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+              <label>Price <span class="required">*</span></label>
+              <input type="text" placeholder="Enter price">
+            </div>
+            <div class="form-group">
+              <label>Date of Purchased <span class="required">*</span></label>
+              <input type="text" placeholder="dd/mm/yyyy">
+            </div>
+
+            <div class="form-group">
+              <label>Currency <span class="required">*</span></label>
+              <select><option>Choose Currency</option></select>
+            </div>
+            <div class="form-group">
+              <label>PI Document <span class="required">*</span></label>
+              <div class="file-input-wrapper">
+                <input type="file">
+                <div class="file-input-display">
+                  Choose file <span>📎</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Store <span class="required">*</span></label>
+              <select><option>Choose Store</option></select>
+            </div>
+            <div class="form-group">
+              <label>Project <span class="required">*</span></label>
+              <select><option>Choose project</option></select>
+            </div>
+
+            <div class="form-group">
+              <label>Department <span class="required">*</span></label>
+              <select><option>Choose department</option></select>
+            </div>
+            <div class="form-group">
+              <label>Category <span class="required">*</span></label>
+              <select><option>Choose category</option></select>
+            </div>
+
+            <div class="form-group">
+              <label>Warranty <span class="required">*</span></label>
+              <div class="file-input-wrapper">
+                <input type="file">
+                <div class="file-input-display">
+                  Choose file <span>📎</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Manufacturer <span class="required">*</span></label>
+              <select><option>Choose manufacturer</option></select>
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 25px;">
+            <label>Description <span class="required">*</span></label>
+            <textarea placeholder="Input description"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary modal-btn">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centered Filter Modal -->
+    <div id="filter-modal" class="center-modal-overlay">
+      <div class="center-modal-panel filter-modal">
+        <div class="center-modal-header">
+          <h2>Filter</h2>
+        </div>
+        <div class="center-modal-body">
+          <div class="filter-section">
+            <div class="filter-section-title">Store</div>
+            <div class="form-group" style="margin-bottom: 15px;">
+              <select><option>Select store</option></select>
+            </div>
+            <div class="form-checkboxes" style="margin-bottom: 0;">
+              <label class="checkbox-label">
+                <input type="checkbox" checked> HQ Main Store
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" checked> 22 House Store
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" checked> Tafo House Store
+              </label>
+            </div>
+          </div>
+          
+          <div class="filter-section">
+            <div class="filter-section-title">Select Type</div>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="asset_type"> Item
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="asset_type"> Tool
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="asset_type"> Assets
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="center-modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centered Batch Request Modal -->
+    <div id="batch-modal" class="center-modal-overlay">
+      <div class="center-modal-panel batch-modal">
+        <div class="center-modal-header">
+          <h2>Batch Request Assets</h2>
+        </div>
+        <div class="center-modal-body">
+          <div class="batch-filters">
+            <div class="form-group">
+              <label>Search <span class="required">*</span></label>
+              <input type="text" placeholder="Search">
+            </div>
+            <div class="form-group">
+              <label>Store <span class="required">*</span></label>
+              <select><option>Store</option></select>
+            </div>
+            <div class="form-group">
+              <label>Asset category <span class="required">*</span></label>
+              <select><option>Asset group</option></select>
+            </div>
+          </div>
+          
+          <div class="error-text">Please select store to proceed</div>
+          
+          <div class="batch-top-toggles">
+            <label class="radio-label">
+              <input type="radio" name="batch_type"> Fixed Asset
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="batch_type"> Consumable
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="batch_type"> IT Asset
+            </label>
+          </div>
+
+          <div class="pill-grid">
+            <div class="pill-tag selected">Gas kitting</div>
+            <div class="pill-tag">Condet</div>
+            <div class="pill-tag">Punta</div>
+            <div class="pill-tag">Wood punta 8mm</div>
+            <div class="pill-tag selected">Gypson/floor</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            
+            <div class="pill-tag selected">Ground case cable</div>
+            <div class="pill-tag">pipe jonter</div>
+            <div class="pill-tag">Punta</div>
+            <div class="pill-tag">Wood punta 8mm</div>
+            <div class="pill-tag selected">Gypson/floor</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+
+            <div class="pill-tag selected">Ground case cable</div>
+            <div class="pill-tag">pipe jonter</div>
+            <div class="pill-tag">Punta</div>
+            <div class="pill-tag">Wood punta 8mm</div>
+            <div class="pill-tag selected">Gypson/floor</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+
+            <div class="pill-tag selected">Ground case cable</div>
+            <div class="pill-tag">pipe jonter</div>
+            <div class="pill-tag">Punta</div>
+            <div class="pill-tag">Wood punta 8mm</div>
+            <div class="pill-tag selected">Gypson/floor</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+
+            <div class="pill-tag selected">Ground case cable</div>
+            <div class="pill-tag">pipe jonter</div>
+            <div class="pill-tag">Punta</div>
+            <div class="pill-tag">Wood punta 8mm</div>
+            <div class="pill-tag selected">Gypson/floor</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+            <div class="pill-tag">Harry Potter</div>
+          </div>
+        </div>
+        <div class="center-modal-footer" style="justify-content: center; padding: 30px;">
+          <a href="#" class="btn-secondary" style="flex: none; width: 150px;">Cancel</a>
+          <button class="btn-primary" style="flex: none; width: 150px;">Add Item</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

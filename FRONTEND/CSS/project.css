@@ -1,0 +1,211 @@
+/* Projects Layout Styles */
+
+.projects-container {
+  padding: 0 40px;
+}
+
+/* Projects Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.project-card {
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 25px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+}
+
+.project-info {
+  margin-bottom: 25px;
+}
+
+.project-info-row {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-color);
+  width: 60px;
+}
+
+.project-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.client-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Team Members Row */
+.team-members-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: auto;
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #556070;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.member-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.member-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.member-role {
+  font-size: 0.8rem;
+  color: var(--primary-color);
+}
+
+/* Progress bar placeholder */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 4px;
+  width: 30%; /* Mock value */
+}
+
+/* CSS Tabs */
+.tabs-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-header {
+  display: flex;
+  gap: 30px;
+  border-bottom: 2px solid var(--border-color);
+  padding: 0 40px;
+  margin-bottom: 25px;
+  justify-content: center;
+}
+
+.tab-radio {
+  display: none;
+}
+
+.tab-label {
+  padding: 15px 10px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-label:hover {
+  color: var(--text-color);
+}
+
+.tab-label::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+/* When radio is checked, style the corresponding label */
+#tab-items:checked ~ .tabs-header .label-items,
+#tab-assets:checked ~ .tabs-header .label-assets {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+#tab-items:checked ~ .tabs-header .label-items::after,
+#tab-assets:checked ~ .tabs-header .label-assets::after {
+  transform: scaleX(1);
+}
+
+/* Tab Content Areas */
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+#tab-items:checked ~ #content-items,
+#tab-assets:checked ~ #content-assets {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Project Detail Header specific */
+.project-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-top: 20px;
+  text-align: center;
+}
+
+.project-subtitle span {
+  font-weight: 700;
+}

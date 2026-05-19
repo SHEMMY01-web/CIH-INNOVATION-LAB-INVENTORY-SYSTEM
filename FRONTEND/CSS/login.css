@@ -1,0 +1,57 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.logo img {
+  width: auto;
+  height: 60px;
+}
+
+.logo h1 {
+  font-size: 2rem;
+  margin: 0px;
+}
+
+.forgot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remember label {
+  cursor: pointer;
+}
+
+.forgot a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.forgot a:hover {
+  text-decoration: underline;
+}
+
+.login-btn {
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+  .logo h1 {
+    font-size: 1.8rem;
+  }
+  .auth-header h1 {
+    font-size: 2rem;
+  }
+}

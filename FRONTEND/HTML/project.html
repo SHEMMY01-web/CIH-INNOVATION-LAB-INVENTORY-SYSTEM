@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/project.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
+    <title>Projects</title>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+          <h2>Inventory</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">⊞</span> Dashboard
+          </a>
+          <a href="items.html" class="nav-item">
+            <span class="nav-icon">👜</span> Items
+          </a>
+          <a href="tools.html" class="nav-item">
+            <span class="nav-icon">🔧</span> Tools
+          </a>
+          <a href="assets.html" class="nav-item">
+            <span class="nav-icon">📊</span> Assets
+          </a>
+          <a href="project.html" class="nav-item active">
+            <span class="nav-icon">📁</span> Project
+          </a>
+          <a href="request.html" class="nav-item">
+            <span class="nav-icon">➕</span> Requested & Returned
+          </a>
+          <a href="on_hand.html" class="nav-item">
+            <span class="nav-icon">📦</span> On hand
+          </a>
+          <a href="grn_report.html" class="nav-item">
+            <span class="nav-icon">📄</span> GRN Report
+          </a>
+        </nav>
+
+        <div class="theme-toggle">
+          <button class="toggle-btn active">☀️ Light</button>
+          <button class="toggle-btn">🌙 Dark</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Navbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1>All Projects</h1>
+            <p>Projects detail Information</p>
+          </div>
+          
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search">
+            </div>
+            
+            <button class="notification-btn">
+              <span class="bell-icon">🔔</span>
+            </button>
+            
+            <div class="user-profile">
+              <div class="avatar"></div>
+              <div class="user-info">
+                <strong>Mathias W.</strong>
+                <span>Store Manager</span>
+              </div>
+              <span class="dropdown-icon">▼</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Projects Container -->
+        <div class="projects-container">
+          <div class="table-toolbar" style="padding: 20px 0;">
+            <div class="table-search">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search Project">
+            </div>
+            <div class="toolbar-actions">
+              <button class="action-btn primary">
+                <span>⬇</span> Export
+              </button>
+              <a href="#filter-modal" class="action-btn" style="text-decoration: none;">
+                <span>⧼⧽</span> Filter
+              </a>
+            </div>
+          </div>
+
+          <div class="projects-grid">
+            <!-- Project Card 1 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill"></div>
+              </div>
+            </a>
+
+            <!-- Project Card 2 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 50%;"></div>
+              </div>
+            </a>
+
+            <!-- Project Card 3 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 20%;"></div>
+              </div>
+            </a>
+            
+            <!-- Project Card 4 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 70%;"></div>
+              </div>
+            </a>
+
+            <!-- Project Card 5 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 40%;"></div>
+              </div>
+            </a>
+
+            <!-- Project Card 6 -->
+            <a href="project_detail.html" class="project-card">
+              <div class="project-info">
+                <div class="project-info-row">
+                  <span class="project-label">Project:</span>
+                  <span class="project-value">BDU-DCF</span>
+                </div>
+                <div class="project-info-row">
+                  <span class="project-label">Client:</span>
+                  <span class="client-value">Bahir Dar Univeristy</span>
+                </div>
+              </div>
+              <div class="team-members-row">
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+                <div class="team-member">
+                  <div class="member-avatar">LA</div>
+                  <div class="member-details">
+                    <span class="member-name">Letera Tadele</span>
+                    <span class="member-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 90%;"></div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-bar" style="margin-top: 40px; padding: 0;">
+            <div class="showing-entries">
+              Showing 
+              <select>
+                <option>6</option>
+                <option>12</option>
+                <option>24</option>
+              </select>
+            </div>
+            
+            <div class="total-records">
+              Showing 1 to 6 out of 12 projects
+            </div>
+
+            <div class="pagination-controls">
+              <button class="page-btn">❮</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">❯</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Centered Filter Modal (Project Filter) -->
+    <div id="filter-modal" class="center-modal-overlay">
+      <div class="center-modal-panel filter-modal">
+        <div class="center-modal-header">
+          <h2>Filter</h2>
+        </div>
+        <div class="center-modal-body">
+          <div class="filter-section">
+            <div class="filter-section-title">Project</div>
+            <div class="form-group" style="margin-bottom: 15px;">
+              <select><option>Select Project</option></select>
+            </div>
+          </div>
+          
+          <div class="filter-section">
+            <div class="filter-section-title">Select store</div>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="store_type"> Office
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="store_type"> Work from Home
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="center-modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary">Apply</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

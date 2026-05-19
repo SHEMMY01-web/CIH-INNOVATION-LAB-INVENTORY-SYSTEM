@@ -1,0 +1,16 @@
+/* Styles specific to forgot password page, most are now handled by global.css */
+.back-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-link a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s;
+}
+
+.back-link a:hover {
+  color: var(--primary-color);
+}

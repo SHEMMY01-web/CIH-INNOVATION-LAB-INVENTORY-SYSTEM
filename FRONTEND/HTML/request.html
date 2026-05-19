@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/project.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
+    <title>Requests</title>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+          <h2>Inventory</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">⊞</span> Dashboard
+          </a>
+          <a href="items.html" class="nav-item">
+            <span class="nav-icon">👜</span> Items
+          </a>
+          <a href="tools.html" class="nav-item">
+            <span class="nav-icon">🔧</span> Tools
+          </a>
+          <a href="assets.html" class="nav-item">
+            <span class="nav-icon">📊</span> Assets
+          </a>
+          <a href="project.html" class="nav-item">
+            <span class="nav-icon">📁</span> Project
+          </a>
+          <a href="request.html" class="nav-item active">
+            <span class="nav-icon">➕</span> Requested & Returned
+          </a>
+          <a href="on_hand.html" class="nav-item">
+            <span class="nav-icon">📦</span> On hand
+          </a>
+          <a href="grn_report.html" class="nav-item">
+            <span class="nav-icon">📄</span> GRN Report
+          </a>
+        </nav>
+
+        <div class="theme-toggle">
+          <button class="toggle-btn active">☀️ Light</button>
+          <button class="toggle-btn">🌙 Dark</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Navbar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1>Requested</h1>
+            <p>Items detail Information</p>
+          </div>
+          
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search">
+            </div>
+            
+            <button class="notification-btn">
+              <span class="bell-icon">🔔</span>
+            </button>
+            
+            <div class="user-profile">
+              <div class="avatar"></div>
+              <div class="user-info">
+                <strong>Mathias W.</strong>
+                <span>Store Manager</span>
+              </div>
+              <span class="dropdown-icon">▼</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="tabs-container">
+          <!-- Hidden Radio Buttons for Pure CSS Tabs -->
+          <input type="radio" id="tab-items" name="request-tabs" class="tab-radio" checked>
+          <input type="radio" id="tab-assets" name="request-tabs" class="tab-radio">
+
+          <!-- Tab Headers -->
+          <div class="tabs-header">
+            <label for="tab-items" class="tab-label label-items">
+              <span class="nav-icon">👜</span> Requested
+            </label>
+            <label for="tab-assets" class="tab-label label-assets">
+              <span class="nav-icon">📄</span> Returned
+            </label>
+          </div>
+
+          <!-- Tab Content: Requested -->
+          <div class="tab-content" id="content-items">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+              <div class="table-toolbar">
+                <div class="table-search">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" placeholder="Search Item">
+                </div>
+                <div class="toolbar-actions">
+                  <button class="action-btn primary">
+                    <span>⬇</span> Export
+                  </button>
+                  <a href="#filter-modal" class="action-btn primary" style="text-decoration: none;">
+                    <span>⧼⧽</span> Filter
+                  </a>
+                </div>
+              </div>
+
+              <div class="data-table-wrapper" style="border: 1px solid var(--border-color); border-radius: 12px;">
+                <table class="list-table">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox"></th>
+                      <th>Item Name ↕</th>
+                      <th>Image</th>
+                      <th>Model</th>
+                      <th>Type</th>
+                      <th>Store</th>
+                      <th>Amount</th>
+                      <th>Project</th>
+                      <th>Requester</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Gas Kitting</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>22 House Store</td>
+                      <td>1 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>Co-7898</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>3 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>5 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="pagination-bar">
+                <div class="showing-entries">
+                  Showing 
+                  <select>
+                    <option>6</option>
+                    <option>10</option>
+                  </select>
+                </div>
+                <div class="total-records">Showing 1 to 6 out of 12 projects</div>
+                <div class="pagination-controls">
+                  <button class="page-btn">❮</button>
+                  <button class="page-btn active">1</button>
+                  <button class="page-btn">2</button>
+                  <button class="page-btn">❯</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Returned -->
+          <div class="tab-content" id="content-assets">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+              <div class="table-toolbar">
+                <div class="table-search">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" placeholder="Search Item">
+                </div>
+                <div class="toolbar-actions">
+                  <button class="action-btn primary">
+                    <span>⬇</span> Export
+                  </button>
+                  <a href="#filter-modal" class="action-btn primary" style="text-decoration: none;">
+                    <span>⧼⧽</span> Filter
+                  </a>
+                </div>
+              </div>
+
+              <div class="data-table-wrapper" style="border: 1px solid var(--border-color); border-radius: 12px;">
+                <table class="list-table">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox"></th>
+                      <th>Item Name ↕</th>
+                      <th>Image</th>
+                      <th>Model</th>
+                      <th>Type</th>
+                      <th>Store</th>
+                      <th>Amount</th>
+                      <th>Project</th>
+                      <th>Requester</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Gas Kitting</td>
+                      <td><div class="item-image"></div></td>
+                      <td>G-7893</td>
+                      <td>IE Project Items</td>
+                      <td>22 House Store</td>
+                      <td>1 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td>Condet</td>
+                      <td><div class="item-image"></div></td>
+                      <td>Co-7898</td>
+                      <td>IE Project Items</td>
+                      <td>HQ Main Store</td>
+                      <td>3 pcs</td>
+                      <td>HQ</td>
+                      <td>HQ</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="pagination-bar">
+                <div class="showing-entries">
+                  Showing 
+                  <select>
+                    <option>6</option>
+                    <option>10</option>
+                  </select>
+                </div>
+                <div class="total-records">Showing 1 to 6 out of 12 projects</div>
+                <div class="pagination-controls">
+                  <button class="page-btn">❮</button>
+                  <button class="page-btn active">1</button>
+                  <button class="page-btn">2</button>
+                  <button class="page-btn">❯</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Centered Filter Modal (Request Filter) -->
+    <div id="filter-modal" class="center-modal-overlay">
+      <div class="center-modal-panel filter-modal">
+        <div class="center-modal-header">
+          <h2>Filter Request</h2>
+        </div>
+        <div class="center-modal-body">
+          <div class="filter-section">
+            <div class="filter-section-title">Select Store</div>
+            <div class="form-group" style="margin-bottom: 15px;">
+              <select><option>Select Store</option></select>
+            </div>
+            <div class="form-checkboxes" style="margin-bottom: 0;">
+              <label class="checkbox-label">
+                <input type="checkbox" checked> HQ Main Store
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" checked> Tafo House Store
+              </label>
+            </div>
+          </div>
+          
+          <div class="filter-section">
+            <div class="filter-section-title">Select type</div>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="request_type"> Item
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="request_type"> Tool
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="request_type"> Assets
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="center-modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary">Apply</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
