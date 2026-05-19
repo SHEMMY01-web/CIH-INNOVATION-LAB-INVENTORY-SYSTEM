@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/login.css" />
-    <title>Login</title>
+    <title>Login — CIH Inventory</title>
   </head>
   <body>
     <section class="auth-section">
@@ -19,12 +19,12 @@
           <p>Please Login here</p>
         </div>
         <div>
-          <form action="dashboard.html">
+          <form id="login-form">
             <div class="form-group">
-              <input type="email" required placeholder="Email" />
+              <input type="email" id="login-email" required placeholder="Email" />
             </div>
             <div class="form-group">
-              <input type="password" required placeholder="Password" />
+              <input type="password" id="login-password" required placeholder="Password" />
             </div>
             <div class="forgot">
               <div class="remember">
@@ -33,14 +33,41 @@
               </div>
               <a href="forgot_password.html">Forgot Password?</a>
             </div>
-            <input type="submit" class="btn-primary login-btn" value="Login" />
+            <p id="login-message" style="color:#1a73e8; font-size:0.9rem; min-height:18px; margin: 0 0 8px 0;"></p>
+            <input type="submit" id="login-btn" class="btn-primary login-btn" value="Login" />
           </form>
         </div>
       </div>
     </section>
-  
+
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
+    <script>
+      const loginForm = document.getElementById('login-form');
+      const loginMessage = document.getElementById('login-message');
+      const loginBtn = document.getElementById('login-btn');
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        loginBtn.value = 'Logging in...';
+        loginBtn.disabled = true;
+        loginMessage.textContent = '';
+
+        const { error } = await sbClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          loginMessage.style.color = '#e53935';
+          loginMessage.textContent = error.message;
+          loginBtn.value = 'Login';
+          loginBtn.disabled = false;
+        }
+        // On success, onAuthStateChange in auth.js will fire SIGNED_IN
+        // and automatically redirect to dashboard.html
+      });
+    </script>
   </body>
 </html>
