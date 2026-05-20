@@ -168,13 +168,17 @@ function hookAddModalSubmit() {
         itemData.model = input?.value.trim() || '';
       } else if (label.includes('type')) {
         const customType = input?.value.trim() || '';
-        if (page === 'assets.html') {
+        const formTargetType = document.getElementById('add-project-item-form')?.getAttribute('data-target-type');
+        
+        if (page === 'assets.html' || formTargetType === 'asset') {
           itemData.type = `asset:${customType}`;
+        } else if (page === 'tools.html' || formTargetType === 'tool') {
+          itemData.type = `tool:${customType}`;
         } else {
           itemData.type = `item:${customType}`;
         }
-      } else if (label.includes('store') || label.includes('account')) {
-        itemData.store = select?.value || input?.value || '';
+      } else if (label.includes('measurement') || label.includes('unit')) {
+        itemData.store = input?.value || select?.value || '';
       } else if (label.includes('amount')) {
         itemData.amount = parseInt(input?.value) || 0;
       } else if (label.includes('project')) {
@@ -201,6 +205,45 @@ function hookAddModalSubmit() {
       addBtn.disabled = true;
       addBtn.textContent = 'Adding...';
 
+      // --- PROJECT ASSIGNMENT LOGIC ---
+      if (page === 'project_detail.html' && itemData.project) {
+        // Find general item with same name (where project is null or empty)
+        const { data: allItems } = await sbClient
+          .from('items')
+          .select('*')
+          .ilike('item_name', itemData.item_name);
+          
+        const generalItem = allItems?.find(i => !i.project || i.project.trim() === '');
+        
+        // Strict Validation: Item MUST exist in general catalog
+        if (!generalItem) {
+          alert(`Access Denied: '${itemData.item_name}' does not exist in the general inventory. Please add it to the main catalog before assigning it to a project.`);
+          addBtn.disabled = false;
+          addBtn.textContent = 'Save';
+          return;
+        }
+
+        // If it's an item (consumable, not asset or tool), subtract from general catalog
+        if (!itemData.type.startsWith('asset:') && !itemData.type.startsWith('tool:')) {
+          if (itemData.amount > generalItem.amount) {
+            alert(`Access Denied: Insufficient stock. You want to assign ${itemData.amount}, but only ${generalItem.amount} are available in the general inventory.`);
+            addBtn.disabled = false;
+            addBtn.textContent = 'Save';
+            return;
+          }
+
+          // Subtract the amount, floor at 0
+          const newAmount = Math.max(0, generalItem.amount - itemData.amount);
+          const { error: updErr } = await sbClient
+            .from('items')
+            .update({ amount: newAmount })
+            .eq('id', generalItem.id);
+            
+          if (updErr) console.error("Error subtracting amount from general inventory:", updErr);
+        }
+      }
+      // --------------------------------
+
       const { error } = await sbClient
         .from('items')
         .insert([itemData]);
@@ -221,12 +264,9 @@ function hookAddModalSubmit() {
       // Clear cache to ensure new data is loaded
       if (typeof window.invalidateCache === 'function') window.invalidateCache();
 
-      // Refresh catalog table
-      if (typeof fetchInventoryInitial === 'function') {
-        await fetchInventoryInitial();
-      } else if (typeof renderProjectDetail === 'function') {
-        await renderProjectDetail();
-      }
+      // Force a full reload to reflect changes automatically
+      window.location.reload();
+      
     } catch (err) {
       console.error(err);
       alert('Error adding item: ' + err.message);
@@ -557,22 +597,67 @@ function hookFileInputChanges() {
 }
 
 /**
- * Fetch all available catalog items to populate the transaction modal selection list
+ * Fetch available items for the transaction modal, filtered by transaction type.
+ * - Checkout: shows general inventory items only (not project-specific)
+ * - Return: shows only items that were previously borrowed (have a checkout transaction)
  */
-async function populateTransactionItems() {
+async function populateTransactionItems(txType) {
   const select = document.getElementById('tx-item-id');
   if (!select) return;
 
-  const { data: unsortedData, error } = await window.fetchFromDB('items');
-  const data = unsortedData ? unsortedData.slice().sort((a, b) => (a.item_name || '').localeCompare(b.item_name || '')) : [];
+  select.innerHTML = '<option value="">Loading...</option>';
 
-  if (error) {
-    console.error('Error fetching items for transaction:', error.message);
-    return;
+  if (!txType) {
+    const txTypeEl = document.getElementById('tx-type');
+    txType = txTypeEl ? txTypeEl.value : 'checkout';
   }
 
-  select.innerHTML = '<option value="">Choose Item...</option>' + 
-    data.map(i => `<option value="${i.id}">${i.item_name} (Stock: ${i.amount} pcs)</option>`).join('');
+  if (txType === 'return') {
+    // For returns: only show items that have been checked out
+    const { data: txData, error: txError } = await window.fetchFromDB('transactions');
+    if (txError) {
+      console.error('Error fetching transactions for return modal:', txError.message);
+      select.innerHTML = '<option value="">Error loading items</option>';
+      return;
+    }
+
+    // Get unique items that were checked out (i.e. they were borrowed)
+    const checkedOutMap = new Map();
+    (txData || [])
+      .filter(t => t.transaction_type === 'checkout' || t.transaction_type === 'request')
+      .forEach(t => {
+        if (t.item_id && t.items && !checkedOutMap.has(t.item_id)) {
+          checkedOutMap.set(t.item_id, t.items);
+        }
+      });
+
+    if (checkedOutMap.size === 0) {
+      select.innerHTML = '<option value="">No borrowed items to return</option>';
+      return;
+    }
+
+    select.innerHTML = '<option value="">Choose Borrowed Item to Return...</option>' +
+      Array.from(checkedOutMap.entries())
+        .sort((a, b) => (a[1].item_name || '').localeCompare(b[1].item_name || ''))
+        .map(([id, item]) => `<option value="${id}">${item.item_name} (${item.store || 'pcs'})</option>`)
+        .join('');
+
+  } else {
+    // For checkout: show general inventory items only
+    const { data: unsortedData, error } = await window.fetchFromDB('items');
+    const data = unsortedData ? unsortedData.slice().sort((a, b) => (a.item_name || '').localeCompare(b.item_name || '')) : [];
+
+    if (error) {
+      console.error('Error fetching items for transaction:', error.message);
+      select.innerHTML = '<option value="">Error loading items</option>';
+      return;
+    }
+
+    const generalData = data.filter(i => !i.project || i.project.trim() === '');
+
+    select.innerHTML = '<option value="">Choose Item...</option>' + 
+      generalData.map(i => `<option value="${i.id}">${i.item_name} (Stock: ${i.amount} ${i.store || 'pcs'})</option>`).join('');
+  }
 }
 
 /**
@@ -687,12 +772,12 @@ function hookTransactionSubmit() {
       const display = document.getElementById('tx-image-display');
       if (display) display.innerHTML = `Choose file <span><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px;">attach_file</span></span>`;
 
-      // Refresh listings
-      if (typeof window.invalidateCache === 'function') window.invalidateCache();
-      if (typeof fetchInventoryInitial === 'function') {
-        await fetchInventoryInitial();
+      // Refresh listings — invalidate both items & transactions cache then reload
+      if (typeof window.invalidateCache === 'function') {
+        window.invalidateCache('transactions');
+        window.invalidateCache('items');
       }
-      populateTransactionItems();
+      window.location.reload();
 
     } catch (err) {
       console.error(err);
@@ -761,8 +846,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const page = window.location.pathname.split('/').pop();
   if (page === 'request.html') {
-    populateTransactionItems();
+    populateTransactionItems('checkout'); // default to checkout items on load
     hookTransactionSubmit();
+
+    // Re-populate item dropdown when transaction type changes
+    const txTypeEl = document.getElementById('tx-type');
+    if (txTypeEl) {
+      txTypeEl.addEventListener('change', (e) => {
+        populateTransactionItems(e.target.value);
+      });
+    }
   }
 
   // Event Delegation for dynamic Edit button triggers

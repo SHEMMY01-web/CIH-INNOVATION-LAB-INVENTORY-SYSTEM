@@ -79,7 +79,7 @@
           </div>
         </header>
 
-        <div class="project-subtitle" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+        <div class="project-subtitle" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding: 0 40px;">
           <div>Project: <span>BDU SIMS</span></div>
           <a href="project.html" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 0.9rem; border: 1px solid var(--border-color); background: var(--card-background); color: var(--text-color); transition: background 0.2s;">
             ← Back to Projects
@@ -103,7 +103,7 @@
 
           <!-- Tab Content: Items -->
           <div class="tab-content" id="content-items">
-            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 20px;">
               <div class="table-toolbar" style="justify-content: space-between;">
                 <div class="toolbar-actions">
                   <a href="#add-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
@@ -127,7 +127,6 @@
                       <th>Image</th>
                       <th>Model</th>
                       <th>Type</th>
-                      <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
                       <th>Availability</th>
@@ -159,7 +158,7 @@
 
           <!-- Tab Content: Assets -->
           <div class="tab-content" id="content-assets">
-            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 20px;">
               <div class="table-toolbar" style="justify-content: space-between;">
                 <div class="toolbar-actions">
                   <a href="#add-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
@@ -183,7 +182,6 @@
                       <th>Image</th>
                       <th>Model</th>
                       <th>Type</th>
-                      <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
                       <th>Availability</th>
@@ -247,6 +245,15 @@
             </div>
 
             <div class="form-group">
+              <label>Measurement <span class="required">*</span></label>
+              <input type="text" list="measurement-options" placeholder="e.g. pcs, meters" required>
+              <datalist id="measurement-options">
+                <option value="pcs">
+                <option value="meters">
+              </datalist>
+            </div>
+
+            <div class="form-group">
               <label>Status <span class="required">*</span></label>
               <select>
                 <option value="available">Available</option>
@@ -280,6 +287,7 @@
   
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/FRONTEND/JS/env.js"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
     <script src="/FRONTEND/JS/app.js"></script>
     <script src="/FRONTEND/JS/search.js"></script>

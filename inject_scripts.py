@@ -19,7 +19,7 @@ auth_scripts = """
     <script src="/FRONTEND/JS/auth.js"></script>
   </body>"""
 
-auth_pages = ['login.html', 'enter_otp.html', 'forgot_password.html', 'login_successful.html']
+auth_pages = ['index.html', 'enter_otp.html', 'forgot_password.html', 'login_successful.html']
 
 for file in files:
     with open(file, 'r') as f:

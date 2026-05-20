@@ -18,16 +18,19 @@ async function loadDashboard() {
   if (error) { console.error(error); return; }
 
   // ── Compute stats using dynamic namespace prefix rules ─────────────────────
-  const assets = allItems.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:'));
-  const tools  = allItems.filter(i => (i.type ?? '').toLowerCase().startsWith('tool:'));
-  const items  = allItems.filter(i => {
+  // Filter out any items that are assigned to a project (project is not empty/null)
+  const generalItems = allItems.filter(i => !i.project || i.project.trim() === '');
+  
+  const assets = generalItems.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:'));
+  const tools  = generalItems.filter(i => (i.type ?? '').toLowerCase().startsWith('tool:'));
+  const items  = generalItems.filter(i => {
     const t = (i.type ?? '').toLowerCase();
     return !t.startsWith('asset:') && !t.startsWith('tool:');
   });
 
-  const totalStock   = allItems.reduce((s, r) => s + (r.amount ?? 0), 0);
-  const uniqueStores = new Set(allItems.map(i => i.store).filter(Boolean)).size;
-  const uniqueTypes  = new Set(allItems.map(i => {
+  const totalStock   = generalItems.reduce((s, r) => s + (r.amount ?? 0), 0);
+  const uniqueStores = new Set(generalItems.map(i => i.store).filter(Boolean)).size;
+  const uniqueTypes  = new Set(generalItems.map(i => {
     const t = i.type ?? '';
     return t.includes(':') ? t.split(':')[1] : t;
   }).filter(Boolean)).size;

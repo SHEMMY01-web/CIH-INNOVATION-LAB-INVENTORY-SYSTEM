@@ -1,12 +1,19 @@
 // js/auth.js
 
-const SUPABASE_URL = 'https://kkltrgjszsuozlrnjrnb.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_XhJwMl5PFjt7uEoKqlMwxw_pXJ0vcur';
+// Credentials are loaded from env.js (git-ignored). See env.example.js for setup.
+const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase credentials. Please create FRONTEND/JS/env.js from env.example.js.');
+}
+
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const path = window.location.pathname;
 const isLoginPage =
-  path.includes('login.html') ||
+  path.includes('index.html') ||
+  path.endsWith('/') || // Handle root path as login
   path.includes('enter_otp.html') ||
   path.includes('forgot_password.html') ||
   path.includes('login_successful.html');
@@ -37,7 +44,7 @@ sbClient.auth.onAuthStateChange((event, session) => {
       }
     } else {
       if (!isLoginPage) {
-        window.location.replace('login.html');
+        window.location.replace('index.html');
       }
     }
   }
@@ -47,7 +54,7 @@ sbClient.auth.onAuthStateChange((event, session) => {
   }
 
   if (event === 'SIGNED_OUT' && !isLoginPage) {
-    window.location.replace('login.html');
+    window.location.replace('index.html');
   }
 });
 

@@ -149,7 +149,7 @@ function setupTransactionTabPagination(tabSelector, transactionsList) {
             </td>
             <td>${tx.items?.model ?? '—'}</td>
             <td>${displayType || '—'}</td>
-            <td>${tx.amount ?? 0} pcs</td>
+            <td>${tx.amount ?? 0} ${tx.items?.store || 'pcs'}</td>
             <td>${tx.project ?? '—'}</td>
             <td>${tx.requester ?? '—'}</td>
           </tr>`;
@@ -244,28 +244,30 @@ async function fetchInventoryInitial() {
     return;
   }
 
-  // Filter locally based on custom prefix classification rules
+  // Filter locally based on custom prefix classification rules and hide project items
   let filteredData = data;
   if (page === 'assets.html') {
-    filteredData = data.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:'));
+    filteredData = data.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:') && (!i.project || i.project.trim() === ''));
   } else if (page === 'items.html') {
     filteredData = data.filter(i => {
       const t = (i.type ?? '').toLowerCase();
-      return !t.startsWith('asset:') && !t.startsWith('tool:');
+      return !t.startsWith('asset:') && !t.startsWith('tool:') && (!i.project || i.project.trim() === '');
     });
   }
 
   localInventoryCache = filteredData;
   
-  // Set entries count based on select dropdown
-  const limitSelect = document.querySelector('.showing-entries select');
-  if (limitSelect) {
-    itemsPerPage = parseInt(limitSelect.value) || 10;
-    limitSelect.addEventListener('change', (e) => {
-      itemsPerPage = parseInt(e.target.value) || 10;
-      currentPage = 1;
-      renderPaginatedTable();
-    });
+  // Set entries count based on select dropdown (Skip for project detail, handled in project.js)
+  if (page !== 'project_detail.html') {
+    const limitSelect = document.querySelector('.showing-entries select');
+    if (limitSelect) {
+      itemsPerPage = parseInt(limitSelect.value) || 10;
+      limitSelect.addEventListener('change', (e) => {
+        itemsPerPage = parseInt(e.target.value) || 10;
+        currentPage = 1;
+        renderPaginatedTable();
+      });
+    }
   }
 
   window.updateInventoryDataset(localInventoryCache);
@@ -318,9 +320,10 @@ function renderInventoryTable(itemsArray) {
           </td>
           <td>${item.model ?? '—'}</td>
           <td>${displayType || '—'}</td>
-          <td>${item.amount ?? 0} pcs</td>
+          <td>${item.amount ?? 0} ${item.store || 'pcs'}</td>
           <td>${item.status ?? '—'}</td>
-          <td>
+          <td style="white-space:nowrap;">
+            <button class="view-img-btn" data-img="${item.image_url || ''}" data-name="${item.item_name ?? ''}" style="background:#0ea5e9; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; margin-right:6px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">image</span> View</button>
             <button class="edit-row-btn" data-id="${item.id}" style="background:#4f46e5; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Edit</button>
           </td>
         </tr>`;
@@ -336,10 +339,11 @@ function renderInventoryTable(itemsArray) {
         <td>${item.model ?? '—'}</td>
         <td>${displayType || '—'}</td>
         <td>${item.store ?? '—'}</td>
-        <td>${item.amount ?? 0} pcs</td>
+        <td>${item.amount ?? 0} ${item.store || 'pcs'}</td>
         <td>${item.project ?? '—'}</td>
         <td>${item.status ?? '—'}</td>
-        <td>
+        <td style="white-space:nowrap;">
+          <button class="view-img-btn" data-img="${item.image_url || ''}" data-name="${item.item_name ?? ''}" style="background:#0ea5e9; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; margin-right:6px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">image</span> View</button>
           <button class="edit-row-btn" data-id="${item.id}" style="background:#4f46e5; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Edit</button>
         </td>
       </tr>`;
@@ -354,5 +358,68 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
   if (document.querySelector('.list-table')) {
     fetchInventoryInitial();
+  }
+
+  // ── Inject image lightbox modal once ────────────────────────────────────
+  if (!document.getElementById('img-lightbox')) {
+    const lb = document.createElement('div');
+    lb.id = 'img-lightbox';
+    lb.style.cssText = `
+      display:none; position:fixed; inset:0; z-index:9999;
+      background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+      justify-content:center; align-items:center; flex-direction:column; gap:16px;
+    `;
+    lb.innerHTML = `
+      <div style="position:relative; max-width:90vw; max-height:85vh; background:var(--card-bg,#fff);
+                  border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+        <div style="display:flex; align-items:center; justify-content:space-between;
+                    padding:14px 20px; border-bottom:1px solid var(--border-color,#eee);">
+          <span id="lb-title" style="font-weight:600; font-size:1rem; color:var(--text-color,#111);">—</span>
+          <button id="lb-close" style="background:none; border:none; cursor:pointer; font-size:22px;
+                                       color:var(--text-color,#555); line-height:1;">&times;</button>
+        </div>
+        <div style="padding:20px; display:flex; justify-content:center; align-items:center; min-height:200px;">
+          <img id="lb-img" src="" alt="Item Image"
+               style="max-width:75vw; max-height:70vh; object-fit:contain; border-radius:8px;
+                      display:block;">
+          <div id="lb-no-img" style="display:none; text-align:center; padding:40px; color:#aaa;">
+            <span class="material-symbols-outlined" style="font-size:64px; color:#ddd;">broken_image</span>
+            <p style="margin-top:8px; font-size:0.9rem;">No image uploaded for this item.</p>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(lb);
+
+    // Open lightbox
+    document.body.addEventListener('click', (e) => {
+      const btn = e.target.closest('.view-img-btn');
+      if (!btn) return;
+
+      const imgUrl = btn.dataset.img;
+      const name   = btn.dataset.name || 'Item';
+
+      document.getElementById('lb-title').textContent = name;
+      const imgEl   = document.getElementById('lb-img');
+      const noImgEl = document.getElementById('lb-no-img');
+
+      if (imgUrl) {
+        imgEl.src = imgUrl;
+        imgEl.style.display = 'block';
+        noImgEl.style.display = 'none';
+      } else {
+        imgEl.style.display = 'none';
+        noImgEl.style.display = 'block';
+      }
+
+      lb.style.display = 'flex';
+    });
+
+    // Close lightbox on × or backdrop click
+    document.getElementById('lb-close').addEventListener('click', () => {
+      lb.style.display = 'none';
+    });
+    lb.addEventListener('click', (e) => {
+      if (e.target === lb) lb.style.display = 'none';
+    });
   }
 });

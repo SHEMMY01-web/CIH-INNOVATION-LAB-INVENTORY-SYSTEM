@@ -13,7 +13,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else if (page === 'project_detail.html') {
     await renderProjectDetail();
     
-    // Dynamically pre-fill project detail fields and set classification type
+    // Unconditionally pre-fill and lock project field
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectName = urlParams.get('name') || 'BDU-DCF';
+    const projInput = document.getElementById('add-item-project');
+    if (projInput) {
+      projInput.value = projectName;
+      projInput.readOnly = true;
+      projInput.style.background = 'var(--border-color)';
+      projInput.style.cursor = 'not-allowed';
+      projInput.style.opacity = '0.7';
+    }
+
+    // Dynamically update modal labels and set classification type
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('a[href="#add-modal"]');
       if (btn) {
@@ -24,16 +36,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (header) {
           header.textContent = isAsset ? 'Add New Asset to Project' : 'Add New Item to Project';
         }
-
-        // 2. Pre-fill and lock project field
-        const urlParams = new URLSearchParams(window.location.search);
-        const projectName = urlParams.get('name') || 'BDU-DCF';
-        const projInput = document.getElementById('add-item-project');
-        if (projInput) {
-          projInput.value = projectName;
-          projInput.readOnly = true;
-          projInput.style.background = 'var(--border-color)';
-          projInput.style.cursor = 'not-allowed';
+        
+        // Update the first label
+        const nameLabel = document.querySelector('#add-project-item-form .form-group:first-child label');
+        if (nameLabel) {
+          nameLabel.innerHTML = (isAsset ? 'Asset Name' : 'Item Name') + ' <span class="required">*</span>';
         }
 
         // 3. Tag form type classification
@@ -317,11 +324,42 @@ window.updateInventoryDataset = function(newDataset) {
     return t.startsWith('asset:');
   });
 
-  // Render Items table
-  const itemsTbody = document.querySelector('#content-items .list-table tbody');
-  if (itemsTbody) {
-    itemsTbody.innerHTML = items.length
-      ? items.map(item => {
+  // Helper to paginate a specific tab
+  function setupTabPagination(tabSelector, dataList, isAsset) {
+    const tabContainer = document.querySelector(tabSelector);
+    if (!tabContainer) return;
+
+    let tPage = 1;
+    let tLimit = 6;
+    
+    const limitSelect = tabContainer.querySelector('.showing-entries select');
+    if (limitSelect) {
+      tLimit = parseInt(limitSelect.value) || 6;
+      const newSelect = limitSelect.cloneNode(true);
+      limitSelect.replaceWith(newSelect);
+      newSelect.addEventListener('change', (e) => {
+        tLimit = parseInt(e.target.value) || 6;
+        tPage = 1;
+        render();
+      });
+    }
+
+    function render() {
+      const tbody = tabContainer.querySelector('.list-table tbody');
+      if (!tbody) return;
+
+      const totalRecords = dataList.length;
+      const totalPages = Math.ceil(totalRecords / tLimit) || 1;
+      if (tPage > totalPages) tPage = totalPages;
+
+      const startIndex = (tPage - 1) * tLimit;
+      const endIndex = Math.min(startIndex + tLimit, totalRecords);
+      const pageData = dataList.slice(startIndex, endIndex);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa">No ${isAsset ? 'assets' : 'items'} found.</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(item => {
           const rawType = item.type ?? '';
           const displayType = rawType.includes(':') ? rawType.split(':')[1] : rawType;
           return `
@@ -331,42 +369,41 @@ window.updateInventoryDataset = function(newDataset) {
               <td><div class="item-image" style="${item.image_url ? `background-image:url('${item.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
               <td>${item.model ?? '—'}</td>
               <td>${displayType || '—'}</td>
-              <td>${item.store || '—'}</td>
-              <td>${item.amount ?? 0} pcs</td>
+              <td>${item.amount ?? 0} ${item.store || 'pcs'}</td>
               <td>${item.project ?? '—'}</td>
               <td>${item.status ?? '—'}</td>
             </tr>`;
-        }).join('')
-      : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No items found.</td></tr>`;
+        }).join('');
+      }
+
+      const totalText = tabContainer.querySelector('.total-records');
+      if (totalText) {
+        const startText = totalRecords === 0 ? 0 : startIndex + 1;
+        totalText.textContent = `Showing ${startText} to ${endIndex} of ${totalRecords} records`;
+      }
+
+      const pageControls = tabContainer.querySelector('.pagination-controls');
+      if (pageControls) {
+        let html = `<button class="page-btn prev-btn" ${tPage === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>`;
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<button class="page-btn num-btn ${i === tPage ? 'active' : ''}">${i}</button>`;
+        }
+        html += `<button class="page-btn next-btn" ${tPage === totalPages ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>`;
+        pageControls.innerHTML = html;
+
+        pageControls.querySelector('.prev-btn')?.addEventListener('click', () => { if (tPage > 1) { tPage--; render(); } });
+        pageControls.querySelector('.next-btn')?.addEventListener('click', () => { if (tPage < totalPages) { tPage++; render(); } });
+        pageControls.querySelectorAll('.num-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => { tPage = parseInt(e.target.textContent); render(); });
+        });
+      }
+    }
+
+    render();
   }
 
-  // Render Assets table
-  const assetsTbody = document.querySelector('#content-assets .list-table tbody');
-  if (assetsTbody) {
-    assetsTbody.innerHTML = assets.length
-      ? assets.map(asset => {
-          const rawType = asset.type ?? '';
-          const displayType = rawType.includes(':') ? rawType.split(':')[1] : rawType;
-          return `
-            <tr>
-              <td><input type="checkbox"></td>
-              <td class="searchable-name">${asset.item_name ?? '—'}</td>
-              <td><div class="item-image" style="${asset.image_url ? `background-image:url('${asset.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
-              <td>${asset.model ?? '—'}</td>
-              <td>${displayType || '—'}</td>
-              <td>${asset.store || '—'}</td>
-              <td>${asset.amount ?? 0} pcs</td>
-              <td>${asset.project ?? '—'}</td>
-              <td>${asset.status ?? '—'}</td>
-            </tr>`;
-        }).join('')
-      : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No assets found.</td></tr>`;
-  }
-
-  // Update pagination total text
-  document.querySelectorAll('.total-records').forEach(el => {
-    el.textContent = `Showing 1 to ${newDataset.length} of ${localInventoryCache.length} records`;
-  });
+  setupTabPagination('#content-items', items, false);
+  setupTabPagination('#content-assets', assets, true);
 };
 
 async function renderProjectDetail() {
@@ -392,26 +429,34 @@ async function renderProjectDetail() {
       const statusBadge = document.getElementById('project-status-badge');
 
       const badgeHtml = `
-        <select id="project-status-select" style="
-          margin-left:12px;
-          background: ${isCompleted ? '#d1fae5' : '#dbeafe'};
-          color: ${isCompleted ? '#065f46' : '#1e40af'};
-          font-size: 0.8rem;
-          font-weight: 600;
-          padding: 4px 24px 4px 12px;
-          border-radius: 999px;
-          border: 1px solid ${isCompleted ? '#34d399' : '#93c5fd'};
-          cursor: pointer;
-          appearance: none;
-          background-image: url('data:image/svg+xml;utf8,<svg fill=%22${isCompleted ? '%23065f46' : '%231e40af'}%22 height=%2224%22 viewBox=%220 0 24 24%22 width=%2224%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M7 10l5 5 5-5z%22/></svg>');
-          background-repeat: no-repeat;
-          background-position: right 4px center;
-          background-size: 16px;
-          outline: none;
-        ">
-          <option value="active" ${!isCompleted ? 'selected' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle; margin-right:2px;">bolt</span> Active</option>
-          <option value="completed" ${isCompleted ? 'selected' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle; margin-right:2px;">check_circle</span> Completed</option>
-        </select>
+        <div class="custom-status-dropdown" style="position:relative; display:inline-block; margin-left:12px;">
+          <button id="project-status-btn" style="
+            display:flex; align-items:center; gap:4px;
+            background: ${isCompleted ? '#d1fae5' : '#dbeafe'};
+            color: ${isCompleted ? '#065f46' : '#1e40af'};
+            font-size: 0.8rem; font-weight: 600;
+            padding: 4px 12px; border-radius: 999px;
+            border: 1px solid ${isCompleted ? '#34d399' : '#93c5fd'};
+            cursor: pointer; outline: none; font-family: inherit;
+          ">
+            <span class="material-symbols-outlined" style="font-size:16px;">${isCompleted ? 'check_circle' : 'bolt'}</span>
+            ${isCompleted ? 'Completed' : 'Active'}
+            <span class="material-symbols-outlined" style="font-size:18px;">arrow_drop_down</span>
+          </button>
+          <div id="project-status-menu" style="
+            display:none; position:absolute; top:100%; left:0; margin-top:6px;
+            background:var(--card-background); border:1px solid var(--border-color);
+            border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+            z-index:100; min-width:130px; overflow:hidden;
+          ">
+            <div class="status-option" data-value="active" style="padding:10px 12px; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#1e40af; border-bottom:1px solid var(--border-color); transition:background 0.2s;" onmouseover="this.style.background='var(--border-color)'" onmouseout="this.style.background='transparent'">
+              <span class="material-symbols-outlined" style="font-size:18px;">bolt</span> Active
+            </div>
+            <div class="status-option" data-value="completed" style="padding:10px 12px; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#065f46; transition:background 0.2s;" onmouseover="this.style.background='var(--border-color)'" onmouseout="this.style.background='transparent'">
+              <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span> Completed
+            </div>
+          </div>
+        </div>
       `;
 
       if (statusBadge) {
@@ -424,28 +469,53 @@ async function renderProjectDetail() {
       }
 
       setTimeout(() => {
-        const selectEl = document.getElementById('project-status-select');
-        if (selectEl) {
-          selectEl.addEventListener('change', async (e) => {
-            const newStatus = e.target.value;
-            selectEl.disabled = true;
-            try {
-              const { error } = await sbClient
-                .from('projects')
-                .update({ status: newStatus })
-                .eq('name', projectName);
-                
-              if (error) throw error;
-              
-              // Re-render to update styling
-              await renderProjectDetail();
-            } catch (err) {
-              console.error(err);
-              alert('Error updating project status: ' + err.message);
-              selectEl.value = isCompleted ? 'completed' : 'active';
-            } finally {
-              selectEl.disabled = false;
+        const btn = document.getElementById('project-status-btn');
+        const menu = document.getElementById('project-status-menu');
+        
+        if (btn && menu) {
+          // Toggle menu
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+          });
+
+          // Hide when clicking outside
+          document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-status-dropdown')) {
+              menu.style.display = 'none';
             }
+          });
+
+          // Handle selection
+          const options = menu.querySelectorAll('.status-option');
+          options.forEach(opt => {
+            opt.addEventListener('click', async (e) => {
+              const newStatus = opt.getAttribute('data-value');
+              menu.style.display = 'none';
+              
+              if ((isCompleted && newStatus === 'completed') || (!isCompleted && newStatus === 'active')) {
+                return; // No change
+              }
+
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              try {
+                const { error } = await sbClient
+                  .from('projects')
+                  .update({ status: newStatus })
+                  .eq('name', projectName);
+                  
+                if (error) throw error;
+                
+                // Re-render to update styling
+                await renderProjectDetail();
+              } catch (err) {
+                console.error(err);
+                alert('Error updating project status: ' + err.message);
+                btn.disabled = false;
+                btn.style.opacity = '1';
+              }
+            });
           });
         }
       }, 0);

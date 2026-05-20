@@ -1,0 +1,19 @@
+# ==============================
+# Environment / Secrets
+# ==============================
+# Contains live Supabase URL and anon key — NEVER commit this
+FRONTEND/JS/env.js
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node (if ever added)
+node_modules/

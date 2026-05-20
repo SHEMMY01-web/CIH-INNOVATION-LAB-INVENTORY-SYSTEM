@@ -49,17 +49,27 @@
 
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/FRONTEND/JS/env.js"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
     <script src="/FRONTEND/JS/app.js"></script>
     <script>
       const loginForm = document.getElementById('login-form');
       const loginMessage = document.getElementById('login-message');
       const loginBtn = document.getElementById('login-btn');
+      const rememberMeCheckbox = document.getElementById('remember_me');
+
+      // Restore saved email if "Remember Me" was previously checked
+      const savedEmail = localStorage.getItem('rememberedEmail');
+      if (savedEmail) {
+        document.getElementById('login-email').value = savedEmail;
+        rememberMeCheckbox.checked = true;
+      }
 
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
+        const rememberMe = rememberMeCheckbox.checked;
 
         loginBtn.value = 'Logging in...';
         loginBtn.disabled = true;
@@ -72,9 +82,19 @@
           loginMessage.textContent = error.message;
           loginBtn.value = 'Login';
           loginBtn.disabled = false;
+        } else {
+          // Handle Remember Me
+          if (rememberMe) {
+            localStorage.setItem('rememberedEmail', email);
+            localStorage.setItem('rememberMe', 'true');
+          } else {
+            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberMe');
+            // Mark this as a session-only login (no persistence)
+            sessionStorage.setItem('sessionOnlyLogin', 'true');
+          }
+          // onAuthStateChange in auth.js will handle redirect to dashboard
         }
-        // On success, onAuthStateChange in auth.js will fire SIGNED_IN
-        // and automatically redirect to dashboard.html
       });
     </script>
   </body>
