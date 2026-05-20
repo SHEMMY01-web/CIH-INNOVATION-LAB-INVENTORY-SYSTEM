@@ -1,208 +1,214 @@
 <!doctype html>
 <html lang="en">
-  <head>  <script>
+
+<head>
+  <script>
     // Apply saved theme before render to prevent flash
-    (function() {
+    (function () {
       var t = localStorage.getItem('app-theme') || 'light';
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/dashboard.css" />
-    <title>Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+  <link rel="stylesheet" href="/FRONTEND/CSS/dashboard.css" />
+  <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
-  <body>
-    <div class="dashboard-layout">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
-          <h2>Inventory</h2>
+
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+        <h2>Inventory</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item active">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
+        </a>
+        <a href="items.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
+        </a>
+        <a href="assets.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
+        </a>
+        <a href="project.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
+        </a>
+        <a href="request.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested &
+          Returned
+        </a>
+        <a href="grn_report.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
+        </a>
+      </nav>
+
+      <div class="theme-toggle">
+        <button class="toggle-btn active"><span class="material-symbols-outlined"
+            style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+        <button class="toggle-btn"><span class="material-symbols-outlined"
+            style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="user-greeting-name">Hello 👋</h1>
+          <p class="user-greeting-time">—</p>
         </div>
-        
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item active">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
-          </a>
-          <a href="items.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
-          </a>
-          <a href="assets.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
-          </a>
-          <a href="project.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
-          </a>
-          <a href="request.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
-          </a>
-          <a href="grn_report.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
-          </a>
-        </nav>
 
-        <div class="theme-toggle">
-          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
-          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
+        <div class="topbar-right">
+          <div class="search-box">
+            <span class="material-symbols-outlined search-icon"
+              style="vertical-align: middle; font-size: 20px;">search</span>
+            <input type="text" placeholder="Search">
+          </div>
+
+
+
+          <div class="user-profile">
+            <div class="avatar"></div>
+            <div class="user-info">
+              <strong class="user-info-name">—</strong>
+              <span class="user-info-role">—</span>
+            </div>
+          </div>
         </div>
-      </aside>
+      </header>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Top Navbar -->
-        <header class="topbar">
-          <div class="topbar-left">
-            <h1 class="user-greeting-name">Hello 👋</h1>
-            <p class="user-greeting-time">—</p>
-          </div>
-          
-          <div class="topbar-right">
-            <div class="search-box">
-              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
-              <input type="text" placeholder="Search">
-            </div>
-            
-            <button class="notification-btn">
-              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
-            </button>
-            
-            <div class="user-profile">
-              <div class="avatar"></div>
-              <div class="user-info">
-                <strong class="user-info-name">—</strong>
-                <span class="user-info-role">—</span>
-              </div>
-            </div>
-          </div>
-        </header>
+      <!-- Dashboard Content -->
+      <div class="dashboard-grid">
 
-        <!-- Dashboard Content -->
-        <div class="dashboard-grid">
-          
-          <!-- Tables Row -->
-          <div class="tables-row">
-            <!-- Item List -->
-            <div class="card table-card">
-              <div class="card-header">
-                <h3>Item List</h3>
-                <a href="items.html" class="view-all">View All</a>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Image</th>
-                    <th>Store</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  </tbody>
-              </table>
+        <!-- Tables Row -->
+        <div class="tables-row">
+          <!-- Item List -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h3>Item List</h3>
+              <a href="items.html" class="view-all">View All</a>
             </div>
-
-            <!-- Asset List -->
-            <div class="card table-card">
-              <div class="card-header">
-                <h3>Asset List</h3>
-                <a href="assets.html" class="view-all">View All</a>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Asset Name</th>
-                    <th>Image</th>
-                    <th>Store</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  </tbody>
-              </table>
-            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Image</th>
+                  <th>Availability</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
           </div>
 
-          <!-- Summary Cards Row -->
-          <div class="summary-row">
-            <div class="card summary-card">
-              <h3>Item Summary</h3>
-              <div class="summary-stats">
-                <div class="stat">
-                  <div class="icon orange"><span class="material-symbols-outlined">inventory_2</span></div>
-                  <h4 id="stat-qty-in-hand">—</h4>
-                  <p>Quantity in Hand</p>
-                </div>
-                <div class="stat">
-                  <div class="icon purple"><span class="material-symbols-outlined">timer</span></div>
-                  <h4 id="stat-to-be-received">—</h4>
-                  <p>To be received</p>
-                </div>
-              </div>
+          <!-- Asset List -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h3>Asset List</h3>
+              <a href="assets.html" class="view-all">View All</a>
             </div>
-
-            <div class="card summary-card">
-              <h3>Product Summary</h3>
-              <div class="summary-stats">
-                <div class="stat">
-                  <div class="icon blue"><span class="material-symbols-outlined">person</span></div>
-                  <h4 id="stat-suppliers">—</h4>
-                  <p>Number of Suppliers</p>
-                </div>
-                <div class="stat">
-                  <div class="icon purple"><span class="material-symbols-outlined">category</span></div>
-                  <h4 id="stat-categories">—</h4>
-                  <p>Number of Categories</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card summary-card">
-              <h3>Total items</h3>
-              <div class="summary-stats">
-                <div class="stat">
-                  <div class="icon light-blue"><span class="material-symbols-outlined">inventory_2</span></div>
-                  <h4 id="stat-total-items">—</h4>
-                  <p>Total Number of Items</p>
-                </div>
-                <div class="stat">
-                  <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
-                  <h4 id="stat-items-pending">—</h4>
-                  <p>To be received</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card summary-card">
-              <h3>Total assets</h3>
-              <div class="summary-stats">
-                <div class="stat">
-                  <div class="icon light-blue"><span class="material-symbols-outlined">leaderboard</span></div>
-                  <h4 id="stat-total-assets">—</h4>
-                  <p>Total Number of Assets</p>
-                </div>
-                <div class="stat">
-                  <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
-                  <h4 id="stat-assets-pending">—</h4>
-                  <p>To be received</p>
-                </div>
-              </div>
-            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Asset Name</th>
+                  <th>Image</th>
+                  <th>Availability</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
           </div>
-
         </div>
-      </main>
-    </div>
-  
-    <!-- Supabase Client & App Logic -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/FRONTEND/JS/auth.js"></script>
-    <script src="/FRONTEND/JS/app.js"></script>
-    <script src="/FRONTEND/JS/search.js"></script>
-    <script src="/FRONTEND/JS/mutations.js"></script>
-    <script src="/FRONTEND/JS/inventory.js"></script>
-    <script src="/FRONTEND/JS/dashboard.js"></script>
-  </body>
+
+        <!-- Summary Cards Row -->
+        <div class="summary-row">
+          <div class="card summary-card">
+            <h3>Item Summary</h3>
+            <div class="summary-stats">
+              <div class="stat">
+                <div class="icon orange"><span class="material-symbols-outlined">inventory_2</span></div>
+                <h4 id="stat-qty-in-hand">—</h4>
+                <p>Quantity in Hand</p>
+              </div>
+              <div class="stat">
+                <div class="icon purple"><span class="material-symbols-outlined">timer</span></div>
+                <h4 id="stat-to-be-received">—</h4>
+                <p>To be received</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card summary-card">
+            <h3>Product Summary</h3>
+            <div class="summary-stats">
+              <div class="stat">
+                <div class="icon blue"><span class="material-symbols-outlined">person</span></div>
+                <h4 id="stat-suppliers">—</h4>
+                <p>Number of Suppliers</p>
+              </div>
+              <div class="stat">
+                <div class="icon purple"><span class="material-symbols-outlined">category</span></div>
+                <h4 id="stat-categories">—</h4>
+                <p>Number of Categories</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card summary-card">
+            <h3>Total items</h3>
+            <div class="summary-stats">
+              <div class="stat">
+                <div class="icon light-blue"><span class="material-symbols-outlined">inventory_2</span></div>
+                <h4 id="stat-total-items">—</h4>
+                <p>Total Number of Items</p>
+              </div>
+              <div class="stat">
+                <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
+                <h4 id="stat-items-pending">—</h4>
+                <p>To be received</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card summary-card">
+            <h3>Total assets</h3>
+            <div class="summary-stats">
+              <div class="stat">
+                <div class="icon light-blue"><span class="material-symbols-outlined">leaderboard</span></div>
+                <h4 id="stat-total-assets">—</h4>
+                <p>Total Number of Assets</p>
+              </div>
+              <div class="stat">
+                <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
+                <h4 id="stat-assets-pending">—</h4>
+                <p>To be received</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Supabase Client & App Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/FRONTEND/JS/auth.js"></script>
+  <script src="/FRONTEND/JS/app.js"></script>
+  <script src="/FRONTEND/JS/search.js"></script>
+  <script src="/FRONTEND/JS/mutations.js"></script>
+  <script src="/FRONTEND/JS/inventory.js"></script>
+  <script src="/FRONTEND/JS/dashboard.js"></script>
+</body>
+
 </html>

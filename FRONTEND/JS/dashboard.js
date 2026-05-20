@@ -47,13 +47,13 @@ async function loadDashboard() {
   // ── Populate recent items mini-table ──────────────────────────────────────
   const itemsTbody = document.querySelector('.table-card:first-child .data-table tbody');
   if (itemsTbody) {
-    const recent = items.slice(0, 5);
+    const recent = items.slice(0, 3);
     itemsTbody.innerHTML = recent.length
       ? recent.map(item => `
           <tr>
             <td>${item.item_name ?? '—'}</td>
             <td><div class="img-placeholder" style="${item.image_url ? `background-image:url('${item.image_url}');background-size:cover` : ''}"></div></td>
-            <td>${item.store ?? '—'}</td>
+            <td>${item.status ?? '—'}</td>
             <td>${item.amount ?? 0} pcs</td>
           </tr>`).join('')
       : `<tr><td colspan="4" style="text-align:center;padding:20px;color:#aaa">No items yet</td></tr>`;
@@ -62,13 +62,13 @@ async function loadDashboard() {
   // ── Populate recent assets mini-table ─────────────────────────────────────
   const assetsTbody = document.querySelector('.table-card:nth-child(2) .data-table tbody');
   if (assetsTbody) {
-    const recent = assets.slice(0, 5);
+    const recent = assets.slice(0, 3);
     assetsTbody.innerHTML = recent.length
       ? recent.map(item => `
           <tr>
             <td>${item.item_name ?? '—'}</td>
             <td><div class="img-placeholder" style="${item.image_url ? `background-image:url('${item.image_url}');background-size:cover` : ''}"></div></td>
-            <td>${item.store ?? '—'}</td>
+            <td>${item.status ?? '—'}</td>
             <td>${item.amount ?? 0} pcs</td>
           </tr>`).join('')
       : `<tr><td colspan="4" style="text-align:center;padding:20px;color:#aaa">No assets yet</td></tr>`;

@@ -1,134 +1,143 @@
 <!doctype html>
 <html lang="en">
-  <head>  <script>
+
+<head>
+  <script>
     // Apply saved theme before render to prevent flash
-    (function() {
+    (function () {
       var t = localStorage.getItem('app-theme') || 'light';
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
-    <title>GRN Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+  <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
+  <title>GRN Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
-  <body>
-    <div class="dashboard-layout">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
-          <h2>Inventory</h2>
-        </div>
-        
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
-          </a>
-          <a href="items.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
-          </a>
-          <a href="assets.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
-          </a>
-          <a href="project.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
-          </a>
-          <a href="request.html" class="nav-item">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
-          </a>
-          <a href="grn_report.html" class="nav-item active">
-            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
-          </a>
-        </nav>
 
-        <div class="theme-toggle">
-          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
-          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
-        </div>
-      </aside>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="Logo" class="sidebar-logo">
+        <h2>Inventory</h2>
+      </div>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Top Navbar -->
-        <header class="topbar">
-          <div class="topbar-left">
-            <h1>GRN Report</h1>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
+        </a>
+        <a href="items.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
+        </a>
+        <a href="assets.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
+        </a>
+        <a href="project.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
+        </a>
+        <a href="request.html" class="nav-item">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested &
+          Returned
+        </a>
+        <a href="grn_report.html" class="nav-item active">
+          <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
+        </a>
+      </nav>
+
+      <div class="theme-toggle">
+        <button class="toggle-btn active"><span class="material-symbols-outlined"
+            style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+        <button class="toggle-btn"><span class="material-symbols-outlined"
+            style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>GRN Report</h1>
+        </div>
+
+        <div class="topbar-right">
+          <div class="search-box">
+            <span class="material-symbols-outlined search-icon"
+              style="vertical-align: middle; font-size: 20px;">search</span>
+            <input type="text" placeholder="Search">
           </div>
-          
-          <div class="topbar-right">
-            <div class="search-box">
-              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
-              <input type="text" placeholder="Search">
+
+
+
+          <div class="user-profile">
+            <div class="avatar"></div>
+            <div class="user-info">
+              <strong class="user-info-name">—</strong>
+              <span class="user-info-role">—</span>
             </div>
-            
-            <button class="notification-btn">
-              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Card Container -->
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="toolbar-actions">
+            <button class="action-btn primary">
+              <span>⬇</span> Export
             </button>
-            
-            <div class="user-profile">
-              <div class="avatar"></div>
-              <div class="user-info">
-                <strong class="user-info-name">—</strong>
-                <span class="user-info-role">—</span>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <!-- Main Card Container -->
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="toolbar-actions">
-              <button class="action-btn primary">
-                <span>⬇</span> Export
-              </button>
-              <button class="action-btn primary">
-                <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
-              </button>
-            </div>
-          </div>
-
-          <!-- Empty State Area -->
-          <div class="empty-state">
-            <img src="/FRONTEND/IMAGES/empty-state.png" alt="Empty State Illustration" class="empty-state-img">
-            <h3>Nothing found.</h3>
-          </div>
-
-          <!-- Pagination -->
-          <div class="pagination-bar">
-            <div class="showing-entries">
-              Showing 
-              <select>
-                <option>6</option>
-                <option>10</option>
-                <option>20</option>
-              </select>
-            </div>
-            
-            <div class="total-records">
-              Showing 1 to 6 out of 12 projects
-            </div>
-
-            <div class="pagination-controls">
-              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
-              <button class="page-btn active">1</button>
-              <button class="page-btn">2</button>
-              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
-            </div>
+            <button class="action-btn primary">
+              <span class="material-symbols-outlined"
+                style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
+            </button>
           </div>
         </div>
-      </main>
-    </div>
-  
-    <!-- Supabase Client & App Logic -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/FRONTEND/JS/auth.js"></script>
-    <script src="/FRONTEND/JS/app.js"></script>
-    <script src="/FRONTEND/JS/search.js"></script>
-    <script src="/FRONTEND/JS/mutations.js"></script>
-    <script src="/FRONTEND/JS/inventory.js"></script>
-  </body>
+
+        <!-- Empty State Area -->
+        <div class="empty-state">
+          <img src="/FRONTEND/IMAGES/empty-state.png" alt="Empty State Illustration" class="empty-state-img">
+          <h3>Nothing found.</h3>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bar">
+          <div class="showing-entries">
+            Showing
+            <select>
+              <option>6</option>
+              <option>10</option>
+              <option>20</option>
+            </select>
+          </div>
+
+          <div class="total-records">
+            Showing 1 to 6 out of 12 projects
+          </div>
+
+          <div class="pagination-controls">
+            <button class="page-btn"><span class="material-symbols-outlined"
+                style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn"><span class="material-symbols-outlined"
+                style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Supabase Client & App Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/FRONTEND/JS/auth.js"></script>
+  <script src="/FRONTEND/JS/app.js"></script>
+  <script src="/FRONTEND/JS/search.js"></script>
+  <script src="/FRONTEND/JS/mutations.js"></script>
+  <script src="/FRONTEND/JS/inventory.js"></script>
+</body>
+
 </html>
