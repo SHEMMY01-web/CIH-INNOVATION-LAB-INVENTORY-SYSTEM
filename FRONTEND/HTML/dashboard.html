@@ -1,12 +1,19 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head>  <script>
+    // Apply saved theme before render to prevent flash
+    (function() {
+      var t = localStorage.getItem('app-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/dashboard.css" />
     <title>Dashboard</title>
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
   <body>
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -18,34 +25,28 @@
         
         <nav class="sidebar-nav">
           <a href="dashboard.html" class="nav-item active">
-            <span class="nav-icon">⊞</span> Dashboard
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
           </a>
           <a href="items.html" class="nav-item">
-            <span class="nav-icon">👜</span> Items
-          </a>
-          <a href="tools.html" class="nav-item">
-            <span class="nav-icon">🔧</span> Tools
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
           </a>
           <a href="assets.html" class="nav-item">
-            <span class="nav-icon">📊</span> Assets
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
           </a>
           <a href="project.html" class="nav-item">
-            <span class="nav-icon">📁</span> Project
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
           </a>
           <a href="request.html" class="nav-item">
-            <span class="nav-icon">➕</span> Requested & Returned
-          </a>
-          <a href="on_hand.html" class="nav-item">
-            <span class="nav-icon">📦</span> On hand
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
           </a>
           <a href="grn_report.html" class="nav-item">
-            <span class="nav-icon">📄</span> GRN Report
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
           </a>
         </nav>
 
         <div class="theme-toggle">
-          <button class="toggle-btn active">☀️ Light</button>
-          <button class="toggle-btn">🌙 Dark</button>
+          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
         </div>
       </aside>
 
@@ -60,12 +61,12 @@
           
           <div class="topbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
               <input type="text" placeholder="Search">
             </div>
             
             <button class="notification-btn">
-              <span class="bell-icon">🔔</span>
+              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
             </button>
             
             <div class="user-profile">
@@ -74,7 +75,6 @@
                 <strong class="user-info-name">—</strong>
                 <span class="user-info-role">—</span>
               </div>
-              <span class="dropdown-icon">▼</span>
             </div>
           </div>
         </header>
@@ -131,12 +131,12 @@
               <h3>Item Summary</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon orange">📦</div>
+                  <div class="icon orange"><span class="material-symbols-outlined">inventory_2</span></div>
                   <h4 id="stat-qty-in-hand">—</h4>
                   <p>Quantity in Hand</p>
                 </div>
                 <div class="stat">
-                  <div class="icon purple">⏱️</div>
+                  <div class="icon purple"><span class="material-symbols-outlined">timer</span></div>
                   <h4 id="stat-to-be-received">—</h4>
                   <p>To be received</p>
                 </div>
@@ -147,12 +147,12 @@
               <h3>Product Summary</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon blue">👤</div>
+                  <div class="icon blue"><span class="material-symbols-outlined">person</span></div>
                   <h4 id="stat-suppliers">—</h4>
                   <p>Number of Suppliers</p>
                 </div>
                 <div class="stat">
-                  <div class="icon purple">📋</div>
+                  <div class="icon purple"><span class="material-symbols-outlined">category</span></div>
                   <h4 id="stat-categories">—</h4>
                   <p>Number of Categories</p>
                 </div>
@@ -163,12 +163,12 @@
               <h3>Total items</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon light-blue">📦</div>
+                  <div class="icon light-blue"><span class="material-symbols-outlined">inventory_2</span></div>
                   <h4 id="stat-total-items">—</h4>
                   <p>Total Number of Items</p>
                 </div>
                 <div class="stat">
-                  <div class="icon purple">📋</div>
+                  <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
                   <h4 id="stat-items-pending">—</h4>
                   <p>To be received</p>
                 </div>
@@ -179,12 +179,12 @@
               <h3>Total assets</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon light-blue">📊</div>
+                  <div class="icon light-blue"><span class="material-symbols-outlined">leaderboard</span></div>
                   <h4 id="stat-total-assets">—</h4>
                   <p>Total Number of Assets</p>
                 </div>
                 <div class="stat">
-                  <div class="icon purple">📋</div>
+                  <div class="icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
                   <h4 id="stat-assets-pending">—</h4>
                   <p>To be received</p>
                 </div>

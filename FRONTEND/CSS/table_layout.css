@@ -13,11 +13,12 @@ body {
 /* Sidebar (Reused from Dashboard) */
 .sidebar {
   width: 250px;
-  background-color: #dbeaf5;
+  background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 20px 0;
   flex-shrink: 0;
+  transition: background-color 0.3s ease;
 }
 
 .sidebar-header {
@@ -59,14 +60,14 @@ body {
 }
 
 .nav-item.active {
-  background-color: #bbd7ec;
+  background-color: var(--sidebar-active);
   border-right: 4px solid var(--primary-color);
 }
 
 .theme-toggle {
   display: flex;
   margin: 0 20px;
-  background-color: #c9dfef;
+  background-color: var(--sidebar-active);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -100,7 +101,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px 40px;
-  background-color: #fafbfc;
+  background-color: var(--topbar-bg);
+  transition: background-color 0.3s ease;
 }
 
 .topbar-left h1 {
@@ -123,7 +125,7 @@ body {
 .search-box {
   display: flex;
   align-items: center;
-  background: white;
+  background: var(--card-bg);
   padding: 10px 15px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
@@ -138,7 +140,7 @@ body {
 }
 
 .notification-btn {
-  background: white;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   width: 40px;
@@ -147,13 +149,14 @@ body {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  color: var(--text-color);
 }
 
 .user-profile {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: white;
+  background: var(--card-bg);
   padding: 8px 15px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
@@ -177,12 +180,13 @@ body {
 /* Table Card Container */
 .table-container {
   margin: 0 40px 40px 40px;
-  background: white;
+  background: var(--card-bg);
   border-radius: 15px;
   border: 1px solid var(--border-color);
   padding: 20px;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.3s ease;
 }
 
 /* Table Toolbar */
@@ -225,7 +229,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   border: 1px solid var(--border-color);
-  background: white;
+  background: var(--card-bg);
   color: var(--text-color);
 }
 
@@ -253,14 +257,15 @@ body {
   font-size: 0.85rem;
   font-weight: 500;
   border-bottom: 1px solid var(--border-color);
-  background-color: #fafbfc;
+  background-color: var(--topbar-bg);
 }
 
 .list-table td {
   padding: 15px 10px;
   font-size: 0.9rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
+  color: var(--text-color);
 }
 
 .item-image {
@@ -300,6 +305,8 @@ input[type="checkbox"] {
   border-radius: 8px;
   border: 1px solid var(--border-color);
   outline: none;
+  background: var(--card-bg);
+  color: var(--text-color);
 }
 
 .pagination-controls {
@@ -322,13 +329,13 @@ input[type="checkbox"] {
 }
 
 .page-btn.active {
-  background-color: white;
+  background-color: var(--card-bg);
   border: 1px solid var(--primary-color);
   color: var(--primary-color);
 }
 
 .page-btn:hover:not(.active) {
-  background-color: #f0f0f0;
+  background-color: var(--sidebar-active);
 }
 
 .total-records {
@@ -375,7 +382,7 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  background-color: white;
+  background-color: var(--card-bg);
   border-radius: 12px;
   min-height: 400px;
 }

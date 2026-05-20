@@ -1,13 +1,21 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head>  <script>
+    // Apply saved theme before render to prevent flash
+    (function() {
+      var t = localStorage.getItem('app-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/project.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
     <title>Project Details</title>
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
   <body>
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -19,34 +27,28 @@
         
         <nav class="sidebar-nav">
           <a href="dashboard.html" class="nav-item">
-            <span class="nav-icon">⊞</span> Dashboard
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
           </a>
           <a href="items.html" class="nav-item">
-            <span class="nav-icon">👜</span> Items
-          </a>
-          <a href="tools.html" class="nav-item">
-            <span class="nav-icon">🔧</span> Tools
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
           </a>
           <a href="assets.html" class="nav-item">
-            <span class="nav-icon">📊</span> Assets
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
           </a>
           <a href="project.html" class="nav-item active">
-            <span class="nav-icon">📁</span> Project
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
           </a>
           <a href="request.html" class="nav-item">
-            <span class="nav-icon">➕</span> Requested & Returned
-          </a>
-          <a href="on_hand.html" class="nav-item">
-            <span class="nav-icon">📦</span> On hand
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
           </a>
           <a href="grn_report.html" class="nav-item">
-            <span class="nav-icon">📄</span> GRN Report
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
           </a>
         </nav>
 
         <div class="theme-toggle">
-          <button class="toggle-btn active">☀️ Light</button>
-          <button class="toggle-btn">🌙 Dark</button>
+          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
         </div>
       </aside>
 
@@ -61,12 +63,12 @@
           
           <div class="topbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
               <input type="text" placeholder="Search">
             </div>
             
             <button class="notification-btn">
-              <span class="bell-icon">🔔</span>
+              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
             </button>
             
             <div class="user-profile">
@@ -75,13 +77,15 @@
                 <strong class="user-info-name">—</strong>
                 <span class="user-info-role">—</span>
               </div>
-              <span class="dropdown-icon">▼</span>
             </div>
           </div>
         </header>
 
-        <div class="project-subtitle">
-          Project: <span>BDU SIMS</span>
+        <div class="project-subtitle" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+          <div>Project: <span>BDU SIMS</span></div>
+          <a href="project.html" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 0.9rem; border: 1px solid var(--border-color); background: var(--card-background); color: var(--text-color); transition: background 0.2s;">
+            ← Back to Projects
+          </a>
         </div>
 
         <div class="tabs-container">
@@ -92,23 +96,26 @@
           <!-- Tab Headers -->
           <div class="tabs-header">
             <label for="tab-items" class="tab-label label-items">
-              <span class="nav-icon">👜</span> Items
+              <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
             </label>
             <label for="tab-assets" class="tab-label label-assets">
-              <span class="nav-icon">📄</span> Assets
+              <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> Assets
             </label>
           </div>
 
           <!-- Tab Content: Items -->
           <div class="tab-content" id="content-items">
             <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
-              <div class="table-toolbar" style="justify-content: center;">
+              <div class="table-toolbar" style="justify-content: space-between;">
                 <div class="toolbar-actions">
+                  <a href="#add-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Item to Project
+                  </a>
                   <button class="action-btn primary">
                     <span>⬇</span> Export
                   </button>
                   <button class="action-btn primary">
-                    <span>⧼⧽</span> Filter
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
                   </button>
                 </div>
               </div>
@@ -125,7 +132,7 @@
                       <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
-                      <th>Account</th>
+                      <th>Availability</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -143,10 +150,10 @@
                 </div>
                 <div class="total-records">Showing 1 to 6 out of 12 projects</div>
                 <div class="pagination-controls">
-                  <button class="page-btn">❮</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
                   <button class="page-btn active">1</button>
                   <button class="page-btn">2</button>
-                  <button class="page-btn">❯</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
                 </div>
               </div>
             </div>
@@ -155,13 +162,16 @@
           <!-- Tab Content: Assets -->
           <div class="tab-content" id="content-assets">
             <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
-              <div class="table-toolbar" style="justify-content: center;">
+              <div class="table-toolbar" style="justify-content: space-between;">
                 <div class="toolbar-actions">
+                  <a href="#add-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Asset to Project
+                  </a>
                   <button class="action-btn primary">
                     <span>⬇</span> Export
                   </button>
                   <button class="action-btn primary">
-                    <span>⧼⧽</span> Filter
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
                   </button>
                 </div>
               </div>
@@ -178,7 +188,7 @@
                       <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
-                      <th>Account</th>
+                      <th>Availability</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -196,10 +206,10 @@
                 </div>
                 <div class="total-records">Showing 1 to 6 out of 12 projects</div>
                 <div class="pagination-controls">
-                  <button class="page-btn">❮</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
                   <button class="page-btn active">1</button>
                   <button class="page-btn">2</button>
-                  <button class="page-btn">❯</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
                 </div>
               </div>
             </div>
@@ -208,12 +218,77 @@
       </main>
     </div>
   
+    <!-- Dynamic Add Item/Asset Modal inside Project Detail -->
+    <div id="add-modal" class="side-modal-overlay">
+      <div class="side-modal-panel">
+        <div class="modal-header">
+          <h2>Add New Item to Project</h2>
+          <a href="#" class="close-btn">&times;</a>
+        </div>
+        
+        <div class="modal-body">
+          <form id="add-project-item-form" class="form-grid" style="margin-top: 10px;">
+            <div class="form-group">
+              <label>Item Name <span class="required">*</span></label>
+              <input type="text" placeholder="Enter item name">
+            </div>
+
+            <div class="form-group">
+              <label>Model / Serial Number</label>
+              <input type="text" placeholder="Enter model/serial">
+            </div>
+
+            <div class="form-group">
+              <label>Type <span class="required">*</span></label>
+              <input type="text" placeholder="Enter type (e.g. Laptop, Chair)">
+            </div>
+
+            <div class="form-group">
+              <label>Amount <span class="required">*</span></label>
+              <input type="number" placeholder="Enter amount" min="1" value="1">
+            </div>
+
+            <div class="form-group">
+              <label>Status <span class="required">*</span></label>
+              <select>
+                <option value="available">Available</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Project</label>
+              <input type="text" id="add-item-project" placeholder="Project name">
+            </div>
+
+            <div class="form-group">
+              <label>Image</label>
+              <div class="file-input-wrapper">
+                <input type="file">
+                <div class="file-input-display">
+                  Choose file <span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px;">attach_file</span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary modal-btn">Add</button>
+        </div>
+      </div>
+    </div>
+  
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
     <script src="/FRONTEND/JS/app.js"></script>
     <script src="/FRONTEND/JS/search.js"></script>
     <script src="/FRONTEND/JS/mutations.js"></script>
-    <script src="/FRONTEND/JS/inventory.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="/FRONTEND/JS/export.js"></script>
+    <script src="/FRONTEND/JS/project.js"></script>
   </body>
 </html>

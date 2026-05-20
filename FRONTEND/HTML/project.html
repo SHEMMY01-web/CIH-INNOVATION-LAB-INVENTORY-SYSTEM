@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head>  <script>
+    // Apply saved theme before render to prevent flash
+    (function() {
+      var t = localStorage.getItem('app-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
@@ -8,7 +14,8 @@
     <link rel="stylesheet" href="/FRONTEND/CSS/project.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
     <title>Projects</title>
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
   <body>
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -20,34 +27,28 @@
         
         <nav class="sidebar-nav">
           <a href="dashboard.html" class="nav-item">
-            <span class="nav-icon">⊞</span> Dashboard
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
           </a>
           <a href="items.html" class="nav-item">
-            <span class="nav-icon">👜</span> Items
-          </a>
-          <a href="tools.html" class="nav-item">
-            <span class="nav-icon">🔧</span> Tools
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
           </a>
           <a href="assets.html" class="nav-item">
-            <span class="nav-icon">📊</span> Assets
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
           </a>
           <a href="project.html" class="nav-item active">
-            <span class="nav-icon">📁</span> Project
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
           </a>
           <a href="request.html" class="nav-item">
-            <span class="nav-icon">➕</span> Requested & Returned
-          </a>
-          <a href="on_hand.html" class="nav-item">
-            <span class="nav-icon">📦</span> On hand
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
           </a>
           <a href="grn_report.html" class="nav-item">
-            <span class="nav-icon">📄</span> GRN Report
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
           </a>
         </nav>
 
         <div class="theme-toggle">
-          <button class="toggle-btn active">☀️ Light</button>
-          <button class="toggle-btn">🌙 Dark</button>
+          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
         </div>
       </aside>
 
@@ -62,12 +63,12 @@
           
           <div class="topbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
               <input type="text" placeholder="Search">
             </div>
             
             <button class="notification-btn">
-              <span class="bell-icon">🔔</span>
+              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
             </button>
             
             <div class="user-profile">
@@ -76,7 +77,6 @@
                 <strong class="user-info-name">—</strong>
                 <span class="user-info-role">—</span>
               </div>
-              <span class="dropdown-icon">▼</span>
             </div>
           </div>
         </header>
@@ -84,16 +84,15 @@
         <!-- Projects Container -->
         <div class="projects-container">
           <div class="table-toolbar" style="padding: 20px 0;">
-            <div class="table-search">
-              <span class="search-icon">🔍</span>
-              <input type="text" placeholder="Search Project">
-            </div>
             <div class="toolbar-actions">
+              <a href="#add-project-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Project
+              </a>
               <button class="action-btn primary">
                 <span>⬇</span> Export
               </button>
               <a href="#filter-modal" class="action-btn" style="text-decoration: none;">
-                <span>⧼⧽</span> Filter
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
               </a>
             </div>
           </div>
@@ -315,10 +314,10 @@
             </div>
 
             <div class="pagination-controls">
-              <button class="page-btn">❮</button>
+              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
               <button class="page-btn active">1</button>
               <button class="page-btn">2</button>
-              <button class="page-btn">❯</button>
+              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
             </div>
           </div>
         </div>
@@ -357,6 +356,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Side Panel Add Project Modal -->
+    <div id="add-project-modal" class="side-modal-overlay">
+      <div class="side-modal-panel">
+        <div class="modal-header">
+          <h2>Add New Project</h2>
+          <a href="#" class="close-btn">&times;</a>
+        </div>
+        
+        <div class="modal-body">
+          <form id="project-form" class="form-grid" style="margin-top: 10px;">
+            <div class="form-group">
+              <label>Project Name <span class="required">*</span></label>
+              <input type="text" id="project-name" placeholder="Enter project name (e.g. CIH Lab)">
+            </div>
+
+            <div class="form-group">
+              <label>Client Name</label>
+              <input type="text" id="project-client" placeholder="Enter client name">
+            </div>
+
+            <div class="form-group">
+              <label>Project Manager</label>
+              <input type="text" id="project-manager" placeholder="Enter manager name">
+            </div>
+
+            <div class="form-group">
+              <label>Project Status <span class="required">*</span></label>
+              <select id="project-status" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: var(--card-background); color: var(--text-color); margin-top: 5px;">
+                <option value="active">Active (Not Completed)</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary" id="project-submit-btn">Create Project</button>
+        </div>
+      </div>
+    </div>
   
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -364,6 +405,6 @@
     <script src="/FRONTEND/JS/app.js"></script>
     <script src="/FRONTEND/JS/search.js"></script>
     <script src="/FRONTEND/JS/mutations.js"></script>
-    <script src="/FRONTEND/JS/inventory.js"></script>
+    <script src="/FRONTEND/JS/project.js"></script>
   </body>
 </html>

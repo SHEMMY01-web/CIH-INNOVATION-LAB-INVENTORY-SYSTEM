@@ -1,20 +1,9 @@
 // js/inventory.js
 
 let localInventoryCache = [];
-
-// Detect which page we are on and apply the correct type filter
-const PAGE_TYPE_MAP = {
-  'items.html':   null,        // Show all items (or filter by 'Item' type if your DB uses that)
-  'assets.html':  'Asset',
-  'tools.html':   'Tool',
-  'project_detail.html': null, // Project detail shows its own filtered data
-  'request.html': null,
-};
-
-function getPageTypeFilter() {
-  const page = window.location.pathname.split('/').pop();
-  return PAGE_TYPE_MAP.hasOwnProperty(page) ? PAGE_TYPE_MAP[page] : null;
-}
+let currentFilteredData = [];
+let currentPage = 1;
+let itemsPerPage = 10;
 
 /**
  * Show a skeleton loading state in the table while data is fetching
@@ -30,6 +19,186 @@ function showTableSkeleton() {
 }
 
 /**
+ * Renders only the sliced subset for the current active page
+ */
+function renderPaginatedTable() {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const pageData = currentFilteredData.slice(startIndex, endIndex);
+
+  renderInventoryTable(pageData);
+  updatePaginationControls();
+}
+
+/**
+ * Re-computes and renders pagination text & page buttons dynamically
+ */
+function updatePaginationControls() {
+  const totalRecords = currentFilteredData.length;
+  const totalPages = Math.ceil(totalRecords / itemsPerPage) || 1;
+
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalRecords);
+
+  // 1. Update "Showing X to Y of Z records"
+  const startText = totalRecords === 0 ? 0 : startIndex + 1;
+  document.querySelectorAll('.total-records').forEach(el => {
+    el.textContent = `Showing ${startText} to ${endIndex} of ${totalRecords} records`;
+  });
+
+  // 2. Generate page numbers dynamically
+  const container = document.querySelector('.pagination-controls');
+  if (!container) return;
+
+  let html = `<button class="page-btn prev-btn" ${currentPage === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn num-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+  }
+  html += `<button class="page-btn next-btn" ${currentPage === totalPages ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>`;
+  container.innerHTML = html;
+
+  // Add click handlers
+  container.querySelector('.prev-btn')?.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPaginatedTable();
+    }
+  });
+
+  container.querySelector('.next-btn')?.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPaginatedTable();
+    }
+  });
+
+  container.querySelectorAll('.num-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      currentPage = parseInt(e.target.textContent);
+      renderPaginatedTable();
+    });
+  });
+}
+
+/**
+ * Expose dataset updates globally so search.js can reset pagination on filter
+ */
+window.updateInventoryDataset = function(newDataset) {
+  currentFilteredData = newDataset;
+  currentPage = 1;
+  renderPaginatedTable();
+};
+
+/**
+ * Render dynamic pagination controls and entries specifically for the Requests tabs
+ */
+function setupTransactionTabPagination(tabSelector, transactionsList) {
+  const tabContainer = document.querySelector(tabSelector);
+  if (!tabContainer) return;
+
+  let tPage = 1;
+  let tLimit = 6;
+
+  const limitSelect = tabContainer.querySelector('.showing-entries select');
+  if (limitSelect) {
+    tLimit = parseInt(limitSelect.value) || 6;
+    // Remove duplicate listeners
+    const newSelect = limitSelect.cloneNode(true);
+    limitSelect.replaceWith(newSelect);
+    newSelect.addEventListener('change', (e) => {
+      tLimit = parseInt(e.target.value) || 6;
+      tPage = 1;
+      render();
+    });
+  }
+
+  function render() {
+    const tbody = tabContainer.querySelector('.list-table tbody');
+    if (!tbody) return;
+
+    const totalRecords = transactionsList.length;
+    const totalPages = Math.ceil(totalRecords / tLimit) || 1;
+
+    if (tPage > totalPages) tPage = totalPages;
+
+    const startIndex = (tPage - 1) * tLimit;
+    const endIndex = Math.min(startIndex + tLimit, totalRecords);
+    const pageData = transactionsList.slice(startIndex, endIndex);
+
+    if (pageData.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center; padding:40px; color:#aaa; font-size:0.95rem;">
+            No transactions found.
+          </td>
+        </tr>`;
+    } else {
+      tbody.innerHTML = pageData.map(tx => {
+        const rawType = tx.items?.type ?? '';
+        const displayType = rawType.includes(':') ? rawType.split(':')[1] : rawType;
+        const displayImage = tx.image_url || tx.items?.image_url || '';
+        // Omitted Store column
+        return `
+          <tr>
+            <td><input type="checkbox"></td>
+            <td class="searchable-name">${tx.items?.item_name ?? '—'}</td>
+            <td>
+              <div class="item-image" style="${displayImage ? `background-image:url('${displayImage}'); background-size:cover;` : 'background:#eee;'}"></div>
+            </td>
+            <td>${tx.items?.model ?? '—'}</td>
+            <td>${displayType || '—'}</td>
+            <td>${tx.amount ?? 0} pcs</td>
+            <td>${tx.project ?? '—'}</td>
+            <td>${tx.requester ?? '—'}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    // Dynamic record counts text
+    const totalText = tabContainer.querySelector('.total-records');
+    if (totalText) {
+      const startText = totalRecords === 0 ? 0 : startIndex + 1;
+      totalText.textContent = `Showing ${startText} to ${endIndex} of ${totalRecords} records`;
+    }
+
+    // Dynamic pagination button generation
+    const pageControls = tabContainer.querySelector('.pagination-controls');
+    if (pageControls) {
+      let html = `<button class="page-btn prev-btn" ${tPage === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn num-btn ${i === tPage ? 'active' : ''}">${i}</button>`;
+      }
+      html += `<button class="page-btn next-btn" ${tPage === totalPages ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>`;
+      pageControls.innerHTML = html;
+
+      // Event Listeners
+      pageControls.querySelector('.prev-btn')?.addEventListener('click', () => {
+        if (tPage > 1) {
+          tPage--;
+          render();
+        }
+      });
+      pageControls.querySelector('.next-btn')?.addEventListener('click', () => {
+        if (tPage < totalPages) {
+          tPage++;
+          render();
+        }
+      });
+      pageControls.querySelectorAll('.num-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          tPage = parseInt(e.target.textContent);
+          render();
+        });
+      });
+    }
+  }
+
+  render();
+}
+
+/**
  * Fetch inventory data from Supabase and filter locally
  */
 async function fetchInventoryInitial() {
@@ -39,62 +208,27 @@ async function fetchInventoryInitial() {
     // ── Handle requests page separately (renders transactions) ─────────────────
     const tbodies = document.querySelectorAll('.list-table tbody');
     tbodies.forEach(tb => {
-      const skeletonRow = `<tr class="skeleton-row">${Array(9).fill('<td><div style="height:16px;background:#eee;border-radius:4px;animation:pulse 1.2s infinite;"></div></td>').join('')}</tr>`;
+      const skeletonRow = `<tr class="skeleton-row">${Array(8).fill('<td><div style="height:16px;background:#eee;border-radius:4px;animation:pulse 1.2s infinite;"></div></td>').join('')}</tr>`;
       tb.innerHTML = Array(4).fill(skeletonRow).join('');
     });
 
-    const { data: txs, error } = await sbClient
-      .from('transactions')
-      .select('*, items(*)')
-      .order('timestamp', { ascending: false });
+    const { data: txs, error } = await window.fetchFromDB('transactions');
 
     if (error) {
       console.error('Error fetching transactions:', error.message);
       return;
     }
 
-    // Render Requested (checkout)
-    const requestedTbody = document.querySelector('#content-items .list-table tbody');
-    if (requestedTbody) {
-      const requested = txs.filter(t => t.transaction_type === 'checkout' || t.transaction_type === 'request');
-      requestedTbody.innerHTML = requested.length
-        ? requested.map(tx => `
-            <tr>
-              <td><input type="checkbox"></td>
-              <td class="searchable-name">${tx.items?.item_name ?? '—'}</td>
-              <td><div class="item-image" style="${tx.items?.image_url ? `background-image:url('${tx.items.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
-              <td>${tx.items?.model ?? '—'}</td>
-              <td>${tx.items?.type ?? '—'}</td>
-              <td>${tx.items?.store ?? '—'}</td>
-              <td>${tx.amount ?? 0} pcs</td>
-              <td>${tx.project ?? '—'}</td>
-              <td>${tx.requester ?? '—'}</td>
-            </tr>`).join('')
-        : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No requested items found.</td></tr>`;
-    }
+    const requested = txs.filter(t => t.transaction_type === 'checkout' || t.transaction_type === 'request');
+    const returned = txs.filter(t => t.transaction_type === 'return');
 
-    // Render Returned
-    const returnedTbody = document.querySelector('#content-assets .list-table tbody');
-    if (returnedTbody) {
-      const returned = txs.filter(t => t.transaction_type === 'return');
-      returnedTbody.innerHTML = returned.length
-        ? returned.map(tx => `
-            <tr>
-              <td><input type="checkbox"></td>
-              <td class="searchable-name">${tx.items?.item_name ?? '—'}</td>
-              <td><div class="item-image" style="${tx.items?.image_url ? `background-image:url('${tx.items.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
-              <td>${tx.items?.model ?? '—'}</td>
-              <td>${tx.items?.type ?? '—'}</td>
-              <td>${tx.items?.store ?? '—'}</td>
-              <td>${tx.amount ?? 0} pcs</td>
-              <td>${tx.project ?? '—'}</td>
-              <td>${tx.requester ?? '—'}</td>
-            </tr>`).join('')
-        : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No returned items found.</td></tr>`;
-    }
+    window.globalTransactions = { requested, returned };
 
-    if (typeof updatePaginationText === 'function') {
-      updatePaginationText(txs.length, txs.length);
+    setupTransactionTabPagination('#content-items', requested);
+    setupTransactionTabPagination('#content-assets', returned);
+    
+    if (typeof initializeInstantSearch === 'function') {
+      initializeInstantSearch();
     }
     return;
   }
@@ -102,39 +236,39 @@ async function fetchInventoryInitial() {
   // ── Standard catalog tables ──────────────────────────────────────────────
   showTableSkeleton();
 
-  const { data, error } = await sbClient
-    .from('items')
-    .select('*')
-    .order('item_name', { ascending: true });
+  const { data: unsortedData, error } = await window.fetchFromDB('items');
+  const data = unsortedData ? unsortedData.slice().sort((a, b) => (a.item_name || '').localeCompare(b.item_name || '')) : [];
 
   if (error) {
     console.error('Error fetching inventory:', error.message);
     return;
   }
 
-  const typeFilter = getPageTypeFilter();
-
-  // Filter locally
+  // Filter locally based on custom prefix classification rules
   let filteredData = data;
-  if (typeFilter) {
-    filteredData = data.filter(i => (i.type ?? '').toLowerCase() === typeFilter.toLowerCase());
+  if (page === 'assets.html') {
+    filteredData = data.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:'));
   } else if (page === 'items.html') {
-    // Items page shows everything that is NOT an Asset and NOT a Tool
     filteredData = data.filter(i => {
       const t = (i.type ?? '').toLowerCase();
-      return t !== 'asset' && t !== 'tool';
+      return !t.startsWith('asset:') && !t.startsWith('tool:');
     });
   }
 
-  // Set the cache to the page-filtered subset so search resets work correctly
   localInventoryCache = filteredData;
-  renderInventoryTable(localInventoryCache);
-
-  // Update pagination text dynamically
-  if (typeof updatePaginationText === 'function') {
-    const perPage = parseInt(document.querySelector('.showing-entries select')?.value) || localInventoryCache.length;
-    updatePaginationText(localInventoryCache.length, Math.min(perPage, localInventoryCache.length));
+  
+  // Set entries count based on select dropdown
+  const limitSelect = document.querySelector('.showing-entries select');
+  if (limitSelect) {
+    itemsPerPage = parseInt(limitSelect.value) || 10;
+    limitSelect.addEventListener('change', (e) => {
+      itemsPerPage = parseInt(e.target.value) || 10;
+      currentPage = 1;
+      renderPaginatedTable();
+    });
   }
+
+  window.updateInventoryDataset(localInventoryCache);
 
   if (typeof initializeInstantSearch === 'function') {
     initializeInstantSearch();
@@ -148,6 +282,15 @@ function renderInventoryTable(itemsArray) {
   const tbody = document.querySelector('.list-table tbody');
   if (!tbody) return;
 
+  // Inject Actions header dynamically into the head row if not already present
+  const theadRow = document.querySelector('.list-table thead tr');
+  if (theadRow && !theadRow.querySelector('.actions-header')) {
+    const th = document.createElement('th');
+    th.className = 'actions-header';
+    th.textContent = 'Actions';
+    theadRow.appendChild(th);
+  }
+
   if (!itemsArray || itemsArray.length === 0) {
     tbody.innerHTML = `
       <tr>
@@ -158,21 +301,49 @@ function renderInventoryTable(itemsArray) {
     return;
   }
 
-  tbody.innerHTML = itemsArray.map(item => `
-    <tr data-id="${item.id}" class="inventory-row">
-      <td><input type="checkbox"></td>
-      <td class="searchable-name">${item.item_name ?? '—'}</td>
-      <td>
-        <div class="item-image" style="${item.image_url ? `background-image:url('${item.image_url}'); background-size:cover;` : 'background:#eee;'}"></div>
-      </td>
-      <td>${item.model ?? '—'}</td>
-      <td>${item.type ?? '—'}</td>
-      <td>${item.store ?? '—'}</td>
-      <td>${item.amount ?? 0} pcs</td>
-      <td>${item.project ?? '—'}</td>
-      <td>${item.status ?? '—'}</td>
-    </tr>
-  `).join('');
+  const page = window.location.pathname.split('/').pop();
+
+  tbody.innerHTML = itemsArray.map(item => {
+    const rawType = item.type ?? '';
+    const displayType = rawType.includes(':') ? rawType.split(':')[1] : rawType;
+    
+    // assets.html and items.html omit Store and Project columns!
+    if (page === 'assets.html' || page === 'items.html') {
+      return `
+        <tr data-id="${item.id}" class="inventory-row">
+          <td><input type="checkbox"></td>
+          <td class="searchable-name">${item.item_name ?? '—'}</td>
+          <td>
+            <div class="item-image" style="${item.image_url ? `background-image:url('${item.image_url}'); background-size:cover;` : 'background:#eee;'}"></div>
+          </td>
+          <td>${item.model ?? '—'}</td>
+          <td>${displayType || '—'}</td>
+          <td>${item.amount ?? 0} pcs</td>
+          <td>${item.status ?? '—'}</td>
+          <td>
+            <button class="edit-row-btn" data-id="${item.id}" style="background:#4f46e5; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Edit</button>
+          </td>
+        </tr>`;
+    }
+
+    return `
+      <tr data-id="${item.id}" class="inventory-row">
+        <td><input type="checkbox"></td>
+        <td class="searchable-name">${item.item_name ?? '—'}</td>
+        <td>
+          <div class="item-image" style="${item.image_url ? `background-image:url('${item.image_url}'); background-size:cover;` : 'background:#eee;'}"></div>
+        </td>
+        <td>${item.model ?? '—'}</td>
+        <td>${displayType || '—'}</td>
+        <td>${item.store ?? '—'}</td>
+        <td>${item.amount ?? 0} pcs</td>
+        <td>${item.project ?? '—'}</td>
+        <td>${item.status ?? '—'}</td>
+        <td>
+          <button class="edit-row-btn" data-id="${item.id}" style="background:#4f46e5; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Edit</button>
+        </td>
+      </tr>`;
+  }).join('');
 }
 
 // Keyframe animation for skeleton loader

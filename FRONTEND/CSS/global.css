@@ -8,6 +8,29 @@
   --border-radius: 10px;
   --font-family: 'Inter', sans-serif;
   --bg-color: #ffffff;
+  --surface-color: #ffffff;
+  --sidebar-bg: #dbeaf5;
+  --sidebar-active: #bbd7ec;
+  --topbar-bg: #fafbfc;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --shadow: rgba(0,0,0,0.05);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+  --primary-color: #3b9ede;
+  --text-color: #e8e8f0;
+  --text-secondary: #8888aa;
+  --border-color: #2e2e3e;
+  --bg-color: #12121c;
+  --surface-color: #1a1a2a;
+  --sidebar-bg: #1a1a2a;
+  --sidebar-active: #252540;
+  --topbar-bg: #12121c;
+  --card-bg: #1e1e30;
+  --input-bg: #1e1e30;
+  --shadow: rgba(0,0,0,0.3);
 }
 
 body {

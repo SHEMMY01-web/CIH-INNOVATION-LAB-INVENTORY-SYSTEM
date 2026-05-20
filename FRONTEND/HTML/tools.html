@@ -1,13 +1,20 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head>  <script>
+    // Apply saved theme before render to prevent flash
+    (function() {
+      var t = localStorage.getItem('app-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/table_layout.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
     <title>All Tools</title>
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
   <body>
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -19,34 +26,28 @@
         
         <nav class="sidebar-nav">
           <a href="dashboard.html" class="nav-item">
-            <span class="nav-icon">⊞</span> Dashboard
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
           </a>
           <a href="items.html" class="nav-item">
-            <span class="nav-icon">👜</span> Items
-          </a>
-          <a href="tools.html" class="nav-item active">
-            <span class="nav-icon">🔧</span> Tools
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
           </a>
           <a href="assets.html" class="nav-item">
-            <span class="nav-icon">📊</span> Assets
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
           </a>
           <a href="project.html" class="nav-item">
-            <span class="nav-icon">📁</span> Project
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
           </a>
           <a href="request.html" class="nav-item">
-            <span class="nav-icon">➕</span> Requested & Returned
-          </a>
-          <a href="on_hand.html" class="nav-item">
-            <span class="nav-icon">📦</span> On hand
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
           </a>
           <a href="grn_report.html" class="nav-item">
-            <span class="nav-icon">📄</span> GRN Report
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
           </a>
         </nav>
 
         <div class="theme-toggle">
-          <button class="toggle-btn active">☀️ Light</button>
-          <button class="toggle-btn">🌙 Dark</button>
+          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
         </div>
       </aside>
 
@@ -61,12 +62,12 @@
           
           <div class="topbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
               <input type="text" placeholder="Search">
             </div>
             
             <button class="notification-btn">
-              <span class="bell-icon">🔔</span>
+              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
             </button>
             
             <div class="user-profile">
@@ -75,7 +76,6 @@
                 <strong>Robert Allen</strong>
                 <span>HR Manager</span>
               </div>
-              <span class="dropdown-icon">▼</span>
             </div>
           </div>
         </header>
@@ -83,19 +83,12 @@
         <!-- Table Container -->
         <div class="table-container">
           <div class="table-toolbar">
-            <div class="table-search">
-              <span class="search-icon">🔍</span>
-              <input type="text" placeholder="Search Tool">
-            </div>
             <div class="toolbar-actions">
-              <a href="#batch-modal" class="action-btn" style="text-decoration: none;">
-                <span>📦</span>
-              </a>
               <a href="#add-modal" class="action-btn primary" style="text-decoration: none;">
-                <span>⊕</span> Add Tool
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Tool
               </a>
               <a href="#filter-modal" class="action-btn" style="text-decoration: none;">
-                <span>⧼⧽</span> Filter
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
               </a>
             </div>
           </div>
@@ -112,7 +105,7 @@
                   <th>Store</th>
                   <th>Amount</th>
                   <th>Project</th>
-                  <th>Account</th>
+                  <th>Availability</th>
                 </tr>
               </thead>
               <tbody>
@@ -136,12 +129,12 @@
             </div>
 
             <div class="pagination-controls">
-              <button class="page-btn">❮</button>
+              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
               <button class="page-btn active">1</button>
               <button class="page-btn">2</button>
               <button class="page-btn">3</button>
               <button class="page-btn">4</button>
-              <button class="page-btn">❯</button>
+              <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
             </div>
           </div>
         </div>
@@ -172,92 +165,25 @@
               <div class="file-input-wrapper">
                 <input type="file">
                 <div class="file-input-display">
-                  Choose file <span>📎</span>
+                  Choose file <span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px;">attach_file</span>
                 </div>
               </div>
             </div>
-            <div class="form-group">
-              <label>Status <span class="required">*</span></label>
-              <select><option>Choose Status</option></select>
-            </div>
 
             <div class="form-group">
-              <label>Serial Number <span class="required">*</span></label>
-              <input type="text" placeholder="Enter serial number">
-            </div>
-            <div class="form-group">
-              <label>Item Numberr <span class="required">*</span></label>
-              <input type="text" placeholder="Enter tool number">
+              <label>Model <span class="required">*</span></label>
+              <input type="text" placeholder="Enter model description or number">
             </div>
 
-            <div class="form-group">
-              <label>Unit of Measurement <span class="required">*</span></label>
-              <select><option>Choose unit of Measurement</option></select>
-            </div>
             <div class="form-group">
               <label>Amount <span class="required">*</span></label>
-              <input type="text" placeholder="Enter tool number">
+              <input type="number" placeholder="Enter amount" min="1" value="1">
             </div>
 
             <div class="form-group">
-              <label>Price <span class="required">*</span></label>
-              <input type="text" placeholder="Enter price">
+              <label>Availability <span class="required">*</span></label>
+              <select><option>Choose Availability</option></select>
             </div>
-            <div class="form-group">
-              <label>Date of Purchased <span class="required">*</span></label>
-              <input type="text" placeholder="dd/mm/yyyy">
-            </div>
-
-            <div class="form-group">
-              <label>Currency <span class="required">*</span></label>
-              <select><option>Choose Currency</option></select>
-            </div>
-            <div class="form-group">
-              <label>PI Document <span class="required">*</span></label>
-              <div class="file-input-wrapper">
-                <input type="file">
-                <div class="file-input-display">
-                  Choose file <span>📎</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Store <span class="required">*</span></label>
-              <select><option>Choose Store</option></select>
-            </div>
-            <div class="form-group">
-              <label>Project <span class="required">*</span></label>
-              <select><option>Choose project</option></select>
-            </div>
-
-            <div class="form-group">
-              <label>Department <span class="required">*</span></label>
-              <select><option>Choose department</option></select>
-            </div>
-            <div class="form-group">
-              <label>Category <span class="required">*</span></label>
-              <select><option>Choose category</option></select>
-            </div>
-
-            <div class="form-group">
-              <label>Warranty <span class="required">*</span></label>
-              <div class="file-input-wrapper">
-                <input type="file">
-                <div class="file-input-display">
-                  Choose file <span>📎</span>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Manufacturer <span class="required">*</span></label>
-              <select><option>Choose manufacturer</option></select>
-            </div>
-          </div>
-
-          <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 25px;">
-            <label>Description <span class="required">*</span></label>
-            <textarea placeholder="Input description"></textarea>
           </div>
         </div>
 
@@ -316,82 +242,7 @@
     </div>
 
     <!-- Centered Batch Request Modal -->
-    <div id="batch-modal" class="center-modal-overlay">
-      <div class="center-modal-panel batch-modal">
-        <div class="center-modal-header">
-          <h2>Batch Request Tools</h2>
-        </div>
-        <div class="center-modal-body">
-          <div class="batch-filters">
-            <div class="form-group">
-              <label>Search <span class="required">*</span></label>
-              <input type="text" placeholder="Search">
-            </div>
-            <div class="form-group">
-              <label>Store <span class="required">*</span></label>
-              <select><option>Store</option></select>
-            </div>
-            <div class="form-group">
-              <label>Tool category <span class="required">*</span></label>
-              <select><option>Tool group</option></select>
-            </div>
-          </div>
-          
-          <div class="error-text">Please select store to proceed</div>
-          
-          <div class="pill-grid">
-            <div class="pill-tag selected">Gas kitting</div>
-            <div class="pill-tag">Condet</div>
-            <div class="pill-tag">Punta</div>
-            <div class="pill-tag">Wood punta 8mm</div>
-            <div class="pill-tag selected">Gypson/floor</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            
-            <div class="pill-tag selected">Ground case cable</div>
-            <div class="pill-tag">pipe jonter</div>
-            <div class="pill-tag">Punta</div>
-            <div class="pill-tag">Wood punta 8mm</div>
-            <div class="pill-tag selected">Gypson/floor</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-
-            <div class="pill-tag selected">Ground case cable</div>
-            <div class="pill-tag">pipe jonter</div>
-            <div class="pill-tag">Punta</div>
-            <div class="pill-tag">Wood punta 8mm</div>
-            <div class="pill-tag selected">Gypson/floor</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-
-            <div class="pill-tag selected">Ground case cable</div>
-            <div class="pill-tag">pipe jonter</div>
-            <div class="pill-tag">Punta</div>
-            <div class="pill-tag">Wood punta 8mm</div>
-            <div class="pill-tag selected">Gypson/floor</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-
-            <div class="pill-tag selected">Ground case cable</div>
-            <div class="pill-tag">pipe jonter</div>
-            <div class="pill-tag">Punta</div>
-            <div class="pill-tag">Wood punta 8mm</div>
-            <div class="pill-tag selected">Gypson/floor</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-            <div class="pill-tag">Harry Potter</div>
-          </div>
-        </div>
-        <div class="center-modal-footer" style="justify-content: center; padding: 30px;">
-          <a href="#" class="btn-secondary" style="flex: none; width: 150px;">Cancel</a>
-          <button class="btn-primary" style="flex: none; width: 150px;">Add Tool</button>
-        </div>
-      </div>
-    </div>
+    
   
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

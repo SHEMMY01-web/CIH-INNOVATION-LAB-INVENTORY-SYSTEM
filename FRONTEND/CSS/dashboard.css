@@ -1,5 +1,6 @@
 body {
-  background-color: #fafbfc;
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
 }
 
 .dashboard-layout {
@@ -10,11 +11,11 @@ body {
 /* Sidebar */
 .sidebar {
   width: 250px;
-  background-color: #dbeaf5;
-  /* Light blue */
+  background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 20px 0;
+  transition: background-color 0.3s ease;
 }
 
 .sidebar-header {
@@ -56,15 +57,14 @@ body {
 }
 
 .nav-item.active {
-  background-color: #bbd7ec;
-  /* slightly darker blue */
+  background-color: var(--sidebar-active);
   border-right: 4px solid var(--primary-color);
 }
 
 .theme-toggle {
   display: flex;
   margin: 0 20px;
-  background-color: #c9dfef;
+  background-color: var(--sidebar-active);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -98,7 +98,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px 40px;
-  background-color: #fafbfc;
+  background-color: var(--topbar-bg);
+  transition: background-color 0.3s ease;
 }
 
 .topbar-left h1 {
@@ -121,7 +122,7 @@ body {
 .search-box {
   display: flex;
   align-items: center;
-  background: white;
+  background: var(--card-bg);
   padding: 10px 15px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
@@ -136,7 +137,7 @@ body {
 }
 
 .notification-btn {
-  background: white;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   width: 40px;
@@ -145,13 +146,14 @@ body {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  color: var(--text-color);
 }
 
 .user-profile {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: white;
+  background: var(--card-bg);
   padding: 8px 15px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
@@ -180,10 +182,11 @@ body {
 }
 
 .card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 15px;
   border: 1px solid var(--border-color);
   padding: 20px;
+  transition: background-color 0.3s ease;
 }
 
 /* Tables Row */
@@ -229,7 +232,8 @@ body {
 .data-table td {
   padding: 15px 10px;
   font-size: 0.9rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .img-placeholder {

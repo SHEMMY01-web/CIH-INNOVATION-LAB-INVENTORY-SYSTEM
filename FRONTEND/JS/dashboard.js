@@ -8,35 +8,35 @@ async function loadDashboard() {
   const email = session.user.email;
   const displayName = email.split('@')[0];
   const greetingEl = document.querySelector('.topbar-left h1');
-  if (greetingEl) greetingEl.textContent = `Hello, ${displayName} 👋`;
+  if (greetingEl) greetingEl.textContent = `Hello, ${displayName}`;
   const userNameEl = document.querySelector('.user-info strong');
   if (userNameEl) userNameEl.textContent = displayName;
 
   // ── Fetch all items once ──────────────────────────────────────────────────
-  const { data: allItems, error } = await sbClient
-    .from('items')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const { data: allItems, error } = await window.fetchFromDB('items');
 
   if (error) { console.error(error); return; }
 
-  // ── Compute stats ─────────────────────────────────────────────────────────
-  const assets = allItems.filter(i => (i.type ?? '').toLowerCase() === 'asset');
-  const tools  = allItems.filter(i => (i.type ?? '').toLowerCase() === 'tool');
+  // ── Compute stats using dynamic namespace prefix rules ─────────────────────
+  const assets = allItems.filter(i => (i.type ?? '').toLowerCase().startsWith('asset:'));
+  const tools  = allItems.filter(i => (i.type ?? '').toLowerCase().startsWith('tool:'));
   const items  = allItems.filter(i => {
     const t = (i.type ?? '').toLowerCase();
-    return t !== 'asset' && t !== 'tool';
+    return !t.startsWith('asset:') && !t.startsWith('tool:');
   });
 
   const totalStock   = allItems.reduce((s, r) => s + (r.amount ?? 0), 0);
   const uniqueStores = new Set(allItems.map(i => i.store).filter(Boolean)).size;
-  const uniqueTypes  = new Set(allItems.map(i => i.type).filter(Boolean)).size;
+  const uniqueTypes  = new Set(allItems.map(i => {
+    const t = i.type ?? '';
+    return t.includes(':') ? t.split(':')[1] : t;
+  }).filter(Boolean)).size;
 
   // ── Write stats into IDs ──────────────────────────────────────────────────
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
   set('stat-qty-in-hand',   totalStock);
-  set('stat-to-be-received', 0);        // populate when you have a "pending" column
+  set('stat-to-be-received', 0);
   set('stat-suppliers',     uniqueStores);
   set('stat-categories',    uniqueTypes);
   set('stat-total-items',   items.length);

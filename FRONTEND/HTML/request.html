@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head>  <script>
+    // Apply saved theme before render to prevent flash
+    (function() {
+      var t = localStorage.getItem('app-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
@@ -8,7 +14,8 @@
     <link rel="stylesheet" href="/FRONTEND/CSS/project.css" />
     <link rel="stylesheet" href="/FRONTEND/CSS/modal.css" />
     <title>Requests</title>
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
   <body>
     <div class="dashboard-layout">
       <!-- Sidebar -->
@@ -20,34 +27,28 @@
         
         <nav class="sidebar-nav">
           <a href="dashboard.html" class="nav-item">
-            <span class="nav-icon">⊞</span> Dashboard
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">dashboard</span> Dashboard
           </a>
           <a href="items.html" class="nav-item">
-            <span class="nav-icon">👜</span> Items
-          </a>
-          <a href="tools.html" class="nav-item">
-            <span class="nav-icon">🔧</span> Tools
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Items
           </a>
           <a href="assets.html" class="nav-item">
-            <span class="nav-icon">📊</span> Assets
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">leaderboard</span> Assets
           </a>
           <a href="project.html" class="nav-item">
-            <span class="nav-icon">📁</span> Project
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">folder</span> Project
           </a>
           <a href="request.html" class="nav-item active">
-            <span class="nav-icon">➕</span> Requested & Returned
-          </a>
-          <a href="on_hand.html" class="nav-item">
-            <span class="nav-icon">📦</span> On hand
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">sync_alt</span> Requested & Returned
           </a>
           <a href="grn_report.html" class="nav-item">
-            <span class="nav-icon">📄</span> GRN Report
+            <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> GRN Report
           </a>
         </nav>
 
         <div class="theme-toggle">
-          <button class="toggle-btn active">☀️ Light</button>
-          <button class="toggle-btn">🌙 Dark</button>
+          <button class="toggle-btn active"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">light_mode</span>Light</button>
+          <button class="toggle-btn"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px; margin-right:5px;">dark_mode</span>Dark</button>
         </div>
       </aside>
 
@@ -62,12 +63,12 @@
           
           <div class="topbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="material-symbols-outlined search-icon" style="vertical-align: middle; font-size: 20px;">search</span>
               <input type="text" placeholder="Search">
             </div>
             
             <button class="notification-btn">
-              <span class="bell-icon">🔔</span>
+              <span class="material-symbols-outlined bell-icon" style="vertical-align: middle; font-size: 20px;">notifications</span>
             </button>
             
             <div class="user-profile">
@@ -76,7 +77,6 @@
                 <strong class="user-info-name">—</strong>
                 <span class="user-info-role">—</span>
               </div>
-              <span class="dropdown-icon">▼</span>
             </div>
           </div>
         </header>
@@ -89,27 +89,26 @@
           <!-- Tab Headers -->
           <div class="tabs-header">
             <label for="tab-items" class="tab-label label-items">
-              <span class="nav-icon">👜</span> Requested
+              <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">inventory</span> Requested
             </label>
             <label for="tab-assets" class="tab-label label-assets">
-              <span class="nav-icon">📄</span> Returned
+              <span class="material-symbols-outlined nav-icon" style="vertical-align: middle;">description</span> Returned
             </label>
           </div>
 
           <!-- Tab Content: Requested -->
           <div class="tab-content" id="content-items">
-            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 20px; margin: 0; border: none;">
               <div class="table-toolbar">
-                <div class="table-search">
-                  <span class="search-icon">🔍</span>
-                  <input type="text" placeholder="Search Item">
-                </div>
                 <div class="toolbar-actions">
+                  <a href="#add-transaction-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Transaction
+                  </a>
                   <button class="action-btn primary">
                     <span>⬇</span> Export
                   </button>
                   <a href="#filter-modal" class="action-btn primary" style="text-decoration: none;">
-                    <span>⧼⧽</span> Filter
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
                   </a>
                 </div>
               </div>
@@ -123,7 +122,6 @@
                       <th>Image</th>
                       <th>Model</th>
                       <th>Type</th>
-                      <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
                       <th>Requester</th>
@@ -144,10 +142,10 @@
                 </div>
                 <div class="total-records">Showing 1 to 6 out of 12 projects</div>
                 <div class="pagination-controls">
-                  <button class="page-btn">❮</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
                   <button class="page-btn active">1</button>
                   <button class="page-btn">2</button>
-                  <button class="page-btn">❯</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
                 </div>
               </div>
             </div>
@@ -155,18 +153,17 @@
 
           <!-- Tab Content: Returned -->
           <div class="tab-content" id="content-assets">
-            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 0;">
+            <div class="table-container" style="border-radius: 0; box-shadow: none; padding-top: 20px; margin: 0; border: none;">
               <div class="table-toolbar">
-                <div class="table-search">
-                  <span class="search-icon">🔍</span>
-                  <input type="text" placeholder="Search Item">
-                </div>
                 <div class="toolbar-actions">
+                  <a href="#add-transaction-modal" class="action-btn primary" style="text-decoration: none; background: var(--primary-color); color: white;">
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">add_circle</span> Add Transaction
+                  </a>
                   <button class="action-btn primary">
                     <span>⬇</span> Export
                   </button>
                   <a href="#filter-modal" class="action-btn primary" style="text-decoration: none;">
-                    <span>⧼⧽</span> Filter
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size:18px; margin-right:4px;">filter_alt</span> Filter
                   </a>
                 </div>
               </div>
@@ -180,7 +177,6 @@
                       <th>Image</th>
                       <th>Model</th>
                       <th>Type</th>
-                      <th>Store</th>
                       <th>Amount</th>
                       <th>Project</th>
                       <th>Requester</th>
@@ -201,10 +197,10 @@
                 </div>
                 <div class="total-records">Showing 1 to 6 out of 12 projects</div>
                 <div class="pagination-controls">
-                  <button class="page-btn">❮</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_left</span></button>
                   <button class="page-btn active">1</button>
                   <button class="page-btn">2</button>
-                  <button class="page-btn">❯</button>
+                  <button class="page-btn"><span class="material-symbols-outlined" style="font-size:inherit; vertical-align:middle;">chevron_right</span></button>
                 </div>
               </div>
             </div>
@@ -256,6 +252,65 @@
         </div>
       </div>
     </div>
+
+    <!-- Side Panel Add Transaction Modal -->
+    <div id="add-transaction-modal" class="side-modal-overlay">
+      <div class="side-modal-panel">
+        <div class="modal-header">
+          <h2>Add New Transaction</h2>
+          <a href="#" class="close-btn">&times;</a>
+        </div>
+        
+        <div class="modal-body">
+          <form id="transaction-form" class="form-grid" style="margin-top: 10px;">
+            <div class="form-group">
+              <label>Transaction Type <span class="required">*</span></label>
+              <select id="tx-type" style="width:100%;">
+                <option value="checkout">Request (Checkout)</option>
+                <option value="return">Return</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Select Item / Asset <span class="required">*</span></label>
+              <select id="tx-item-id" style="width:100%;">
+                <option value="">Choose Item...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Amount <span class="required">*</span></label>
+              <input type="number" id="tx-amount" placeholder="Enter amount" min="1" value="1">
+            </div>
+
+            <div class="form-group">
+              <label>Requester Name <span class="required">*</span></label>
+              <input type="text" id="tx-requester" placeholder="Enter requester name">
+            </div>
+
+            <div class="form-group">
+              <label>Project <span class="required">*</span></label>
+              <input type="text" id="tx-project" placeholder="Enter project name (e.g. CIH Lab)">
+            </div>
+
+            <div class="form-group">
+              <label>Proof / Image</label>
+              <div class="file-input-wrapper">
+                <input type="file" id="tx-image">
+                <div class="file-input-display" id="tx-image-display">
+                  Choose file <span class="material-symbols-outlined" style="vertical-align:middle; font-size:18px;">attach_file</span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <a href="#" class="btn-secondary">Cancel</a>
+          <button class="btn-primary" id="tx-submit-btn">Submit Transaction</button>
+        </div>
+      </div>
+    </div>
   
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -263,6 +318,9 @@
     <script src="/FRONTEND/JS/app.js"></script>
     <script src="/FRONTEND/JS/search.js"></script>
     <script src="/FRONTEND/JS/mutations.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="/FRONTEND/JS/export.js"></script>
     <script src="/FRONTEND/JS/inventory.js"></script>
   </body>
 </html>
