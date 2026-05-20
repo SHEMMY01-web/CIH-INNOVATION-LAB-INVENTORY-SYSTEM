@@ -30,27 +30,111 @@ function showTableSkeleton() {
 }
 
 /**
- * Fetch inventory data from Supabase, filtered by type if needed
+ * Fetch inventory data from Supabase and filter locally
  */
 async function fetchInventoryInitial() {
-  showTableSkeleton();
+  const page = window.location.pathname.split('/').pop();
 
-  const typeFilter = getPageTypeFilter();
-  let query = sbClient.from('items').select('*').order('item_name', { ascending: true });
+  if (page === 'request.html') {
+    // ── Handle requests page separately (renders transactions) ─────────────────
+    const tbodies = document.querySelectorAll('.list-table tbody');
+    tbodies.forEach(tb => {
+      const skeletonRow = `<tr class="skeleton-row">${Array(9).fill('<td><div style="height:16px;background:#eee;border-radius:4px;animation:pulse 1.2s infinite;"></div></td>').join('')}</tr>`;
+      tb.innerHTML = Array(4).fill(skeletonRow).join('');
+    });
 
-  if (typeFilter) {
-    query = query.ilike('type', typeFilter); // case-insensitive match
+    const { data: txs, error } = await sbClient
+      .from('transactions')
+      .select('*, items(*)')
+      .order('timestamp', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching transactions:', error.message);
+      return;
+    }
+
+    // Render Requested (checkout)
+    const requestedTbody = document.querySelector('#content-items .list-table tbody');
+    if (requestedTbody) {
+      const requested = txs.filter(t => t.transaction_type === 'checkout' || t.transaction_type === 'request');
+      requestedTbody.innerHTML = requested.length
+        ? requested.map(tx => `
+            <tr>
+              <td><input type="checkbox"></td>
+              <td class="searchable-name">${tx.items?.item_name ?? '—'}</td>
+              <td><div class="item-image" style="${tx.items?.image_url ? `background-image:url('${tx.items.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
+              <td>${tx.items?.model ?? '—'}</td>
+              <td>${tx.items?.type ?? '—'}</td>
+              <td>${tx.items?.store ?? '—'}</td>
+              <td>${tx.amount ?? 0} pcs</td>
+              <td>${tx.project ?? '—'}</td>
+              <td>${tx.requester ?? '—'}</td>
+            </tr>`).join('')
+        : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No requested items found.</td></tr>`;
+    }
+
+    // Render Returned
+    const returnedTbody = document.querySelector('#content-assets .list-table tbody');
+    if (returnedTbody) {
+      const returned = txs.filter(t => t.transaction_type === 'return');
+      returnedTbody.innerHTML = returned.length
+        ? returned.map(tx => `
+            <tr>
+              <td><input type="checkbox"></td>
+              <td class="searchable-name">${tx.items?.item_name ?? '—'}</td>
+              <td><div class="item-image" style="${tx.items?.image_url ? `background-image:url('${tx.items.image_url}'); background-size:cover;` : 'background:#eee;'}"></div></td>
+              <td>${tx.items?.model ?? '—'}</td>
+              <td>${tx.items?.type ?? '—'}</td>
+              <td>${tx.items?.store ?? '—'}</td>
+              <td>${tx.amount ?? 0} pcs</td>
+              <td>${tx.project ?? '—'}</td>
+              <td>${tx.requester ?? '—'}</td>
+            </tr>`).join('')
+        : `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">No returned items found.</td></tr>`;
+    }
+
+    if (typeof updatePaginationText === 'function') {
+      updatePaginationText(txs.length, txs.length);
+    }
+    return;
   }
 
-  const { data, error } = await query;
+  // ── Standard catalog tables ──────────────────────────────────────────────
+  showTableSkeleton();
+
+  const { data, error } = await sbClient
+    .from('items')
+    .select('*')
+    .order('item_name', { ascending: true });
 
   if (error) {
     console.error('Error fetching inventory:', error.message);
     return;
   }
 
-  localInventoryCache = data;
+  const typeFilter = getPageTypeFilter();
+
+  // Filter locally
+  let filteredData = data;
+  if (typeFilter) {
+    filteredData = data.filter(i => (i.type ?? '').toLowerCase() === typeFilter.toLowerCase());
+  } else if (page === 'items.html') {
+    // Items page shows everything that is NOT an Asset and NOT a Tool
+    filteredData = data.filter(i => {
+      const t = (i.type ?? '').toLowerCase();
+      return t !== 'asset' && t !== 'tool';
+    });
+  }
+
+  // Set the cache to the page-filtered subset so search resets work correctly
+  localInventoryCache = filteredData;
   renderInventoryTable(localInventoryCache);
+
+  // Update pagination text dynamically
+  if (typeof updatePaginationText === 'function') {
+    const perPage = parseInt(document.querySelector('.showing-entries select')?.value) || localInventoryCache.length;
+    updatePaginationText(localInventoryCache.length, Math.min(perPage, localInventoryCache.length));
+  }
 
   if (typeof initializeInstantSearch === 'function') {
     initializeInstantSearch();

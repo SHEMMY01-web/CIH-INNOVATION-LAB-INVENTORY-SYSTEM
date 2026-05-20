@@ -1,57 +1,77 @@
 // js/dashboard.js
-// Populates the dashboard with live data from Supabase
 
 async function loadDashboard() {
-  // 1. Get current user info
   const { data: { session } } = await sbClient.auth.getSession();
   if (!session) return;
 
+  // Update greeting with user's email prefix
   const email = session.user.email;
-  const displayName = email.split('@')[0]; // Use part before @ as display name
-
-  // Update greeting
+  const displayName = email.split('@')[0];
   const greetingEl = document.querySelector('.topbar-left h1');
   if (greetingEl) greetingEl.textContent = `Hello, ${displayName} 👋`;
-
-  // Update user profile info
   const userNameEl = document.querySelector('.user-info strong');
   if (userNameEl) userNameEl.textContent = displayName;
 
-  // 2. Fetch summary counts
-  const { count: totalItems } = await sbClient
+  // ── Fetch all items once ──────────────────────────────────────────────────
+  const { data: allItems, error } = await sbClient
     .from('items')
-    .select('*', { count: 'exact', head: true });
-
-  const { data: itemsData } = await sbClient
-    .from('items')
-    .select('amount');
-
-  const totalStock = itemsData ? itemsData.reduce((sum, row) => sum + (row.amount || 0), 0) : 0;
-
-  // Update summary stat cards
-  const statValues = document.querySelectorAll('.stat h4');
-  if (statValues[0]) statValues[0].textContent = totalStock;   // Quantity in Hand
-  if (statValues[2]) statValues[2].textContent = totalItems;   // Total Items
-
-  // 3. Fetch recent items for the dashboard table
-  const { data: recentItems, error } = await sbClient
-    .from('items')
-    .select('item_name, image_url, store, amount')
-    .order('created_at', { ascending: false })
-    .limit(5);
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) { console.error(error); return; }
 
+  // ── Compute stats ─────────────────────────────────────────────────────────
+  const assets = allItems.filter(i => (i.type ?? '').toLowerCase() === 'asset');
+  const tools  = allItems.filter(i => (i.type ?? '').toLowerCase() === 'tool');
+  const items  = allItems.filter(i => {
+    const t = (i.type ?? '').toLowerCase();
+    return t !== 'asset' && t !== 'tool';
+  });
+
+  const totalStock   = allItems.reduce((s, r) => s + (r.amount ?? 0), 0);
+  const uniqueStores = new Set(allItems.map(i => i.store).filter(Boolean)).size;
+  const uniqueTypes  = new Set(allItems.map(i => i.type).filter(Boolean)).size;
+
+  // ── Write stats into IDs ──────────────────────────────────────────────────
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  set('stat-qty-in-hand',   totalStock);
+  set('stat-to-be-received', 0);        // populate when you have a "pending" column
+  set('stat-suppliers',     uniqueStores);
+  set('stat-categories',    uniqueTypes);
+  set('stat-total-items',   items.length);
+  set('stat-items-pending', 0);
+  set('stat-total-assets',  assets.length);
+  set('stat-assets-pending', 0);
+
+  // ── Populate recent items mini-table ──────────────────────────────────────
   const itemsTbody = document.querySelector('.table-card:first-child .data-table tbody');
-  if (itemsTbody && recentItems) {
-    itemsTbody.innerHTML = recentItems.map(item => `
-      <tr>
-        <td>${item.item_name ?? '—'}</td>
-        <td><div class="img-placeholder" style="${item.image_url ? `background-image:url('${item.image_url}')` : ''}"></div></td>
-        <td>${item.store ?? '—'}</td>
-        <td>${item.amount ?? 0} pcs</td>
-      </tr>
-    `).join('');
+  if (itemsTbody) {
+    const recent = items.slice(0, 5);
+    itemsTbody.innerHTML = recent.length
+      ? recent.map(item => `
+          <tr>
+            <td>${item.item_name ?? '—'}</td>
+            <td><div class="img-placeholder" style="${item.image_url ? `background-image:url('${item.image_url}');background-size:cover` : ''}"></div></td>
+            <td>${item.store ?? '—'}</td>
+            <td>${item.amount ?? 0} pcs</td>
+          </tr>`).join('')
+      : `<tr><td colspan="4" style="text-align:center;padding:20px;color:#aaa">No items yet</td></tr>`;
+  }
+
+  // ── Populate recent assets mini-table ─────────────────────────────────────
+  const assetsTbody = document.querySelector('.table-card:nth-child(2) .data-table tbody');
+  if (assetsTbody) {
+    const recent = assets.slice(0, 5);
+    assetsTbody.innerHTML = recent.length
+      ? recent.map(item => `
+          <tr>
+            <td>${item.item_name ?? '—'}</td>
+            <td><div class="img-placeholder" style="${item.image_url ? `background-image:url('${item.image_url}');background-size:cover` : ''}"></div></td>
+            <td>${item.store ?? '—'}</td>
+            <td>${item.amount ?? 0} pcs</td>
+          </tr>`).join('')
+      : `<tr><td colspan="4" style="text-align:center;padding:20px;color:#aaa">No assets yet</td></tr>`;
   }
 }
 

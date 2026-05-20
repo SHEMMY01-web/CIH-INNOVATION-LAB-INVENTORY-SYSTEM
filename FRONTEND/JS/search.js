@@ -1,7 +1,7 @@
 // js/search.js
 
 function initializeInstantSearch() {
-  const searchInput = document.querySelector('.table-search input');
+  const searchInput = document.querySelector('.table-search input') || document.querySelector('.search-box input');
   const tbody = document.querySelector('.list-table tbody');
   
   if (!searchInput || !tbody) return;

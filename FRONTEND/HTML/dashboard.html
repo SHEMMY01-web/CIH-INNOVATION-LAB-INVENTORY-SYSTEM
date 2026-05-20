@@ -54,8 +54,8 @@
         <!-- Top Navbar -->
         <header class="topbar">
           <div class="topbar-left">
-            <h1>Hello Mathias 👋</h1>
-            <p>Good Morning</p>
+            <h1 class="user-greeting-name">Hello 👋</h1>
+            <p class="user-greeting-time">—</p>
           </div>
           
           <div class="topbar-right">
@@ -71,8 +71,8 @@
             <div class="user-profile">
               <div class="avatar"></div>
               <div class="user-info">
-                <strong>Mathias W.</strong>
-                <span>Store Manager</span>
+                <strong class="user-info-name">—</strong>
+                <span class="user-info-role">—</span>
               </div>
               <span class="dropdown-icon">▼</span>
             </div>
@@ -88,7 +88,7 @@
             <div class="card table-card">
               <div class="card-header">
                 <h3>Item List</h3>
-                <a href="#" class="view-all">View All</a>
+                <a href="items.html" class="view-all">View All</a>
               </div>
               <table class="data-table">
                 <thead>
@@ -108,7 +108,7 @@
             <div class="card table-card">
               <div class="card-header">
                 <h3>Asset List</h3>
-                <a href="#" class="view-all">View All</a>
+                <a href="assets.html" class="view-all">View All</a>
               </div>
               <table class="data-table">
                 <thead>
@@ -132,12 +132,12 @@
               <div class="summary-stats">
                 <div class="stat">
                   <div class="icon orange">📦</div>
-                  <h4>868</h4>
+                  <h4 id="stat-qty-in-hand">—</h4>
                   <p>Quantity in Hand</p>
                 </div>
                 <div class="stat">
                   <div class="icon purple">⏱️</div>
-                  <h4>200</h4>
+                  <h4 id="stat-to-be-received">—</h4>
                   <p>To be received</p>
                 </div>
               </div>
@@ -148,12 +148,12 @@
               <div class="summary-stats">
                 <div class="stat">
                   <div class="icon blue">👤</div>
-                  <h4>31</h4>
+                  <h4 id="stat-suppliers">—</h4>
                   <p>Number of Suppliers</p>
                 </div>
                 <div class="stat">
                   <div class="icon purple">📋</div>
-                  <h4>21</h4>
+                  <h4 id="stat-categories">—</h4>
                   <p>Number of Categories</p>
                 </div>
               </div>
@@ -163,13 +163,13 @@
               <h3>Total items</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon light-blue">👤</div>
-                  <h4>31</h4>
+                  <div class="icon light-blue">📦</div>
+                  <h4 id="stat-total-items">—</h4>
                   <p>Total Number of Items</p>
                 </div>
                 <div class="stat">
                   <div class="icon purple">📋</div>
-                  <h4>21</h4>
+                  <h4 id="stat-items-pending">—</h4>
                   <p>To be received</p>
                 </div>
               </div>
@@ -179,13 +179,13 @@
               <h3>Total assets</h3>
               <div class="summary-stats">
                 <div class="stat">
-                  <div class="icon light-blue">👤</div>
-                  <h4>31</h4>
-                  <p>Total Number of assets</p>
+                  <div class="icon light-blue">📊</div>
+                  <h4 id="stat-total-assets">—</h4>
+                  <p>Total Number of Assets</p>
                 </div>
                 <div class="stat">
                   <div class="icon purple">📋</div>
-                  <h4>21</h4>
+                  <h4 id="stat-assets-pending">—</h4>
                   <p>To be received</p>
                 </div>
               </div>
@@ -199,6 +199,7 @@
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
+    <script src="/FRONTEND/JS/app.js"></script>
     <script src="/FRONTEND/JS/search.js"></script>
     <script src="/FRONTEND/JS/mutations.js"></script>
     <script src="/FRONTEND/JS/inventory.js"></script>
