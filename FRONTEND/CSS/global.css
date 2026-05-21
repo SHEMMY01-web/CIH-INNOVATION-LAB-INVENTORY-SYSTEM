@@ -124,3 +124,29 @@ input[type="checkbox"] {
 .form-group {
   margin-bottom: 20px;
 }
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 40px);
+  margin: 0 20px 12px 20px;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 10px;
+  background-color: transparent;
+  color: #e53935;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  text-align: left;
+}
+
+.logout-btn:hover {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+.logout-btn:active {
+  transform: translateY(1px);
+}
