@@ -1,0 +1,7 @@
+{
+  "name": "inventory-system",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p FRONTEND/JS && if [ -n \"$SUPABASE_URL\" ]; then echo \"window.ENV = { SUPABASE_URL: '${SUPABASE_URL}', SUPABASE_ANON_KEY: '${SUPABASE_ANON_KEY}' };\" > FRONTEND/JS/env.js; else echo \"Skipping env.js generation (local)\"; fi"
+  }
+}
