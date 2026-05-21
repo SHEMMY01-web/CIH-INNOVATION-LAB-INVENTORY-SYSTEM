@@ -152,6 +152,7 @@ function setupTransactionTabPagination(tabSelector, transactionsList) {
             <td>${tx.amount ?? 0} ${tx.items?.store || 'pcs'}</td>
             <td>${tx.project ?? '—'}</td>
             <td>${tx.requester ?? '—'}</td>
+            <td>${tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : '—'}</td>
           </tr>`;
       }).join('');
     }
