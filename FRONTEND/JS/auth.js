@@ -12,11 +12,11 @@ const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const path = window.location.pathname;
 const isLoginPage =
-  path.includes('index.html') ||
-  path.endsWith('/') || // Handle root path as login
-  path.includes('enter_otp.html') ||
-  path.includes('forgot_password.html') ||
-  path.includes('login_successful.html');
+  path === '/' ||
+  path.includes('index') ||
+  path.includes('enter_otp') ||
+  path.includes('forgot_password') ||
+  path.includes('login_successful');
 
 // Show a thin loading bar at the top instead of hiding the whole page.
 // This is much faster-feeling than visibility:hidden.
@@ -40,21 +40,21 @@ sbClient.auth.onAuthStateChange((event, session) => {
     finishLoading();
     if (session) {
       if (isLoginPage) {
-        window.location.replace('dashboard.html');
+        window.location.replace('/dashboard');
       }
     } else {
       if (!isLoginPage) {
-        window.location.replace('index.html');
+        window.location.replace('/');
       }
     }
   }
 
   if (event === 'SIGNED_IN' && isLoginPage) {
-    window.location.replace('dashboard.html');
+    window.location.replace('/dashboard');
   }
 
   if (event === 'SIGNED_OUT' && !isLoginPage) {
-    window.location.replace('index.html');
+    window.location.replace('/');
   }
 });
 
