@@ -19,7 +19,8 @@ function populateAddModalDropdowns() {
   const modal = document.querySelector('#add-modal');
   if (!modal) return;
 
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
   // Robust helper to find select element by label text case-insensitively
   const findSelectByLabel = (text) => {
@@ -144,7 +145,8 @@ function hookAddModalSubmit() {
   addBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    const page = window.location.pathname.split('/').pop();
+    const rawPage = window.location.pathname.split('/').pop();
+    const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
     const formGroups = Array.from(modal.querySelectorAll('.form-group'));
     let itemData = {
       item_name: '',
@@ -385,7 +387,8 @@ async function openEditModal(itemId) {
 
   injectEditModal();
 
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
   document.getElementById('edit-item-id').value = currentEditingItem.id;
   document.getElementById('edit-item-name').value = currentEditingItem.item_name ?? '';
@@ -448,7 +451,8 @@ function hookEditSaveSubmit() {
       const itemId = document.getElementById('edit-item-id').value;
       if (!itemId || !currentEditingItem) return;
 
-      const page = window.location.pathname.split('/').pop();
+      const rawPage = window.location.pathname.split('/').pop();
+      const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
       const name = document.getElementById('edit-item-name').value.trim();
       const model = document.getElementById('edit-item-model').value.trim();
       const amount = parseInt(document.getElementById('edit-item-amount').value) || 0;
@@ -844,7 +848,8 @@ document.addEventListener('DOMContentLoaded', () => {
   hookFileInputChanges();
   hookEditSaveSubmit();
 
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
   if (page === 'request.html') {
     populateTransactionItems('checkout'); // default to checkout items on load
     hookTransactionSubmit();

@@ -7,7 +7,8 @@ function initializeInstantSearch() {
   inputs.forEach(searchInput => {
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
-      const page = window.location.pathname.split('/').pop();
+      const rawPage = window.location.pathname.split('/').pop();
+      const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
       // ── Scenario A: Project Card Grid Filtering (project.html) ────────────────
       if (page === 'project.html') {

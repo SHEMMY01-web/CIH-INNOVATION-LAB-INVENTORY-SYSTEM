@@ -202,7 +202,8 @@ function setupTransactionTabPagination(tabSelector, transactionsList) {
  * Fetch inventory data from Supabase and filter locally
  */
 async function fetchInventoryInitial() {
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
   if (page === 'request.html') {
     // ── Handle requests page separately (renders transactions) ─────────────────
@@ -303,7 +304,8 @@ function renderInventoryTable(itemsArray) {
     return;
   }
 
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
   tbody.innerHTML = itemsArray.map(item => {
     const rawType = item.type ?? '';

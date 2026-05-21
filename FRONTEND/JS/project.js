@@ -5,7 +5,8 @@ let projectsCurrentPage = 1;
 let projectsPerPage = 6;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
   if (page === 'project.html') {
     await initializeProjectsCatalog();

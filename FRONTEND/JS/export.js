@@ -52,7 +52,8 @@ function downloadPDF(rows, columns, title, filename) {
  * Export the currently visible / filtered inventory data
  */
 function exportInventoryPDF() {
-  const page = window.location.pathname.split('/').pop();
+  const rawPage = window.location.pathname.split('/').pop();
+  const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
   const dataToExport = (typeof currentFilteredData !== 'undefined' && currentFilteredData.length > 0)
     ? currentFilteredData
     : (typeof localInventoryCache !== 'undefined' ? localInventoryCache : []);
@@ -167,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     e.preventDefault();
 
-    const page = window.location.pathname.split('/').pop();
+    const rawPage = window.location.pathname.split('/').pop();
+    const page = (rawPage && !rawPage.endsWith('.html')) ? rawPage + '.html' : rawPage;
 
     if (page === 'request.html') {
       exportTransactionsPDF();
