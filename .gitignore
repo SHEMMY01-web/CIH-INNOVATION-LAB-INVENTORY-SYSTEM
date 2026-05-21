@@ -11,13 +11,16 @@ Thumbs.db
 *.swp
 *.swo
 
-# Python cache
+# Python virtual environment
+venv/
+.venv/
+
+# Python scripts & data files (local use only)
 __pycache__/
 *.pyc
 *.py
 *.xlsx
 *.csv
-
 
 # Node (if ever added)
 node_modules/
