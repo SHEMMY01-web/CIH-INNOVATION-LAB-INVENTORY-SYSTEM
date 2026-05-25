@@ -112,6 +112,8 @@
                 <th>Model</th>
                 <th>Type</th>
                 <th>Amount</th>
+                <th>Perfectly Working</th>
+                <th>Not in Good Cond.</th>
                 <th>Availability</th>
               </tr>
             </thead>
@@ -201,6 +203,16 @@
               </datalist>
             </div>
 
+            <div class="form-group">
+              <label>Perfectly Working</label>
+              <input type="number" placeholder="Amount perfectly working" value="0">
+            </div>
+
+            <div class="form-group">
+              <label>Not in Good Condition</label>
+              <input type="number" placeholder="Amount not working" value="0">
+            </div>
+
           <div class="form-group">
             <label>Availability <span class="required">*</span></label>
             <select required>
@@ -224,25 +236,7 @@
         <h2>Filter</h2>
       </div>
       <div class="center-modal-body">
-        <div class="filter-section">
-          <div class="filter-section-title">Store</div>
-          <div class="form-group" style="margin-bottom: 15px;">
-            <select required>
-              <option>Select store</option>
-            </select>
-          </div>
-          <div class="form-checkboxes" style="margin-bottom: 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" checked> HQ Main Store
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" checked> 22 House Store
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" checked> Tafo House Store
-            </label>
-          </div>
-        </div>
+        <!-- Store filter section removed as requested -->
 
         <div class="filter-section">
           <div class="filter-section-title">Select Type</div>

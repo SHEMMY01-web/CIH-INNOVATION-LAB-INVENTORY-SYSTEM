@@ -324,6 +324,8 @@ function renderInventoryTable(itemsArray) {
           <td>${item.model ?? '—'}</td>
           <td>${displayType || '—'}</td>
           <td>${item.amount ?? 0} ${item.store || 'pcs'}</td>
+          <td>${item.perfectly_working ?? 0}</td>
+          <td>${item.not_working ?? 0}</td>
           <td>${item.status ?? '—'}</td>
           <td style="white-space:nowrap;">
             <button class="view-img-btn" data-img="${item.image_url || ''}" data-name="${item.item_name ?? ''}" style="background:#0ea5e9; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; display:inline-flex; align-items:center; gap:4px; margin-right:6px; transition:opacity 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">image</span> View</button>

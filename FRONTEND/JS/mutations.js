@@ -154,6 +154,8 @@ function hookAddModalSubmit() {
       type: '',
       store: '',
       amount: 0,
+      perfectly_working: 0,
+      not_working: 0,
       project: '',
       status: 'available',
       image_url: ''
@@ -183,6 +185,10 @@ function hookAddModalSubmit() {
         itemData.store = input?.value || select?.value || '';
       } else if (label.includes('amount')) {
         itemData.amount = parseInt(input?.value) || 0;
+      } else if (label.includes('perfectly')) {
+        itemData.perfectly_working = parseInt(input?.value) || 0;
+      } else if (label.includes('condition') || label.includes('not working')) {
+        itemData.not_working = parseInt(input?.value) || 0;
       } else if (label.includes('project')) {
         itemData.project = input?.value.trim() || select?.value || '';
       } else if (label.includes('status') || label.includes('availability')) {
@@ -206,6 +212,17 @@ function hookAddModalSubmit() {
     try {
       addBtn.disabled = true;
       addBtn.textContent = 'Adding...';
+
+      // --- DUPLICATE CHECKING LOGIC ---
+      const normalizedName = itemData.item_name.replace(/\s+/g, '').toLowerCase();
+      const { data: existingItems } = await sbClient.from('items').select('item_name');
+      const duplicate = existingItems?.find(i => (i.item_name || '').replace(/\s+/g, '').toLowerCase() === normalizedName);
+      if (duplicate) {
+        alert(`An item with a similar name ("${duplicate.item_name}") already exists. To prevent duplicates, please update the existing item or use its exact name.`);
+        addBtn.disabled = false;
+        addBtn.textContent = 'Add';
+        return;
+      }
 
       // --- PROJECT ASSIGNMENT LOGIC ---
       if (page === 'project_detail.html' && itemData.project) {
@@ -326,13 +343,18 @@ function injectEditModal() {
             </div>
 
             <div class="form-group" id="edit-store-group">
-              <label>Store</label>
-              <select id="edit-item-store">
-                <option value="">Choose Store</option>
-                <option value="HQ main">HQ main</option>
-                <option value="22 House Store">22 House Store</option>
-                <option value="Tafo House Store">Tafo House Store</option>
-              </select>
+              <label>Measurement Unit</label>
+              <input type="text" id="edit-item-store" placeholder="e.g. pcs, meters" list="measurement-options">
+            </div>
+
+            <div class="form-group">
+              <label>Perfectly Working</label>
+              <input type="number" id="edit-item-perfectly-working" placeholder="Amount perfectly working" value="0">
+            </div>
+
+            <div class="form-group">
+              <label>Not in Good Condition</label>
+              <input type="number" id="edit-item-not-working" placeholder="Amount not working" value="0">
             </div>
 
             <div class="form-group" id="edit-project-group">
@@ -398,20 +420,27 @@ async function openEditModal(itemId) {
   document.getElementById('edit-item-type').value = rawType.includes(':') ? rawType.split(':')[1] : rawType;
   
   document.getElementById('edit-item-amount').value = currentEditingItem.amount ?? 0;
+  
+  const pwEl = document.getElementById('edit-item-perfectly-working');
+  if (pwEl) pwEl.value = currentEditingItem.perfectly_working ?? 0;
+  
+  const nwEl = document.getElementById('edit-item-not-working');
+  if (nwEl) nwEl.value = currentEditingItem.not_working ?? 0;
+
   document.getElementById('edit-item-status').value = currentEditingItem.status ?? 'available';
 
   // Toggle store/project visibility and values
   const storeGroup = document.getElementById('edit-store-group');
   const projectGroup = document.getElementById('edit-project-group');
 
+  if (storeGroup) {
+    storeGroup.style.display = 'block';
+    document.getElementById('edit-item-store').value = currentEditingItem.store ?? '';
+  }
+
   if (page === 'assets.html' || page === 'items.html') {
-    if (storeGroup) storeGroup.style.display = 'none';
     if (projectGroup) projectGroup.style.display = 'none';
   } else {
-    if (storeGroup) {
-      storeGroup.style.display = 'block';
-      document.getElementById('edit-item-store').value = currentEditingItem.store ?? '';
-    }
     if (projectGroup) {
       projectGroup.style.display = 'block';
       const editProjectInput = document.getElementById('edit-item-project');
@@ -456,11 +485,19 @@ function hookEditSaveSubmit() {
       const name = document.getElementById('edit-item-name').value.trim();
       const model = document.getElementById('edit-item-model').value.trim();
       const amount = parseInt(document.getElementById('edit-item-amount').value) || 0;
+      
+      const pwEl = document.getElementById('edit-item-perfectly-working');
+      const perfectly_working = pwEl ? (parseInt(pwEl.value) || 0) : 0;
+      
+      const nwEl = document.getElementById('edit-item-not-working');
+      const not_working = nwEl ? (parseInt(nwEl.value) || 0) : 0;
+
       const status = document.getElementById('edit-item-status').value;
       let rawType = document.getElementById('edit-item-type').value.trim();
 
       const type = page === 'assets.html' ? `asset:${rawType}` : `item:${rawType}`;
-      const store = (page === 'assets.html' || page === 'items.html') ? null : document.getElementById('edit-item-store').value;
+      const storeEl = document.getElementById('edit-item-store');
+      const store = storeEl ? storeEl.value.trim() : null;
       const project = (page === 'assets.html' || page === 'items.html') ? null : document.getElementById('edit-item-project').value.trim();
 
       if (!name) {
@@ -485,6 +522,8 @@ function hookEditSaveSubmit() {
             model: model,
             type: type,
             amount: amount,
+            perfectly_working: perfectly_working,
+            not_working: not_working,
             status: status,
             store: store,
             project: project,
