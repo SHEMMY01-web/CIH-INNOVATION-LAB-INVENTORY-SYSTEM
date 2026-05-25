@@ -156,6 +156,8 @@ function hookAddModalSubmit() {
       amount: 0,
       perfectly_working: 0,
       not_working: 0,
+      to_be_received: 0,
+      supplier: '',
       project: '',
       status: 'available',
       image_url: ''
@@ -189,6 +191,10 @@ function hookAddModalSubmit() {
         itemData.perfectly_working = parseInt(input?.value) || 0;
       } else if (label.includes('condition') || label.includes('not working')) {
         itemData.not_working = parseInt(input?.value) || 0;
+      } else if (label.includes('received')) {
+        itemData.to_be_received = parseInt(input?.value) || 0;
+      } else if (label.includes('supplier')) {
+        itemData.supplier = input?.value.trim() || '';
       } else if (label.includes('project')) {
         itemData.project = input?.value.trim() || select?.value || '';
       } else if (label.includes('status') || label.includes('availability')) {
@@ -357,6 +363,16 @@ function injectEditModal() {
               <input type="number" id="edit-item-not-working" placeholder="Amount not working" value="0">
             </div>
 
+            <div class="form-group">
+              <label>To Be Received</label>
+              <input type="number" id="edit-item-to-be-received" placeholder="Amount to be received" value="0">
+            </div>
+
+            <div class="form-group">
+              <label>Supplier</label>
+              <input type="text" id="edit-item-supplier" placeholder="Enter supplier name">
+            </div>
+
             <div class="form-group" id="edit-project-group">
               <label>Project</label>
               <input type="text" id="edit-item-project" placeholder="Enter project name">
@@ -427,6 +443,12 @@ async function openEditModal(itemId) {
   const nwEl = document.getElementById('edit-item-not-working');
   if (nwEl) nwEl.value = currentEditingItem.not_working ?? 0;
 
+  const tbrEl = document.getElementById('edit-item-to-be-received');
+  if (tbrEl) tbrEl.value = currentEditingItem.to_be_received ?? 0;
+  
+  const supEl = document.getElementById('edit-item-supplier');
+  if (supEl) supEl.value = currentEditingItem.supplier ?? '';
+
   document.getElementById('edit-item-status').value = currentEditingItem.status ?? 'available';
 
   // Toggle store/project visibility and values
@@ -492,6 +514,12 @@ function hookEditSaveSubmit() {
       const nwEl = document.getElementById('edit-item-not-working');
       const not_working = nwEl ? (parseInt(nwEl.value) || 0) : 0;
 
+      const tbrEl = document.getElementById('edit-item-to-be-received');
+      const to_be_received = tbrEl ? (parseInt(tbrEl.value) || 0) : 0;
+      
+      const supEl = document.getElementById('edit-item-supplier');
+      const supplier = supEl ? supEl.value.trim() : '';
+
       const status = document.getElementById('edit-item-status').value;
       let rawType = document.getElementById('edit-item-type').value.trim();
 
@@ -524,6 +552,8 @@ function hookEditSaveSubmit() {
             amount: amount,
             perfectly_working: perfectly_working,
             not_working: not_working,
+            to_be_received: to_be_received,
+            supplier: supplier,
             status: status,
             store: store,
             project: project,

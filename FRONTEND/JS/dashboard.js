@@ -29,7 +29,13 @@ async function loadDashboard() {
   });
 
   const totalStock   = generalItems.reduce((s, r) => s + (r.amount ?? 0), 0);
-  const uniqueStores = new Set(generalItems.map(i => i.store).filter(Boolean)).size;
+  const totalToBeReceived = generalItems.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+  
+  const itemsPending = items.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+  const assetsPending = assets.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+  
+  const uniqueSuppliers = new Set(generalItems.map(i => i.supplier).filter(Boolean)).size;
+
   const uniqueTypes  = new Set(generalItems.map(i => {
     const t = i.type ?? '';
     return t.includes(':') ? t.split(':')[1] : t;
@@ -39,13 +45,13 @@ async function loadDashboard() {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
   set('stat-qty-in-hand',   totalStock);
-  set('stat-to-be-received', 0);
-  set('stat-suppliers',     uniqueStores);
+  set('stat-to-be-received', totalToBeReceived);
+  set('stat-suppliers',     uniqueSuppliers);
   set('stat-categories',    uniqueTypes);
   set('stat-total-items',   items.length);
-  set('stat-items-pending', 0);
+  set('stat-items-pending', itemsPending);
   set('stat-total-assets',  assets.length);
-  set('stat-assets-pending', 0);
+  set('stat-assets-pending', assetsPending);
 
   // ── Populate recent items mini-table ──────────────────────────────────────
   const itemsTbody = document.querySelector('.table-card:first-child .data-table tbody');
