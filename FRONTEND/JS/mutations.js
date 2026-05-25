@@ -686,7 +686,7 @@ async function populateTransactionItems(txType) {
   }
 
   if (txType === 'return') {
-    // For returns: only show items that have been checked out
+    // For returns: only show items that still have an outstanding borrowed balance
     const { data: txData, error: txError } = await window.fetchFromDB('transactions');
     if (txError) {
       console.error('Error fetching transactions for return modal:', txError.message);
@@ -694,25 +694,35 @@ async function populateTransactionItems(txType) {
       return;
     }
 
-    // Get unique items that were checked out (i.e. they were borrowed)
-    const checkedOutMap = new Map();
-    (txData || [])
-      .filter(t => t.transaction_type === 'checkout' || t.transaction_type === 'request')
-      .forEach(t => {
-        if (t.item_id && t.items && !checkedOutMap.has(t.item_id)) {
-          checkedOutMap.set(t.item_id, t.items);
-        }
-      });
+    // Calculate net outstanding borrows per item_id
+    // (total checkouts - total returns). Only show items with a positive net balance.
+    const balanceMap = new Map(); // item_id -> { item, netBorrowed }
+    (txData || []).forEach(t => {
+      if (!t.item_id || !t.items) return;
+      if (!balanceMap.has(t.item_id)) {
+        balanceMap.set(t.item_id, { item: t.items, netBorrowed: 0 });
+      }
+      const entry = balanceMap.get(t.item_id);
+      if (t.transaction_type === 'checkout' || t.transaction_type === 'request') {
+        entry.netBorrowed += (t.amount || 0);
+      } else if (t.transaction_type === 'return') {
+        entry.netBorrowed -= (t.amount || 0);
+      }
+    });
 
-    if (checkedOutMap.size === 0) {
+    // Filter to only items with a positive outstanding balance
+    const outstandingItems = Array.from(balanceMap.entries())
+      .filter(([, entry]) => entry.netBorrowed > 0)
+      .sort((a, b) => (a[1].item.item_name || '').localeCompare(b[1].item.item_name || ''));
+
+    if (outstandingItems.length === 0) {
       select.innerHTML = '<option value="">No borrowed items to return</option>';
       return;
     }
 
     select.innerHTML = '<option value="">Choose Borrowed Item to Return...</option>' +
-      Array.from(checkedOutMap.entries())
-        .sort((a, b) => (a[1].item_name || '').localeCompare(b[1].item_name || ''))
-        .map(([id, item]) => `<option value="${id}">${item.item_name} (${item.store || 'pcs'})</option>`)
+      outstandingItems
+        .map(([id, entry]) => `<option value="${id}">${entry.item.item_name} (Outstanding: ${entry.netBorrowed} ${entry.item.store || 'pcs'})</option>`)
         .join('');
 
   } else {
