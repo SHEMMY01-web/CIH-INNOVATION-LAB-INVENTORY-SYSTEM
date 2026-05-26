@@ -20,6 +20,7 @@
     { "source": "/project", "destination": "/FRONTEND/HTML/project" },
     { "source": "/project_detail", "destination": "/FRONTEND/HTML/project_detail" },
     { "source": "/request", "destination": "/FRONTEND/HTML/request" },
-    { "source": "/tools", "destination": "/FRONTEND/HTML/tools" }
+    { "source": "/tools", "destination": "/FRONTEND/HTML/tools" },
+    { "source": "/update_password", "destination": "/FRONTEND/HTML/update_password" }
   ]
 }
