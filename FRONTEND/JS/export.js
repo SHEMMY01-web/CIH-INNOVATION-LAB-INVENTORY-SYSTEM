@@ -6,7 +6,7 @@
  */
 function downloadPDF(rows, columns, title, filename) {
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert("jsPDF library is not loaded. Cannot export PDF.");
+    if (typeof showNotify === 'function') showNotify("jsPDF library is not loaded. Cannot export PDF.", 'error');
     return;
   }
 
@@ -59,7 +59,7 @@ function exportInventoryPDF() {
     : (typeof localInventoryCache !== 'undefined' ? localInventoryCache : []);
 
   if (!dataToExport || dataToExport.length === 0) {
-    alert('No data to export!');
+    if (typeof showNotify === 'function') showNotify('No data to export!', 'warning');
     return;
   }
 
@@ -122,7 +122,7 @@ function exportInventoryPDF() {
 function exportTransactionsPDF() {
   const activeTab = document.querySelector('.tab-content.active') || document.querySelector('.tab-content');
   if (!activeTab) {
-    alert('No transaction data to export!');
+    if (typeof showNotify === 'function') showNotify('No transaction data to export!', 'warning');
     return;
   }
 
@@ -139,7 +139,7 @@ function exportTransactionsPDF() {
   }).filter(r => r.item_name && r.item_name !== 'No transactions found.');
 
   if (rows.length === 0) {
-    alert('No transaction data to export!');
+    if (typeof showNotify === 'function') showNotify('No transaction data to export!', 'warning');
     return;
   }
 

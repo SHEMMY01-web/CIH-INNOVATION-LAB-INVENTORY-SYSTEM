@@ -386,3 +386,105 @@ input[type="radio"] {
   gap: 30px;
   margin-bottom: 20px;
 }
+
+/* ── Notification Popup Modal ─────────────────────────────────── */
+.notify-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.notify-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.notify-panel {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  width: 420px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 32px 28px;
+  text-align: center;
+  transform: scale(0.9) translateY(10px);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.notify-overlay.open .notify-panel {
+  transform: scale(1) translateY(0);
+}
+
+.notify-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.notify-icon .material-symbols-outlined {
+  font-size: 30px;
+  color: #fff;
+}
+
+/* Variants */
+.notify-icon.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.notify-icon.error   { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.notify-icon.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.notify-icon.info    { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+.notify-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-color, #1a1a2e);
+  margin-bottom: 8px;
+}
+
+.notify-message {
+  font-size: 0.92rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.55;
+  margin-bottom: 24px;
+  word-break: break-word;
+}
+
+.notify-btn {
+  padding: 11px 40px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notify-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.notify-btn:active {
+  transform: translateY(0);
+}
+
+.notify-btn.success { background: #22c55e; color: #fff; }
+.notify-btn.error   { background: #ef4444; color: #fff; }
+.notify-btn.warning { background: #f59e0b; color: #fff; }
+.notify-btn.info    { background: #3b82f6; color: #fff; }

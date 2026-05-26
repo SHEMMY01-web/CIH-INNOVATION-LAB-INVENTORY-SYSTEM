@@ -266,7 +266,7 @@ function hookProjectSubmit() {
     const status = document.getElementById('project-status')?.value || 'active';
 
     if (!name) {
-      alert('Project Name is required!');
+      if (typeof showNotify === 'function') showNotify('Project Name is required!', 'warning');
       return;
     }
 
@@ -284,14 +284,14 @@ function hookProjectSubmit() {
         }]);
 
       if (error && (error.message.includes('relation') || error.message.includes('does not exist'))) {
-        alert('Notice: To support custom projects, please run the SQL script provided! In the meantime, you can add items with this project name to associate them.');
+        if (typeof showNotify === 'function') showNotify('Notice: To support custom projects, please run the SQL script provided! In the meantime, you can add items with this project name to associate them.', 'info');
         window.location.hash = '';
         return;
       }
 
       if (error) throw error;
 
-      alert('Project created successfully!');
+      if (typeof showNotify === 'function') showNotify('Project created successfully!', 'success');
       window.location.hash = ''; // close modal
 
       // Reset form
@@ -303,7 +303,7 @@ function hookProjectSubmit() {
 
     } catch (err) {
       console.error(err);
-      alert('Error creating project: ' + err.message);
+      if (typeof showNotify === 'function') showNotify('Error creating project: ' + err.message, 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Create Project';
@@ -512,7 +512,7 @@ async function renderProjectDetail() {
                 await renderProjectDetail();
               } catch (err) {
                 console.error(err);
-                alert('Error updating project status: ' + err.message);
+                if (typeof showNotify === 'function') showNotify('Error updating project status: ' + err.message, 'error');
                 btn.disabled = false;
                 btn.style.opacity = '1';
               }

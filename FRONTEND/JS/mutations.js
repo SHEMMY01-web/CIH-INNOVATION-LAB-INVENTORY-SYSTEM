@@ -1,5 +1,60 @@
 // js/mutations.js
 
+// ── Notification Popup (replaces alert) ──────────────────────────────────────
+const NOTIFY_ICONS = {
+  success: 'check_circle',
+  error:   'error',
+  warning: 'warning',
+  info:    'info'
+};
+const NOTIFY_TITLES = {
+  success: 'Success',
+  error:   'Error',
+  warning: 'Warning',
+  info:    'Notice'
+};
+
+/**
+ * Show a styled notification popup modal.
+ * @param {string} message   – The message text to display.
+ * @param {'success'|'error'|'warning'|'info'} type – Visual variant (default: 'info').
+ */
+function showNotify(message, type = 'info') {
+  // Remove any existing notification overlay
+  const existing = document.getElementById('notify-popup');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'notify-popup';
+  overlay.className = 'notify-overlay';
+  overlay.innerHTML = `
+    <div class="notify-panel">
+      <div class="notify-icon ${type}">
+        <span class="material-symbols-outlined">${NOTIFY_ICONS[type] || 'info'}</span>
+      </div>
+      <div class="notify-title">${NOTIFY_TITLES[type] || 'Notice'}</div>
+      <div class="notify-message">${message}</div>
+      <button class="notify-btn ${type}" id="notify-ok-btn">OK</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Trigger open animation on next frame
+  requestAnimationFrame(() => overlay.classList.add('open'));
+
+  // Close handlers
+  const close = () => {
+    overlay.classList.remove('open');
+    setTimeout(() => overlay.remove(), 280);
+  };
+
+  overlay.querySelector('#notify-ok-btn').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+}
+
 /**
  * Convert a file object to a Base64 string for database storage
  */
@@ -211,7 +266,7 @@ function hookAddModalSubmit() {
     }
 
     if (!itemData.item_name) {
-      alert('Item Name is required!');
+      showNotify('Item Name is required!', 'warning');
       return;
     }
 
@@ -224,7 +279,7 @@ function hookAddModalSubmit() {
       const { data: existingItems } = await sbClient.from('items').select('item_name');
       const duplicate = existingItems?.find(i => (i.item_name || '').replace(/\s+/g, '').toLowerCase() === normalizedName);
       if (duplicate) {
-        alert(`An item with a similar name ("${duplicate.item_name}") already exists. To prevent duplicates, please update the existing item or use its exact name.`);
+        showNotify(`An item with a similar name ("${duplicate.item_name}") already exists. To prevent duplicates, please update the existing item or use its exact name.`, 'warning');
         addBtn.disabled = false;
         addBtn.textContent = 'Add';
         return;
@@ -242,7 +297,7 @@ function hookAddModalSubmit() {
         
         // Strict Validation: Item MUST exist in general catalog
         if (!generalItem) {
-          alert(`Access Denied: '${itemData.item_name}' does not exist in the general inventory. Please add it to the main catalog before assigning it to a project.`);
+          showNotify(`Access Denied: '${itemData.item_name}' does not exist in the general inventory. Please add it to the main catalog before assigning it to a project.`, 'error');
           addBtn.disabled = false;
           addBtn.textContent = 'Save';
           return;
@@ -251,7 +306,7 @@ function hookAddModalSubmit() {
         // If it's an item (consumable, not asset or tool), subtract from general catalog
         if (!itemData.type.startsWith('asset:') && !itemData.type.startsWith('tool:')) {
           if (itemData.amount > generalItem.amount) {
-            alert(`Access Denied: Insufficient stock. You want to assign ${itemData.amount}, but only ${generalItem.amount} are available in the general inventory.`);
+            showNotify(`Access Denied: Insufficient stock. You want to assign ${itemData.amount}, but only ${generalItem.amount} are available in the general inventory.`, 'error');
             addBtn.disabled = false;
             addBtn.textContent = 'Save';
             return;
@@ -275,7 +330,7 @@ function hookAddModalSubmit() {
 
       if (error) throw error;
 
-      alert('Item added successfully!');
+      showNotify('Item added successfully!', 'success');
       window.location.hash = ''; // close modal
 
       // Clear input fields
@@ -294,7 +349,7 @@ function hookAddModalSubmit() {
       
     } catch (err) {
       console.error(err);
-      alert('Error adding item: ' + err.message);
+      showNotify('Error adding item: ' + err.message, 'error');
     } finally {
       addBtn.disabled = false;
       addBtn.textContent = 'Add';
@@ -529,7 +584,7 @@ function hookEditSaveSubmit() {
       const project = (page === 'assets.html' || page === 'items.html') ? null : document.getElementById('edit-item-project').value.trim();
 
       if (!name) {
-        alert('Item Name is required!');
+        showNotify('Item Name is required!', 'warning');
         return;
       }
 
@@ -563,7 +618,7 @@ function hookEditSaveSubmit() {
 
         if (error) throw error;
 
-        alert('Item updated successfully!');
+        showNotify('Item updated successfully!', 'success');
         
         // Hide modal
         const editModal = document.getElementById('edit-modal');
@@ -580,7 +635,7 @@ function hookEditSaveSubmit() {
 
       } catch (err) {
         console.error(err);
-        alert('Error updating item: ' + err.message);
+        showNotify('Error updating item: ' + err.message, 'error');
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
@@ -760,15 +815,15 @@ function hookTransactionSubmit() {
     const project = document.getElementById('tx-project').value.trim();
 
     if (!itemId) {
-      alert('Please select an item!');
+      showNotify('Please select an item!', 'warning');
       return;
     }
     if (amount <= 0) {
-      alert('Amount must be greater than 0!');
+      showNotify('Amount must be greater than 0!', 'warning');
       return;
     }
     if (!requester) {
-      alert('Requester name is required!');
+      showNotify('Requester name is required!', 'warning');
       return;
     }
 
@@ -788,7 +843,7 @@ function hookTransactionSubmit() {
       let newAmount = itemData.amount;
       if (txType === 'checkout') {
         if (itemData.amount < amount) {
-          alert('Insufficient stock available! Current stock: ' + itemData.amount);
+          showNotify('Insufficient stock available! Current stock: ' + itemData.amount, 'error');
           return;
         }
         newAmount = itemData.amount - amount;
@@ -845,7 +900,7 @@ function hookTransactionSubmit() {
 
       if (insertErr) throw insertErr;
 
-      alert('Transaction logged successfully!');
+      showNotify('Transaction logged successfully!', 'success');
       
       // Close modal
       window.location.hash = '';
@@ -864,7 +919,7 @@ function hookTransactionSubmit() {
 
     } catch (err) {
       console.error(err);
-      alert('Transaction failed: ' + err.message);
+      showNotify('Transaction failed: ' + err.message, 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Transaction';
@@ -878,7 +933,7 @@ function hookTransactionSubmit() {
 async function processCheckout(itemId, checkoutAmount, requesterName, project) {
   const item = localInventoryCache.find(i => i.id === itemId);
   if (!item || item.amount < checkoutAmount) {
-    alert('Insufficient stock!');
+    showNotify('Insufficient stock!', 'error');
     return;
   }
 
@@ -908,14 +963,14 @@ async function processCheckout(itemId, checkoutAmount, requesterName, project) {
     const row = document.querySelector(`tr[data-id="${itemId}"]`);
     if (row) row.cells[6].textContent = `${item.amount} pcs`;
 
-    alert('Checkout successful!');
+    showNotify('Checkout successful!', 'success');
     window.location.hash = '';
     
     if (typeof window.invalidateCache === 'function') window.invalidateCache();
 
   } catch (error) {
     console.error('Transaction Failed:', error.message);
-    alert('Checkout failed. Please try again.');
+    showNotify('Checkout failed. Please try again.', 'error');
   }
 }
 
