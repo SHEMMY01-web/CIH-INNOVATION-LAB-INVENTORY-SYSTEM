@@ -16,7 +16,8 @@ const isLoginPage =
   path.includes('index') ||
   path.includes('enter_otp') ||
   path.includes('forgot_password') ||
-  path.includes('login_successful');
+  path.includes('login_successful') ||
+  path.includes('update_password');
 
 // Show a thin loading bar at the top instead of hiding the whole page.
 // This is much faster-feeling than visibility:hidden.
@@ -40,7 +41,10 @@ sbClient.auth.onAuthStateChange((event, session) => {
     finishLoading();
     if (session) {
       if (isLoginPage) {
-        window.location.replace('/dashboard');
+        // Do not auto-redirect if they are explicitly on update_password to set a new password
+        if (!path.includes('update_password')) {
+          window.location.replace('/dashboard');
+        }
       }
     } else {
       if (!isLoginPage) {
@@ -50,7 +54,9 @@ sbClient.auth.onAuthStateChange((event, session) => {
   }
 
   if (event === 'SIGNED_IN' && isLoginPage) {
-    window.location.replace('/dashboard');
+    if (!path.includes('update_password')) {
+      window.location.replace('/dashboard');
+    }
   }
 
   if (event === 'SIGNED_OUT' && !isLoginPage) {
