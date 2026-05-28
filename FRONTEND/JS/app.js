@@ -5,6 +5,45 @@
  * Returns "Good Morning", "Good Afternoon", or "Good Evening"
  * based on the current local hour.
  */
+
+// Disable Right-Click (Context Menu)
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+});
+
+// Disable common DevTools keyboard shortcuts
+document.addEventListener('keydown', function (e) {
+    const key = e.key ? e.key.toLowerCase() : '';
+
+    // Prevent F12
+    if (key === 'f12') {
+        e.preventDefault();
+    }
+    
+    // Prevent Ctrl+Shift+I (Windows/Linux) or Cmd+Opt+I (Mac) - Inspect Element
+    if ((e.ctrlKey && e.shiftKey && key === 'i') || (e.metaKey && e.altKey && key === 'i')) {
+        e.preventDefault();
+    }
+    
+    // Prevent Ctrl+Shift+J (Windows/Linux) or Cmd+Opt+J (Mac) - Console
+    if ((e.ctrlKey && e.shiftKey && key === 'j') || (e.metaKey && e.altKey && key === 'j')) {
+        e.preventDefault();
+    }
+    
+    // Prevent Ctrl+Shift+C (Windows/Linux) or Cmd+Opt+C (Mac) - Element Inspector
+    if ((e.ctrlKey && e.shiftKey && key === 'c') || (e.metaKey && e.altKey && key === 'c')) {
+        e.preventDefault();
+    }
+    
+    // Prevent Ctrl+U (Windows/Linux) or Cmd+Opt+U (Mac) - View Source
+    if ((e.ctrlKey && key === 'u') || (e.metaKey && e.altKey && key === 'u')) {
+        e.preventDefault();
+    }
+});
+
+
+
+
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good Morning';
