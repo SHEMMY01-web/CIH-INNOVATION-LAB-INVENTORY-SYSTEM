@@ -1,118 +1,102 @@
 <!doctype html>
 <html lang="en">
-  <head>  <script>
-    // Apply saved theme before render to prevent flash
-    (function() {
-      var t = localStorage.getItem('app-theme') || 'light';
-      document.documentElement.setAttribute('data-theme', t);
-    })();
-  </script>
+  <head>
+    <script>
+      // Apply saved theme before render to prevent flash
+      (function() {
+        var t = localStorage.getItem('app-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/FRONTEND/IMAGES/cih.jpeg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
-    <link rel="stylesheet" href="/FRONTEND/CSS/login.css" />
-    <title>Login — CIH Inventory</title>
+    <title>CIH Innovation Lab - Public Catalog</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-</head>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/FRONTEND/CSS/global.css" />
+    <link rel="stylesheet" href="/FRONTEND/CSS/landing.css" />
+  </head>
   <body>
-    <section class="auth-section">
-      <div class="auth-container form_section">
-        <div class="logo">
-          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="CIH Logo" />
-          <h1>Inventory</h1>
+    <!-- Navigation -->
+    <nav class="landing-nav">
+      <div class="nav-container">
+        <div class="logo-area">
+          <img src="/FRONTEND/IMAGES/cih-removebg-preview.png" alt="CIH Logo" class="landing-logo" />
+          <span class="logo-text">Innovation Lab Inventory</span>
         </div>
-        <div class="auth-header welcome">
-          <h1>Welcome,</h1>
-          <p>Please Login here</p>
-        </div>
-        <div>
-          <form id="login-form">
-            <div class="form-group">
-              <input type="email" id="login-email" required placeholder="Email" />
-            </div>
-            <div class="form-group" style="position: relative;">
-              <input type="password" id="login-password" required placeholder="Password" style="width: 100%; padding-right: 40px; box-sizing: border-box;" />
-              <span class="material-symbols-outlined toggle-password" id="toggle-pwd-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; user-select: none;">visibility_off</span>
-            </div>
-            <div class="forgot">
-              <div class="remember">
-                <input type="checkbox" id="remember_me" />
-                <label for="remember_me">Remember Me</label>
-              </div>
-              <a href="/forgot_password">Forgot Password?</a>
-            </div>
-            <p id="login-message" style="color:#1a73e8; font-size:0.9rem; min-height:18px; margin: 0 0 8px 0;"></p>
-            <input type="submit" id="login-btn" class="btn-primary login-btn" value="Login" />
-          </form>
+        <div class="nav-actions">
+          <button class="theme-btn" id="landing-theme-toggle">
+            <span class="material-symbols-outlined light-icon">light_mode</span>
+            <span class="material-symbols-outlined dark-icon" style="display:none;">dark_mode</span>
+          </button>
+          <a href="/login.html" class="login-btn-nav">
+            <span class="material-symbols-outlined">login</span> Staff Login
+          </a>
         </div>
       </div>
-    </section>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Explore Our <span>Equipment</span></h1>
+        <p class="hero-subtitle">Browse the available assets and tools at the CIH Innovation Lab. Find exactly what you need for your next project.</p>
+        
+        <div class="search-container">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" id="catalog-search" placeholder="Search by item name, model, or type..." />
+        </div>
+
+        <div class="filter-chips">
+          <button class="chip active" data-filter="all">All Items</button>
+          <button class="chip" data-filter="assets">Assets</button>
+          <button class="chip" data-filter="tools">Tools</button>
+          <button class="chip" data-filter="general">General</button>
+        </div>
+      </div>
+      <div class="hero-bg-glow"></div>
+    </header>
+
+    <!-- Catalog Section -->
+    <main class="catalog-section">
+      <div class="catalog-header">
+        <h2 class="section-title">Available Inventory</h2>
+        <div class="catalog-stats" id="catalog-stats">Loading...</div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="catalog-loading" class="catalog-loading">
+        <div class="spinner"></div>
+        <p>Loading inventory...</p>
+      </div>
+
+      <!-- Items Grid -->
+      <div class="catalog-grid" id="catalog-grid" style="display: none;">
+        <!-- Cards will be injected here dynamically -->
+      </div>
+      
+      <!-- Empty State -->
+      <div class="empty-state" id="catalog-empty" style="display: none;">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <h3>No items found</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <p>&copy; 2026 CIH Innovation Lab. All rights reserved.</p>
+    </footer>
 
     <!-- Supabase Client & App Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/FRONTEND/JS/env.js"></script>
     <script src="/FRONTEND/JS/auth.js"></script>
-    <script src="/FRONTEND/JS/app.js"></script>
-    <script>
-      const loginForm = document.getElementById('login-form');
-      const loginMessage = document.getElementById('login-message');
-      const loginBtn = document.getElementById('login-btn');
-      const rememberMeCheckbox = document.getElementById('remember_me');
-
-      // Restore saved email if "Remember Me" was previously checked
-      const savedEmail = localStorage.getItem('rememberedEmail');
-      if (savedEmail) {
-        document.getElementById('login-email').value = savedEmail;
-        rememberMeCheckbox.checked = true;
-      }
-      
-      // Explicitly clear password field on load to prevent stale browser cache
-      document.getElementById('login-password').value = '';
-
-      // Password visibility toggle
-      const togglePwdBtn = document.getElementById('toggle-pwd-btn');
-      const pwdInput = document.getElementById('login-password');
-      togglePwdBtn.addEventListener('click', () => {
-        const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        pwdInput.setAttribute('type', type);
-        togglePwdBtn.textContent = type === 'password' ? 'visibility_off' : 'visibility';
-      });
-
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
-        const rememberMe = rememberMeCheckbox.checked;
-
-        loginBtn.value = 'Logging in...';
-        loginBtn.disabled = true;
-        loginMessage.textContent = '';
-
-        const { error } = await sbClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-          loginMessage.style.color = '#e53935';
-          loginMessage.textContent = error.message;
-          loginBtn.value = 'Login';
-          loginBtn.disabled = false;
-        } else {
-          // Handle Remember Me
-          if (rememberMe) {
-            localStorage.setItem('rememberedEmail', email);
-            localStorage.setItem('rememberMe', 'true');
-          } else {
-            localStorage.removeItem('rememberedEmail');
-            localStorage.removeItem('rememberMe');
-            document.getElementById('login-email').value = ''; // clear email if not remembered
-            // Mark this as a session-only login (no persistence)
-            sessionStorage.setItem('sessionOnlyLogin', 'true');
-          }
-          // Clear password immediately on success
-          document.getElementById('login-password').value = '';
-          // onAuthStateChange in auth.js will handle redirect to dashboard
-        }
-      });
-    </script>
+    <script src="/FRONTEND/JS/landing.js"></script>
   </body>
 </html>

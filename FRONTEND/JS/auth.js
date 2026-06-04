@@ -11,9 +11,9 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const path = window.location.pathname;
+const isPublicPage = path === '/' || path.endsWith('/') || path.includes('index');
 const isLoginPage =
-  path === '/' ||
-  path.includes('index') ||
+  path.includes('login') ||
   path.includes('enter_otp') ||
   path.includes('forgot_password') ||
   path.includes('login_successful') ||
@@ -47,8 +47,8 @@ sbClient.auth.onAuthStateChange((event, session) => {
         }
       }
     } else {
-      if (!isLoginPage) {
-        window.location.replace('/');
+      if (!isLoginPage && !isPublicPage) {
+        window.location.replace('/login.html');
       }
     }
   }
@@ -59,8 +59,8 @@ sbClient.auth.onAuthStateChange((event, session) => {
     }
   }
 
-  if (event === 'SIGNED_OUT' && !isLoginPage) {
-    window.location.replace('/');
+  if (event === 'SIGNED_OUT' && !isLoginPage && !isPublicPage) {
+    window.location.replace('/login.html');
   }
 });
 

@@ -6,10 +6,14 @@
     { "source": "/FRONTEND/HTML/index.html", "destination": "/" },
     { "source": "/index.html", "destination": "/" },
     { "source": "/index", "destination": "/" },
+    { "source": "/FRONTEND/HTML/login", "destination": "/login" },
+    { "source": "/FRONTEND/HTML/login.html", "destination": "/login" },
+    { "source": "/login.html", "destination": "/login" },
     { "source": "/FRONTEND/HTML/(.*)", "destination": "/$1" }
   ],
   "rewrites": [
     { "source": "/", "destination": "/FRONTEND/HTML/index" },
+    { "source": "/login", "destination": "/FRONTEND/HTML/login" },
     { "source": "/assets", "destination": "/FRONTEND/HTML/assets" },
     { "source": "/dashboard", "destination": "/FRONTEND/HTML/dashboard" },
     { "source": "/enter_otp", "destination": "/FRONTEND/HTML/enter_otp" },
