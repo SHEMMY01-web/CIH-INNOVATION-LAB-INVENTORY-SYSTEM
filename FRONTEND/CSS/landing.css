@@ -512,7 +512,7 @@ h1, h2, h3, h4 {
 
 /* Skeleton Loading */
 .skeleton-grid {
-  display: grid !important;
+  display: grid;
 }
 
 @keyframes shimmer {
