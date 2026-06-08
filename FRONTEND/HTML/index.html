@@ -159,10 +159,12 @@
           </div>
         </div>
 
-        <!-- Loading State -->
-      <div id="catalog-loading" class="catalog-loading">
-        <div class="spinner"></div>
-        <p>Loading inventory...</p>
+        <!-- Loading Skeleton -->
+      <div id="catalog-loading" class="catalog-grid skeleton-grid">
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-footer"><div class="skeleton-badge"></div><div class="skeleton-qty"></div></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-footer"><div class="skeleton-badge"></div><div class="skeleton-qty"></div></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-footer"><div class="skeleton-badge"></div><div class="skeleton-qty"></div></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-footer"><div class="skeleton-badge"></div><div class="skeleton-qty"></div></div></div></div>
       </div>
 
       <!-- Items Grid -->
@@ -175,6 +177,10 @@
         <span class="material-symbols-outlined">inventory_2</span>
         <h3>No items found</h3>
         <p>Try adjusting your search or filters.</p>
+      </div>
+
+      <div class="view-all-container" style="display: flex; justify-content: center; margin-top: 48px;">
+        <a href="/FRONTEND/HTML/catalog.html" class="primary-btn" style="background-color: transparent; border: 2px solid var(--brand-primary); color: var(--brand-primary);">View All Items <span class="material-symbols-outlined">arrow_forward</span></a>
       </div>
       </div>
     </section>

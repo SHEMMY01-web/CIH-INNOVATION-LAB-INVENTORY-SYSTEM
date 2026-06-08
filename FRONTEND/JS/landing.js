@@ -68,11 +68,11 @@ function updateThemeIcons(theme) {
  */
 async function fetchAndRenderItems() {
   try {
-    // Show loading state
-    loadingIndicator.style.display = 'flex';
+    // Show loading skeleton
+    loadingIndicator.style.display = 'grid';
     gridContainer.style.display = 'none';
     emptyState.style.display = 'none';
-    statsElement.textContent = 'Loading...';
+    statsElement.textContent = '';
 
     // Fetch items directly using the sbClient provided by auth.js
     const { data, error } = await sbClient
@@ -90,11 +90,10 @@ async function fetchAndRenderItems() {
 
     renderGrid();
   } catch (error) {
-    console.error('Error fetching inventory:', error.message);
     loadingIndicator.style.display = 'none';
     emptyState.style.display = 'flex';
-    emptyState.querySelector('h3').textContent = 'Unable to load catalog';
-    emptyState.querySelector('p').textContent = 'Please try again later. Ensure database permissions allow public access.';
+    emptyState.querySelector('h3').textContent = 'Oops! Something went wrong';
+    emptyState.querySelector('p').textContent = 'Please check your internet connection and try refreshing the page. 😊';
   }
 }
 
@@ -113,9 +112,20 @@ function renderGrid() {
 
   gridContainer.style.display = 'grid';
   emptyState.style.display = 'none';
-  statsElement.textContent = `${filteredItems.length} item${filteredItems.length !== 1 ? 's' : ''} available`;
+  
+  const totalAvailable = filteredItems.length;
+  let itemsToRender = filteredItems;
+  const isLanding = !window.location.pathname.includes('catalog');
+  
+  if (isLanding) {
+    itemsToRender = filteredItems.slice(0, 8);
+  }
+  
+  statsElement.textContent = isLanding 
+    ? `Showing ${itemsToRender.length} of ${totalAvailable} items`
+    : `${totalAvailable} item${totalAvailable !== 1 ? 's' : ''} available`;
 
-  const html = filteredItems.map(item => {
+  const html = itemsToRender.map(item => {
     // Parse Type
     const rawType = item.type || 'General';
     const displayType = rawType.includes(':') ? rawType.split(':')[1].trim() : rawType;
@@ -258,8 +268,7 @@ function setupCommentsForm() {
       }, 5000);
       
     } catch (error) {
-      console.error('Error posting comment:', error.message);
-      commentMessage.textContent = 'Failed to post comment. Ensure the comments table exists.';
+      commentMessage.textContent = 'Something went wrong while posting your comment. Please check your connection and try again. 😊';
       commentMessage.className = 'form-message error';
     } finally {
       submitBtn.disabled = false;
@@ -315,9 +324,8 @@ async function fetchComments() {
     commentsListContainer.innerHTML = html;
     
   } catch (error) {
-    console.error('Error fetching comments:', error.message);
     commentsLoading.style.display = 'none';
-    commentsListContainer.innerHTML = '<p style="color: var(--status-unavail-text); text-align: center;">Could not load comments. The comments table might not exist or lacks public read access.</p>';
+    commentsListContainer.innerHTML = '<p style="color: var(--landing-text-muted); text-align: center;">Comments are not available right now. Please check your connection and try again later. 😊</p>';
   }
 }
 
