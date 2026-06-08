@@ -248,6 +248,11 @@ function setupCommentsForm() {
     submitBtn.innerHTML = 'Posting... <span class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-bottom: 0; display: inline-block;"></span>';
     
     try {
+      // Check internet connectivity first
+      if (!navigator.onLine) {
+        throw new Error('offline');
+      }
+
       const { data, error } = await sbClient
         .from('comments')
         .insert([{ name, comment: text }]);
