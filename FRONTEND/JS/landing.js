@@ -12,13 +12,25 @@ const searchInput = document.getElementById('catalog-search');
 const filterChips = document.querySelectorAll('.chip');
 const themeToggleBtn = document.getElementById('landing-theme-toggle');
 
+// Comment DOM Elements
+const commentForm = document.getElementById('comment-form');
+const commentNameInput = document.getElementById('comment-name');
+const commentTextInput = document.getElementById('comment-text');
+const commentsListContainer = document.getElementById('comments-list');
+const commentMessage = document.getElementById('comment-message');
+const commentsLoading = document.getElementById('comments-loading');
+
 /**
  * Initialize the landing page
  */
 async function initLandingPage() {
   setupThemeToggle();
-  await fetchAndRenderItems();
   setupEventListeners();
+  setupCommentsForm();
+  await Promise.all([
+    fetchAndRenderItems(),
+    fetchComments()
+  ]);
 }
 
 /**
@@ -205,6 +217,108 @@ function applyFilters() {
   });
 
   renderGrid();
+}
+
+/**
+ * Setup Comments Form
+ */
+function setupCommentsForm() {
+  if (!commentForm) return;
+
+  commentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = commentNameInput.value.trim() || 'Anonymous';
+    const text = commentTextInput.value.trim();
+    
+    if (!text) return;
+    
+    const submitBtn = document.getElementById('submit-comment-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Posting... <span class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-bottom: 0; display: inline-block;"></span>';
+    
+    try {
+      const { data, error } = await sbClient
+        .from('comments')
+        .insert([{ name, comment: text }]);
+        
+      if (error) throw error;
+      
+      // Success
+      commentMessage.textContent = 'Comment posted successfully!';
+      commentMessage.className = 'form-message success';
+      commentForm.reset();
+      
+      // Refresh comments
+      await fetchComments();
+      
+      setTimeout(() => {
+        commentMessage.textContent = '';
+        commentMessage.className = 'form-message';
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Error posting comment:', error.message);
+      commentMessage.textContent = 'Failed to post comment. Ensure the comments table exists.';
+      commentMessage.className = 'form-message error';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Post Comment <span class="material-symbols-outlined">send</span>';
+    }
+  });
+}
+
+/**
+ * Fetch and Render Comments
+ */
+async function fetchComments() {
+  if (!commentsListContainer || !commentsLoading) return;
+  
+  try {
+    commentsLoading.style.display = 'flex';
+    // Clear existing (excluding loader)
+    Array.from(commentsListContainer.children).forEach(child => {
+      if (child.id !== 'comments-loading') child.remove();
+    });
+
+    const { data, error } = await sbClient
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10);
+      
+    if (error) throw error;
+    
+    commentsLoading.style.display = 'none';
+    
+    if (!data || data.length === 0) {
+      commentsListContainer.innerHTML = '<p style="color: var(--landing-text-muted); text-align: center;">No comments yet. Be the first to share your thoughts!</p>';
+      return;
+    }
+    
+    const html = data.map(comment => {
+      const date = new Date(comment.created_at).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+      return `
+        <div class="comment-item">
+          <div class="comment-author">
+            <span class="material-symbols-outlined">account_circle</span>
+            ${comment.name || 'Anonymous'}
+          </div>
+          <div class="comment-date">${date}</div>
+          <p class="comment-body">${comment.comment}</p>
+        </div>
+      `;
+    }).join('');
+    
+    commentsListContainer.innerHTML = html;
+    
+  } catch (error) {
+    console.error('Error fetching comments:', error.message);
+    commentsLoading.style.display = 'none';
+    commentsListContainer.innerHTML = '<p style="color: var(--status-unavail-text); text-align: center;">Could not load comments. The comments table might not exist or lacks public read access.</p>';
+  }
 }
 
 // Run on Load
