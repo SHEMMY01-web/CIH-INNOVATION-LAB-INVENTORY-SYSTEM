@@ -11,7 +11,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const path = window.location.pathname;
-const isPublicPage = path === '/' || path.endsWith('/') || path.includes('index');
+const isPublicPage = path === '/' || path.endsWith('/') || path.includes('index') || path.includes('catalog');
 const isLoginPage =
   path.includes('login') ||
   path.includes('enter_otp') ||
