@@ -1,7 +1,7 @@
 /* Shared Layout for List Views (Items, Assets, Tools) */
 
 body {
-  background-color: #fafbfc;
+  background-color: var(--bg-color);
   margin: 0;
 }
 
@@ -200,7 +200,7 @@ body {
 .table-search {
   display: flex;
   align-items: center;
-  background: white;
+  background: var(--input-bg);
   padding: 10px 15px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
@@ -212,6 +212,8 @@ body {
   outline: none;
   margin-left: 10px;
   width: 100%;
+  background: transparent;
+  color: var(--text-color);
 }
 
 .toolbar-actions {

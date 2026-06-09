@@ -127,7 +127,8 @@
   outline: none;
   font-family: inherit;
   transition: border-color 0.2s;
-  background-color: white;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   width: 100%;
 }
 
@@ -185,13 +186,13 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  background-color: #ffffff;
+  background-color: var(--topbar-bg);
 }
 
 .btn-secondary {
   padding: 12px 30px;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   font-size: 1rem;
   font-weight: 500;
@@ -245,7 +246,7 @@
 }
 
 .center-modal-panel {
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -360,7 +361,7 @@ input[type="radio"] {
   padding: 8px 16px;
   border-radius: 20px;
   border: 1px solid var(--border-color);
-  background-color: white;
+  background-color: var(--card-bg);
   font-size: 0.9rem;
   color: var(--text-secondary);
   cursor: pointer;
@@ -411,7 +412,7 @@ input[type="radio"] {
 }
 
 .notify-panel {
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   border-radius: 20px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   width: 420px;
