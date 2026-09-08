@@ -76,7 +76,7 @@ export default function Home() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || commentText.length > 500) return;
 
     setIsSubmitting(true);
 
@@ -356,6 +356,7 @@ export default function Home() {
                   type="text"
                   id="comment-name"
                   placeholder="Your name (optional)"
+                  maxLength={50}
                   value={commentName}
                   onChange={(e) => setCommentName(e.target.value)}
                 />
@@ -367,9 +368,13 @@ export default function Home() {
                   rows="4"
                   placeholder="Share your experience..."
                   required
+                  maxLength={500}
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                 ></textarea>
+                <span style={{ fontSize: '0.75rem', color: commentText.length > 450 ? '#ef4444' : '#94a3b8', textAlign: 'right', display: 'block', marginTop: '4px' }}>
+                  {commentText.length}/500
+                </span>
               </div>
               <button type="submit" className="primary-btn submit-btn" disabled={isSubmitting}>
                 {isSubmitting ? 'Posting...' : 'Post Comment'}

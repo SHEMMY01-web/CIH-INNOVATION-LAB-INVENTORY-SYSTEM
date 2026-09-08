@@ -25,7 +25,11 @@ export default function ForgotPassword() {
       setIsLoading(false);
     } else {
       setMessage({ text: 'Password reset link sent! Check your email.', type: 'success' });
-      // Keep button disabled to prevent spam
+      // Re-enable button after 30 seconds in case user needs to retry
+      setTimeout(() => {
+        setIsLoading(false);
+        setMessage({ text: '', type: '' });
+      }, 30000);
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/login.css'; // Or whatever global styles for auth
@@ -74,7 +74,7 @@ export default function Login() {
               />
             </div>
             <div className="forgot" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <a href="/forgot_password">Forgot Password?</a>
+              <Link to="/forgot_password">Forgot Password?</Link>
             </div>
             
             <input 

@@ -1,9 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const defaultUrl = 'https://kkltrgjszsuozlrnjrnb.supabase.co';
-const defaultAnonKey = 'sb_publishable_XhJwMl5PFjt7uEoKqlMwxw_pXJ0vcur';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || defaultUrl;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || defaultAnonKey;
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error(
+    '[Supabase] Missing environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set.\n' +
+    'Create a .env file in the client/ directory or set them in your Vercel dashboard.'
+  );
+}
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+)

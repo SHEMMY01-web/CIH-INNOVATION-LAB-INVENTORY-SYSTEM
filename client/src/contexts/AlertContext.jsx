@@ -102,7 +102,7 @@ export function AlertProvider({ children }) {
     });
   }, []);
 
-  // Connect global non-React triggers and patch window.alert
+  // Connect global non-React triggers
   useEffect(() => {
     globalAlertHandler = ({ message, title, type }) => {
       return showAlert({ message, title, type });
@@ -112,16 +112,9 @@ export function AlertProvider({ children }) {
       return showConfirm({ message, title, isDanger });
     };
 
-    // Patch window.alert to automatically route through the branded popup
-    const originalAlert = window.alert;
-    window.alert = (msg) => {
-      showAlert({ message: msg });
-    };
-
     return () => {
       globalAlertHandler = null;
       globalConfirmHandler = null;
-      window.alert = originalAlert;
     };
   }, [showAlert, showConfirm]);
 

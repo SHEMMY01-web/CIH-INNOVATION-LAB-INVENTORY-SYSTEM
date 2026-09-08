@@ -21,11 +21,7 @@ const CORE_STATIC_ASSETS = [
   '/IMAGES/cih.jpeg',
   '/IMAGES/community-innovation-hub-logo.jpeg',
   '/IMAGES/empty-state.png',
-  '/IMAGES/hero-bg.webp',
   '/IMAGES/hero-bg.jpg',
-  '/IMAGES/hero_bg_lab.webp',
-  '/IMAGES/hero_bg_lab.png',
-  '/IMAGES/about-team.webp',
   '/IMAGES/projects/project-rover.webp',
   '/IMAGES/projects/project-iot.webp',
   '/IMAGES/projects/project-ai.webp'

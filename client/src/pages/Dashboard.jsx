@@ -93,6 +93,8 @@ export default function Dashboard() {
           totalAssets: assetsData.length,
           assetsPending: assetsPending
         });
+      } catch (err) {
+        console.error('Dashboard data fetch error:', err);
       } finally {
         setLoading(false);
       }
