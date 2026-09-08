@@ -11,5 +11,8 @@
     "build": "npm --prefix client install && npm --prefix client run build",
     "preview": "npm --prefix client run preview",
     "lint": "npm --prefix client run lint"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
   }
 }
