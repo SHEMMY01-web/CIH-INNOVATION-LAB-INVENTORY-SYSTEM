@@ -50,7 +50,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         // Fetch All Items
-        const { data: allItems } = await supabase
+        const { data } = await supabase
           .from('items')
           .select('*')
           .order('created_at', { ascending: false });

@@ -17,6 +17,7 @@ export default function GrnReport() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState({ status: 'all', supplier: 'all' });
 

@@ -72,6 +72,7 @@ export default function Requests() {
   const [proofFile, setProofFile] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [lightboxItem, setLightboxItem] = useState(null);
 
   useEffect(() => {
