@@ -2,9 +2,13 @@
   "name": "cih-innovation-lab-inventory",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "client"
+  ],
   "scripts": {
+    "install-client": "npm --prefix client install",
     "dev": "npm --prefix client run dev",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client install && npm --prefix client run build",
     "preview": "npm --prefix client run preview",
     "lint": "npm --prefix client run lint"
   }
