@@ -1,0 +1,27 @@
+{
+  "name": "Community Innovation Hub - Inventory System",
+  "short_name": "CIH Inventory",
+  "description": "Offline-ready equipment catalog and inventory management system for the CIH Innovation Lab.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1c21df",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/IMAGES/cih.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/IMAGES/community-innovation-hub-logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/IMAGES/cih-footer-logo.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,31 +1,92 @@
-# ==============================
-# Environment / Secrets
-# ==============================
-# Contains live Supabase URL and anon key — NEVER commit this
-FRONTEND/JS/env.js
+# ==============================================================================
+# Environment & Secrets (NEVER commit live credentials or keys)
+# ==============================================================================
+.env
+.env.*
+*.env
+!.env.example
+env.js
 
-# OS & Editor
-.DS_Store
-Thumbs.db
-.vscode/
-*.swp
-*.swo
+# ==============================================================================
+# Dependencies & Package Managers
+# ==============================================================================
+node_modules/
+*/node_modules/
+.pnpm-store/
 
-# Python virtual environment
+# ==============================================================================
+# Production Build Outputs
+# ==============================================================================
+dist/
+dist-ssr/
+client/dist/
+build/
+*.tsbuildinfo
+
+# ==============================================================================
+# Logs & Debugging
+# ==============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================================================================
+# Python Virtual Environments, Local Scripts & Bytecode
+# ==============================================================================
 venv/
 .venv/
-
-# Python scripts & data files (local use only)
+env/
+ENV/
 __pycache__/
+*.py[cod]
 *.pyc
 *.py
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# ==============================================================================
+# Data Dumps & Spreadsheets (Local Use Only)
+# ==============================================================================
 *.xlsx
 *.csv
 
-#
- Node (if ever added)
-+
-node_modules/
+# ==============================================================================
+# OS & File System Artifacts
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+.Spotlight-V100
+.Trashes
 
-.env
-env.js
+# ==============================================================================
+# IDE & Editor Settings
+# ==============================================================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# ==============================================================================
+# Temporary, Cache & Test Files
+# ==============================================================================
+.eslintcache
+.cache/
+.temp/
+*.tmp
+*.bak
+coverage/
+.nyc_output/

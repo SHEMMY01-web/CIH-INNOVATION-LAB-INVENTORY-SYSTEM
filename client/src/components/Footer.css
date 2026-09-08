@@ -1,0 +1,256 @@
+/* ─── CIH Official Dark Footer ────────────────────────────── */
+.cih-footer {
+  background-color: #121316;
+  color: #ffffff;
+  padding: 64px 0 32px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  width: 100%;
+}
+
+.cih-footer .footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* ─── Top Section: Logo & Mission ───────────────────────── */
+.footer-top-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.footer-logo-wrapper {
+  margin-bottom: 4px;
+}
+
+.cih-footer-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+}
+
+.cih-footer-logo:hover {
+  transform: scale(1.03);
+}
+
+.footer-mission-block {
+  max-width: 680px;
+}
+
+.footer-mission-heading {
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.3px;
+}
+
+.mission-underline {
+  width: 36px;
+  height: 3px;
+  background-color: #f95738;
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+
+.footer-mission-paragraph {
+  color: #c4c8d4;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ─── Divider Line ──────────────────────────────────────── */
+.footer-divider-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 48px 0 24px 0;
+  width: 100%;
+}
+
+/* ─── Bottom Bar ────────────────────────────────────────── */
+.footer-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-copyright-text {
+  color: #717684;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.footer-copyright-text a {
+  color: #8f95a6;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-copyright-text a:hover {
+  color: #f95738;
+}
+
+.footer-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.footer-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-nav-menu a {
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-nav-menu a:hover {
+  color: #f95738;
+}
+
+.footer-dot {
+  color: #f95738;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* ─── Scroll-to-Top Button ──────────────────────────────── */
+.footer-scroll-top-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #f95738;
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(249, 87, 56, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.footer-scroll-top-btn:hover {
+  background-color: #e04627;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(249, 87, 56, 0.5);
+}
+
+.footer-scroll-top-btn:active {
+  transform: translateY(-1px);
+}
+
+.footer-scroll-top-btn .material-symbols-outlined {
+  font-size: 24px;
+}
+
+/* ─── Floating Scroll-to-Top Button (Dynamic on Scroll) ───── */
+.floating-scroll-top-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f95738 0%, #ea580c 100%);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(249, 87, 56, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px) scale(0.85);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s ease,
+              background 0.25s ease;
+  pointer-events: none;
+}
+
+.floating-scroll-top-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.floating-scroll-top-btn:hover {
+  background: linear-gradient(135deg, #ff6b4e 0%, #f95738 100%);
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 12px 30px rgba(249, 87, 56, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.floating-scroll-top-btn:active {
+  transform: translateY(-1px) scale(0.96);
+  box-shadow: 0 4px 14px rgba(249, 87, 56, 0.4);
+}
+
+.floating-scroll-top-btn .material-symbols-outlined {
+  font-size: 28px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.floating-scroll-top-btn:hover .material-symbols-outlined {
+  transform: translateY(-2px);
+}
+
+/* ─── Responsive adjustments ────────────────────────────── */
+@media (max-width: 768px) {
+  .floating-scroll-top-btn {
+    bottom: 24px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .floating-scroll-top-btn .material-symbols-outlined {
+    font-size: 24px;
+  }
+
+  .cih-footer {
+    padding: 48px 0 24px 0;
+  }
+
+  .cih-footer .footer-container {
+    padding: 0 20px;
+  }
+
+  .footer-bottom-bar {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .footer-right-cluster {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .footer-mission-paragraph {
+    font-size: 0.9rem;
+  }
+}

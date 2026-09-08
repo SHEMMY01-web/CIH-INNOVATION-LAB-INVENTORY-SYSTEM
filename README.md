@@ -1,154 +1,129 @@
-<div align="center">
-  <h1 align="center">CIH Innovation Lab Inventory System</h1>
+# CIH Innovation Lab Inventory System
 
-  <p align="center">
-    A robust, web-based inventory and project management system designed to streamline operations, track assets, and manage attendance. Built with modern web technologies and powered by Supabase.
-    <br />
-    <br />
-    <a href="#features"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="#getting-started">View Demo</a>
-    ·
-    <a href="https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM/issues">Request Feature</a>
-  </p>
-</div>
+![CIH Innovation Lab](https://img.shields.io/badge/CIH-Innovation%20Lab-blue?style=for-the-badge)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
----
+Welcome to the **CIH Innovation Lab Inventory System**! This repository contains the source code for the digital inventory management platform used by the CIH Innovation Lab. The system is designed to track assets, tools, general items, manage user attendance, and showcase projects built within the lab.
 
-## 📖 Table of Contents
-- [About The Project](#about-the-project)
-  - [Key Features](#key-features)
-  - [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Database Configuration](#database-configuration)
-- [Data Migration & Scripts](#data-migration--scripts)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+## 📖 About the Project
 
----
+The CIH Innovation Lab is a hub for creativity, engineering, and problem-solving. This system provides a seamless way to:
+- Browse the extensive catalog of available resources (General, Tools, Heavy Assets).
+- Manage the checkout (borrowing) and returning of items.
+- Allow staff members to manage inventory levels securely.
+- Track student/user attendance logs.
+- Showcase ongoing and completed projects by the community.
+- Collect community feedback and comments.
 
-## 🚀 About The Project
+## ✨ Features
 
-The **CIH Innovation Lab Inventory System** is a comprehensive management solution tailored for tracking laboratory assets, managing item borrow/return workflows, overseeing projects, and logging attendance. It provides an intuitive frontend interface connected to a secure, real-time Supabase backend.
+- **Public Catalog**: A beautiful, searchable, and filterable public catalog for users to discover resources.
+- **Theme Support**: Built-in light and dark modes tailored to user preferences.
+- **Staff Portal**: Secure login area for staff to manage items and view transactions.
+- **Real-time Inventory**: Integration with Supabase for real-time data updates and stock management.
+- **Role-Based Security**: Extensive Row Level Security (RLS) policies implemented at the database level to ensure data integrity and secure access.
+- **Attendance Tracking**: Automated logging of user punches with a debounce mechanism to prevent duplicate entries.
+- **Data Migration Tools**: A suite of Python scripts to import, export, and clean data (CSV/Excel) seamlessly.
 
-### Key Features
-* **Inventory Tracking:** Manage items, assets, and tools. Track item conditions (e.g., perfectly working, not working, to be received).
-* **Project Management:** Create and monitor projects, and associate them with required tools and materials.
-* **Transaction Logging:** Seamlessly log borrowing and returning of items, updating stock automatically.
-* **Attendance System:** Integrated attendance logging with duplicate-punch prevention.
-* **Role-Based Access:** Secure authentication and Row Level Security (RLS) ensuring that only authorized users can modify records.
+## 🛠️ Tech Stack
 
-### Built With
+- **Frontend**: [React 18](https://react.dev/), [Vite](https://vitejs.dev/), [React Router](https://reactrouter.com/), Vanilla CSS design system.
+- **Offline & PWA**: Service Worker caching architecture (Google Docs style) with custom PWA manifest.
+- **Backend / Database**: [Supabase](https://supabase.com/) (PostgreSQL), handling Auth, Database, RLS, and RPC functions.
+- **DevOps**: GitHub Actions automated database keep-alive workflow & Vercel deployment.
 
-This project is built using a lightweight stack, ensuring high performance and easy maintainability:
+## 📁 Repository Structure
 
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript
-* **Backend:** [Supabase](https://supabase.com/) (PostgreSQL)
-* **Scripts & Utilities:** Python (for data migration, CSV generation, and Excel processing)
-* **Package Management:** npm (for basic build scripting and dependency handling)
+```text
+INVENTORY/
+├── client/                  # Modern Vite + React Single Page Application
+│   ├── src/                 # React components, pages, contexts, utils & styles
+│   │   ├── components/      # Reusable UI components (Navbar, Footer, AlertPopup, etc.)
+│   │   ├── contexts/        # Global state (AlertContext, AuthContext)
+│   │   ├── pages/           # Application views (Dashboard, Catalog, Items, etc.)
+│   │   └── styles/          # Modern responsive styling & design tokens
+│   ├── public/              # Static assets, Service Worker (sw.js), PWA manifest & IMAGES/
+│   ├── vite.config.js       # Vite build configuration
+│   └── package.json         # Client dependencies & scripts
+├── .github/                 # GitHub Actions (keep-alive workflow)
+├── schema.sql               # Core PostgreSQL schema, RLS policies, and triggers
+├── package.json             # Root monorepo script runner (npm run dev / build)
+├── vercel.json              # Production SPA deployment configuration
+└── README.md                # Project documentation
+```
 
----
+## 🚀 Getting Started
 
-## 💻 Getting Started
-
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+Follow these instructions to set up the project locally for development and testing.
 
 ### Prerequisites
 
-* Node.js and npm
-  ```sh
-  npm install npm@latest -g
-  ```
-* Python 3.x (for running migration and utility scripts)
-* A [Supabase](https://supabase.com/) account and project.
+- Node.js (v18+) and npm
+- A [Supabase](https://supabase.com/) project credentials (`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`).
 
-### Installation
+### 1. Clone the repository
 
-1. **Clone the repository**
-   ```sh
-   git clone https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM.git
-   cd CIH-INNOVATION-LAB-INVENTORY-SYSTEM
-   ```
-
-2. **Configure Environment Variables**
-   Set your Supabase credentials in your environment. The build script uses these to generate the client-side configuration.
-   ```sh
-   export SUPABASE_URL="your-supabase-project-url"
-   export SUPABASE_ANON_KEY="your-supabase-anon-key"
-   ```
-
-3. **Run the Build Script**
-   This step generates the necessary `env.js` file for the frontend to connect to Supabase.
-   ```sh
-   npm install
-   npm run build
-   ```
-
-4. **Serve the Application**
-   You can use any local web server to serve the static files from the `FRONTEND` directory. For example, using Python:
-   ```sh
-   cd FRONTEND
-   python -m http.server 8000
-   ```
-   Open `http://localhost:8000/HTML/index.html` in your browser.
-
----
-
-## 📁 Project Structure
-
-```text
-CIH-INNOVATION-LAB-INVENTORY-SYSTEM/
-├── FRONTEND/
-│   ├── CSS/          # Stylesheets for all pages
-│   ├── HTML/         # Application views (Dashboard, Catalog, Login, etc.)
-│   ├── IMAGES/       # Static image assets
-│   └── JS/           # Client-side logic and Supabase integration
-├── *.py              # Python utility scripts (migrations, data extraction)
-├── *.csv             # Data imports and exports
-├── schema.sql        # Database schema, policies, and triggers
-├── package.json      # NPM configuration and build scripts
-└── README.md         # Project documentation
+```bash
+git clone https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM.git
+cd CIH-INNOVATION-LAB-INVENTORY-SYSTEM
 ```
 
----
+### 2. Install Dependencies
 
-## 🗄️ Database Configuration
+```bash
+npm --prefix client install
+```
 
-The system relies on a PostgreSQL database hosted on Supabase. The complete database schema, including tables, Row Level Security (RLS) policies, and triggers, is defined in `schema.sql`.
+### 3. Environment Setup
 
-**Key Tables:**
-- `items`: Stores inventory details, stock amounts, and item conditions.
-- `transactions`: Logs check-in/check-out events.
-- `projects`: Tracks ongoing projects.
-- `attendance_logs`: Records device punch times with triggers to prevent duplicate entries within a 5-minute window.
+Create a `.env` file in the `client/` directory:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-To initialize your database, run the contents of `schema.sql` in your Supabase SQL Editor.
+### 4. Run Locally
 
----
+```bash
+npm run dev
+```
+Navigate to `http://localhost:5173/` in your browser.
 
-## 🛠️ Data Migration & Scripts
+### 5. Build for Production
 
-This repository includes several Python scripts designed to help with data migration, auditing, and maintenance. You can find them in the root directory:
+```bash
+npm run build
+```
+The optimized production bundle will be built in `client/dist/`.
 
-* `generate_csv.py` / `generate_transactions_csv.py`: Export database records to CSV.
-* `process_borrowed.py`: Analyze and process borrowed items logic.
-* `read_excel.py`: Utility for parsing Excel data into the system.
-* `migrate_db.py`: Assists with structural migrations or data imports.
+## 🗄️ Database Schema Overview
 
-*Note: Ensure you activate a Python virtual environment (`venv`) and install any required dependencies (like `pandas` or `supabase-py` if applicable) before running these scripts.*
+The Supabase PostgreSQL database consists of the following core tables:
+- **`items`**: Stores the inventory catalog (name, category, stock amounts, supplier, condition).
+- **`transactions`**: Logs every borrow, return, or stock adjustment.
+- **`projects`**: Showcases community builds.
+- **`attendance_logs`**: Tracks user check-ins/check-outs with automated duplicate filtering.
+- **`comments`**: Public feedback board.
 
----
+*Note: Access to these tables is strictly controlled via Supabase Row Level Security (RLS). Only authenticated users can perform mutations on inventory.*
+
+## 🐍 Utility Scripts
+
+The project includes several Python scripts located in the root directory for administrative tasks:
+- `migrate_db.py`: Safely applies schema updates.
+- `import_items.csv` / `generate_csv.py`: Bulk import/export of inventory data.
+- `process_borrowed.py`: Handles complex logic for resolving borrowed item statuses.
+- `check_supabase.py`: Verifies the database connection and environment variables.
+
+To use the Python scripts, activate your virtual environment and install the required dependencies (typically `supabase` and `pandas`/`openpyxl` for Excel reading).
 
 ## 🤝 Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -156,14 +131,9 @@ Contributions are what make the open source community such an amazing place to l
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
----
+## 📄 License
 
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the terms specified in the `LICENSE` file. See `LICENSE` for more information.
 
 ---
-
-## 📫 Contact
-
-Project Link: [https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM](https://github.com/SHEMMY01-web/CIH-INNOVATION-LAB-INVENTORY-SYSTEM)
+*Built with ❤️ at the CIH Innovation Lab.*
