@@ -7,6 +7,7 @@ import '../styles/login.css'; // Or whatever global styles for auth
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -64,14 +65,42 @@ export default function Login() {
             </div>
             <div className="form-group" style={{ position: 'relative' }}>
               <input 
-                type="password" 
+                type={showPassword ? 'text' : 'password'} 
                 id="login-password" 
                 required 
                 placeholder="Password" 
-                style={{ width: '100%', paddingRight: '40px', boxSizing: 'border-box' }}
+                style={{ width: '100%', paddingRight: '46px', boxSizing: 'border-box' }}
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
               />
+              <button
+                type="button"
+                className="toggle-password-btn"
+                onClick={() => setShowPassword(prev => !prev)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#64748b',
+                  borderRadius: '6px',
+                  transition: 'color 0.2s ease, background-color 0.2s ease',
+                  userSelect: 'none'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                  {showPassword ? 'visibility' : 'visibility_off'}
+                </span>
+              </button>
             </div>
             <div className="forgot" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
               <Link to="/forgot_password">Forgot Password?</Link>

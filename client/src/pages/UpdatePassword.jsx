@@ -85,21 +85,42 @@ export default function UpdatePassword() {
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ position: 'relative' }}>
             <input 
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? 'text' : 'password'} 
               required 
               placeholder="New Password" 
               minLength={PASSWORD_MIN_LENGTH}
-              style={{ width: '100%', paddingRight: '40px', boxSizing: 'border-box' }}
+              style={{ width: '100%', paddingRight: '46px', boxSizing: 'border-box' }}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <span 
-              className="material-symbols-outlined toggle-password" 
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: '#666', userSelect: 'none' }}
+            <button
+              type="button"
+              className="toggle-password-btn"
+              onClick={() => setShowPassword(prev => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              title={showPassword ? 'Hide password' : 'Show password'}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#64748b',
+                borderRadius: '6px',
+                transition: 'color 0.2s ease, background-color 0.2s ease',
+                userSelect: 'none'
+              }}
             >
-              {showPassword ? 'visibility' : 'visibility_off'}
-            </span>
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                {showPassword ? 'visibility' : 'visibility_off'}
+              </span>
+            </button>
           </div>
 
           {/* Password strength indicator */}
@@ -122,16 +143,44 @@ export default function UpdatePassword() {
             </div>
           )}
 
-          <div className="form-group">
+          <div className="form-group" style={{ position: 'relative' }}>
             <input 
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? 'text' : 'password'} 
               required 
               placeholder="Confirm New Password"
               minLength={PASSWORD_MIN_LENGTH}
-              style={{ width: '100%', boxSizing: 'border-box' }}
+              style={{ width: '100%', paddingRight: '46px', boxSizing: 'border-box' }}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            <button
+              type="button"
+              className="toggle-password-btn"
+              onClick={() => setShowPassword(prev => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              title={showPassword ? 'Hide password' : 'Show password'}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#64748b',
+                borderRadius: '6px',
+                transition: 'color 0.2s ease, background-color 0.2s ease',
+                userSelect: 'none'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                {showPassword ? 'visibility' : 'visibility_off'}
+              </span>
+            </button>
             {confirmPassword && password !== confirmPassword && (
               <span style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: '4px', display: 'block' }}>
                 Passwords do not match
