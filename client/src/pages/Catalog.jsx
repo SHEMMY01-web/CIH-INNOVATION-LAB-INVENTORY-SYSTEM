@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useDeferredValue } from 'react';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import Pagination from '../components/Pagination';
 import Navbar from '../components/Navbar';
@@ -17,21 +16,39 @@ export default function Catalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
 
+  // React 18 concurrent primitive: keeps typing responsive by deferring heavy fuzzy calculations
+  const deferredSearch = useDeferredValue(searchQuery);
+
   useEffect(() => {
+    let isMounted = true;
+
     const fetchAllItems = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('items')
-        .select('id, item_name, model, type, amount, store, status, image_url, project')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('items')
+          .select('id, item_name, model, type, amount, store, status, image_url, project')
+          .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        setAllItems(enrichItemsWithType(data));
+        if (isMounted) {
+          if (!error && data) {
+            setAllItems(enrichItemsWithType(data));
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.warn('[Catalog] Error loading items:', err);
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     fetchAllItems();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Reset pagination when search or filter category changes
@@ -54,14 +71,14 @@ export default function Catalog() {
   const toolCount = useMemo(() => allItems.filter(i => (i.type || '').toLowerCase().startsWith('tool:') || isLabTool(i)).length, [allItems]);
   const generalCount = useMemo(() => Math.max(0, allItems.length - assetCount - toolCount), [allItems, assetCount, toolCount]);
 
-  // High-performance ambiguity-resilient fuzzy search with top match bubbling
+  // High-performance ambiguity-resilient fuzzy search with deferred query evaluation
   const filteredItems = useMemo(() => {
-    return smartSearch(categoryItems, searchQuery, item => [
+    return smartSearch(categoryItems, deferredSearch, item => [
       item.item_name || '',
       item.model || '',
       item.type || ''
     ]);
-  }, [categoryItems, searchQuery]);
+  }, [categoryItems, deferredSearch]);
 
   // Paginated slice
   const paginatedItems = useMemo(() => {

@@ -87,12 +87,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Supabase REST API Queries: Network-First with Cache Fallback ONLY for public catalog & comments.
-  // Privileged requests (with Authorization headers or targeting internal staff tables) strictly bypass CacheStorage.
+  // 3. Supabase REST API Queries: Network-First with Cache Fallback for public catalog & comments.
+  // Privileged queries (transactions, projects, attendance, RPCs) bypass CacheStorage to ensure fresh data.
   if (url.hostname.includes('supabase.co') && url.pathname.includes('/rest/v1/')) {
-    const hasAuth = request.headers.has('authorization') || request.headers.has('Authorization');
-    const isPublicTable = url.pathname.includes('/items') || url.pathname.includes('/comments');
-    if (!hasAuth && isPublicTable) {
+    const isPublicEndpoint = url.pathname.includes('/items') || url.pathname.includes('/comments');
+    const isStaffEndpoint = url.pathname.includes('/transactions') || 
+                            url.pathname.includes('/projects') || 
+                            url.pathname.includes('/attendance_logs') ||
+                            url.pathname.includes('/rpc/');
+
+    if (isPublicEndpoint && !isStaffEndpoint) {
       event.respondWith(networkFirstWithCacheFallback(request, API_CACHE));
       return;
     }

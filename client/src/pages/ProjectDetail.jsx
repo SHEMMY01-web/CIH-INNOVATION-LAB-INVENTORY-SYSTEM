@@ -327,25 +327,31 @@ export default function ProjectDetail() {
     try {
       const requestedQty = Number(newItem.amount) || 1;
 
-      // Find matching item in general catalog
-      const generalItem = generalCatalog.find(
-        i => i.item_name.toLowerCase() === newItem.item_name.trim().toLowerCase()
-      );
-
-      // Validation for consumables/items
+      // Query fresh stock from database for matching general item to eliminate stale client reads
+      let generalItem = null;
       if (addType === 'item') {
-        if (generalItem && requestedQty > generalItem.amount) {
-          showWarning(`Insufficient general inventory stock! Requested ${requestedQty}, but only ${generalItem.amount} available in general catalog.`, 'Insufficient Stock');
-          setSubmitting(false);
-          return;
-        }
+        const { data: matchedRows } = await supabase
+          .from('items')
+          .select('id, item_name, amount, image_url')
+          .ilike('item_name', newItem.item_name.trim())
+          .or('project.is.null,project.eq.')
+          .limit(1);
 
-        // Decrement general catalog stock if exists
+        generalItem = matchedRows?.[0] || null;
+
         if (generalItem) {
-          const updatedQty = Math.max(0, generalItem.amount - requestedQty);
+          const freshStock = Number(generalItem.amount) || 0;
+          if (requestedQty > freshStock) {
+            showWarning(`Insufficient general inventory stock! Requested ${requestedQty}, but only ${freshStock} available in general catalog.`, 'Insufficient Stock');
+            setSubmitting(false);
+            return;
+          }
+
+          // Decrement general catalog stock atomically
+          const updatedQty = Math.max(0, freshStock - requestedQty);
           await supabase
             .from('items')
-            .update({ amount: updatedQty })
+            .update({ amount: updatedQty, status: updatedQty === 0 ? 'Out of Stock' : 'available' })
             .eq('id', generalItem.id);
         }
       }

@@ -11,21 +11,31 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let isMounted = true;
+
+    // Supabase v2 onAuthStateChange handles INITIAL_SESSION, SIGNED_IN, SIGNED_OUT, and TOKEN_REFRESHED cleanly
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
       setUser(session?.user ?? null);
       setLoading(false);
-    });
 
-    // Listen for changes on auth state (log in, log out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
       if (event === 'SIGNED_OUT') {
         navigate('/', { replace: true });
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Safety fallback: ensure app never hangs indefinitely if storage is corrupted or network times out
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 2500);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(fallbackTimer);
+      subscription?.unsubscribe();
+    };
   }, [navigate]);
 
   const signOut = async () => {

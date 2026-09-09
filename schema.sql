@@ -37,14 +37,121 @@ DROP POLICY IF EXISTS "Allow authenticated delete of projects" ON public.project
 CREATE POLICY "Allow authenticated delete of projects" ON public.projects FOR DELETE TO authenticated USING (auth.uid() IS NOT NULL);
 
 -- ==========================================
--- 4. FIX RPC SECURITY WARNINGS
+-- 4. ATOMIC INVENTORY TRANSACTION RPC & CONSTRAINTS
 -- ==========================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'chk_items_amount_non_negative'
+  ) THEN
+    ALTER TABLE public.items ADD CONSTRAINT chk_items_amount_non_negative CHECK (amount >= 0);
+  END IF;
+END $$;
+
+CREATE OR REPLACE FUNCTION public.execute_inventory_transaction(
+  p_item_id UUID,
+  p_tx_type TEXT,
+  p_amount INT,
+  p_requester TEXT,
+  p_project TEXT DEFAULT 'General',
+  p_image_url TEXT DEFAULT NULL
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
+DECLARE
+  v_current_stock INT;
+  v_new_stock INT;
+  v_item_name TEXT;
+  v_tx_id BIGINT;
+BEGIN
+  IF p_amount <= 0 THEN
+    RAISE EXCEPTION 'Transaction amount must be greater than zero (got %)', p_amount
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  IF p_tx_type NOT IN ('checkout', 'request', 'return') THEN
+    RAISE EXCEPTION 'Invalid transaction type: %', p_tx_type
+      USING ERRCODE = 'invalid_parameter_value';
+  END IF;
+
+  -- Explicit pessimistic row lock: serializes concurrent checkouts and returns on this item
+  SELECT amount, item_name INTO v_current_stock, v_item_name
+  FROM items
+  WHERE id = p_item_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Item with ID % does not exist in inventory', p_item_id
+      USING ERRCODE = 'no_data_found';
+  END IF;
+
+  IF p_tx_type IN ('checkout', 'request') THEN
+    IF v_current_stock < p_amount THEN
+      RAISE EXCEPTION 'Insufficient stock for "%": requested %, but only % available', 
+        v_item_name, p_amount, v_current_stock
+        USING ERRCODE = 'check_violation';
+    END IF;
+    v_new_stock := v_current_stock - p_amount;
+  ELSE
+    v_new_stock := v_current_stock + p_amount;
+  END IF;
+
+  -- 1. Mutate item stock atomically
+  UPDATE items
+  SET amount = v_new_stock,
+      status = CASE WHEN v_new_stock = 0 THEN 'Out of Stock' ELSE status END
+  WHERE id = p_item_id;
+
+  -- 2. Commit transaction audit record atomically
+  INSERT INTO transactions (
+    item_id,
+    transaction_type,
+    amount,
+    requester,
+    project,
+    timestamp,
+    image_url
+  ) VALUES (
+    p_item_id,
+    p_tx_type,
+    p_amount,
+    trim(p_requester),
+    COALESCE(NULLIF(trim(p_project), ''), 'General'),
+    timezone('utc'::text, now()),
+    p_image_url
+  ) RETURNING id INTO v_tx_id;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'transaction_id', v_tx_id,
+    'previous_amount', v_current_stock,
+    'new_amount', v_new_stock,
+    'item_name', v_item_name
+  );
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.execute_inventory_transaction(UUID, TEXT, INT, TEXT, TEXT, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.execute_inventory_transaction(UUID, TEXT, INT, TEXT, TEXT, TEXT) TO authenticated;
+
+-- Legacy helper (preserved for backward compatibility, hardened with validation)
 CREATE OR REPLACE FUNCTION public.decrement_stock(item_id UUID, check_amount INT)
 RETURNS void AS $$
 BEGIN
+  IF check_amount <= 0 THEN
+    RAISE EXCEPTION 'Check amount must be positive';
+  END IF;
+
   UPDATE items
   SET amount = amount - check_amount
   WHERE id = item_id AND amount >= check_amount;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Insufficient stock or item not found';
+  END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY INVOKER SET search_path = public;
 
@@ -65,18 +172,28 @@ create table if not exists attendance_logs (
 
 create index if not exists idx_attendance_user_time on attendance_logs (device_user_id, punch_time desc);
 
+-- Hardened duplicate punch filter using transactional advisory lock to prevent race conditions
 create or replace function filter_duplicate_punches()
 returns trigger as $$
+declare
+  v_lock_key bigint;
 begin
+  -- Hash device_user_id into a 64-bit integer to serialize concurrent punches for the same user
+  v_lock_key := ('x' || substr(md5(NEW.device_user_id), 1, 16))::bit(64)::bigint;
+  perform pg_advisory_xact_lock(v_lock_key);
+
   if exists (
     select 1 from attendance_logs
     where device_user_id = NEW.device_user_id
     and punch_time >= NEW.punch_time - interval '5 minutes'
     and punch_time <= NEW.punch_time + interval '5 minutes'
-  ) then return null; end if;
+  ) then 
+    return null; 
+  end if;
+
   return NEW;
 end;
-$$ language plpgsql;
+$$ language plpgsql security definer set search_path = public;
 
 drop trigger if exists prevent_duplicate_punches on attendance_logs;
 create trigger prevent_duplicate_punches before insert on attendance_logs for each row execute function filter_duplicate_punches();

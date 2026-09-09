@@ -6,6 +6,7 @@ import AlertPopup from './components/AlertPopup';
 import OfflineIndicator from './components/OfflineIndicator';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy-loaded pages for code splitting (reduces initial bundle ~60%)
 const Home = lazy(() => import('./pages/Home'));
@@ -57,31 +58,33 @@ function App() {
           <AlertPopup />
           <OfflineIndicator />
           <ScrollToTopButton />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/catalog" element={<Catalog />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot_password" element={<ForgotPassword />} />
-              <Route path="/update_password" element={<UpdatePassword />} />
-              <Route path="/login_successful" element={<LoginSuccessful />} />
-              
-              {/* Centralized Protected Staff/Admin Routes */}
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
-              <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
-              <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
-              <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-              <Route path="/project_detail" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
-              <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
-              <Route path="/grn-report" element={<ProtectedRoute><GrnReport /></ProtectedRoute>} />
-              <Route path="/grn_report" element={<Navigate to="/grn-report" replace />} />
-              
-              {/* 404 Catch-All */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/catalog" element={<Catalog />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot_password" element={<ForgotPassword />} />
+                <Route path="/update_password" element={<UpdatePassword />} />
+                <Route path="/login_successful" element={<LoginSuccessful />} />
+                
+                {/* Centralized Protected Staff/Admin Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+                <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
+                <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
+                <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+                <Route path="/project_detail" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+                <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+                <Route path="/grn-report" element={<ProtectedRoute><GrnReport /></ProtectedRoute>} />
+                <Route path="/grn_report" element={<Navigate to="/grn-report" replace />} />
+                
+                {/* 404 Catch-All */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </AlertProvider>
     </Router>

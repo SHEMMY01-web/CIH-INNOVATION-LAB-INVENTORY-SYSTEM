@@ -6,24 +6,8 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import ImageLightbox from '../components/ImageLightbox';
 import { isLabTool, isLabAsset, classifyItem, enrichItemsWithType } from '../utils/inventoryClassifier';
+import { getItemImage } from '../utils/slugify';
 import '../styles/dashboard.css';
-
-function slugify(text) {
-  return (text || '')
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\-]+/g, '')
-    .replace(/\-\-+/g, '-');
-}
-
-function getItemImage(item) {
-  if (!item) return null;
-  if (item.image_url) return item.image_url;
-  const slug = slugify(item.item_name);
-  return slug ? `/IMAGES/items/${slug}.webp` : null;
-}
 
 export default function Dashboard() {
   const { user, isLoggingOut } = useAuth();

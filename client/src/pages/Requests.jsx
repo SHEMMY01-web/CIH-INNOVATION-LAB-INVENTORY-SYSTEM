@@ -242,35 +242,7 @@ export default function Requests() {
 
     setSubmitting(true);
     try {
-      // 1. Fetch item current amount and name
-      const { data: itemData, error: fetchErr } = await supabase
-        .from('items')
-        .select('amount, item_name')
-        .eq('id', newTx.item_id)
-        .maybeSingle();
-
-      if (fetchErr) throw fetchErr;
-      if (!itemData) {
-        showError('Selected item could not be found in the inventory database.', 'Item Not Found');
-        setSubmitting(false);
-        return;
-      }
-
-      let currentStock = Number(itemData.amount) || 0;
-      let newAmount = currentStock;
-      if (newTx.tx_type === 'checkout') {
-        if (currentStock < requestedQty) {
-          showWarning(`Insufficient stock available! Only ${currentStock} units of "${itemData.item_name}" remaining.`, 'Insufficient Stock');
-          setSubmitting(false);
-          return;
-        }
-        newAmount = Math.max(0, currentStock - requestedQty);
-      } else {
-        // Return adds back to stock
-        newAmount = currentStock + requestedQty;
-      }
-
-      // 2. Convert proof image to base64 if selected
+      // 1. Convert proof image to base64 if selected
       let txImageUrl = null;
       if (proofFile) {
         try {
@@ -280,45 +252,108 @@ export default function Requests() {
         }
       }
 
-      // 3. Update stock in items table
-      const { error: updateErr } = await supabase
-        .from('items')
-        .update({ amount: newAmount })
-        .eq('id', newTx.item_id);
+      // 2. Attempt atomic server-side RPC (pessimistic row locking + ACID consistency)
+      let rpcResult = null;
+      let usedRpc = false;
+      try {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('execute_inventory_transaction', {
+          p_item_id: newTx.item_id,
+          p_tx_type: newTx.tx_type,
+          p_amount: requestedQty,
+          p_requester: newTx.requester.trim(),
+          p_project: newTx.project.trim() || 'General',
+          p_image_url: txImageUrl
+        });
 
-      if (updateErr) throw updateErr;
-
-      // 4. Insert transaction log
-      const insertPayload = {
-        item_id: newTx.item_id,
-        transaction_type: newTx.tx_type,
-        amount: requestedQty,
-        requester: newTx.requester.trim(),
-        project: newTx.project.trim() || 'General',
-        timestamp: new Date().toISOString()
-      };
-
-      if (txImageUrl) {
-        insertPayload.image_url = txImageUrl;
+        if (!rpcErr && rpcData) {
+          rpcResult = rpcData;
+          usedRpc = true;
+        } else if (rpcErr) {
+          // If RPC fails with business logic error (insufficient stock), throw immediately
+          if (rpcErr.message?.includes('Insufficient stock') || rpcErr.code === '23514') {
+            throw new Error(rpcErr.message);
+          }
+          // If RPC is missing in remote DB (migration not applied yet), fall through to client fallback
+          console.warn('[Transactions] RPC execute_inventory_transaction not available, executing client fallback:', rpcErr.message);
+        }
+      } catch (rpcCallErr) {
+        if (rpcCallErr.message?.includes('Insufficient stock')) {
+          throw rpcCallErr;
+        }
+        console.warn('[Transactions] RPC execution error, checking client fallback...', rpcCallErr);
       }
 
-      let { error: insertErr } = await supabase
-        .from('transactions')
-        .insert([insertPayload]);
+      // 3. Resilient client-side fallback if RPC was not available
+      if (!usedRpc) {
+        const { data: itemData, error: fetchErr } = await supabase
+          .from('items')
+          .select('amount, item_name')
+          .eq('id', newTx.item_id)
+          .maybeSingle();
 
-      // Fallback if image_url column isn't in transactions table
-      if (insertErr && (insertErr.message?.includes('image_url') || insertErr.message?.includes('schema cache'))) {
-        console.warn('Fallback: image_url column not supported in transactions, inserting without image...');
-        delete insertPayload.image_url;
-        const retry = await supabase.from('transactions').insert([insertPayload]);
-        insertErr = retry.error;
+        if (fetchErr) throw fetchErr;
+        if (!itemData) {
+          showError('Selected item could not be found in the inventory database.', 'Item Not Found');
+          setSubmitting(false);
+          return;
+        }
+
+        const currentStock = Number(itemData.amount) || 0;
+        let newAmount = currentStock;
+        if (newTx.tx_type === 'checkout') {
+          if (currentStock < requestedQty) {
+            showWarning(`Insufficient stock available! Only ${currentStock} units of "${itemData.item_name}" remaining.`, 'Insufficient Stock');
+            setSubmitting(false);
+            return;
+          }
+          newAmount = Math.max(0, currentStock - requestedQty);
+        } else {
+          newAmount = currentStock + requestedQty;
+        }
+
+        const { error: updateErr } = await supabase
+          .from('items')
+          .update({ amount: newAmount, status: newAmount === 0 ? 'Out of Stock' : 'available' })
+          .eq('id', newTx.item_id);
+
+        if (updateErr) throw updateErr;
+
+        const insertPayload = {
+          item_id: newTx.item_id,
+          transaction_type: newTx.tx_type,
+          amount: requestedQty,
+          requester: newTx.requester.trim(),
+          project: newTx.project.trim() || 'General',
+          timestamp: new Date().toISOString()
+        };
+
+        if (txImageUrl) {
+          insertPayload.image_url = txImageUrl;
+        }
+
+        let { error: insertErr } = await supabase
+          .from('transactions')
+          .insert([insertPayload]);
+
+        if (insertErr && (insertErr.message?.includes('image_url') || insertErr.message?.includes('schema cache'))) {
+          delete insertPayload.image_url;
+          const retry = await supabase.from('transactions').insert([insertPayload]);
+          insertErr = retry.error;
+        }
+
+        if (insertErr) throw insertErr;
+
+        rpcResult = {
+          item_name: itemData.item_name,
+          new_amount: newAmount
+        };
       }
 
-      if (insertErr) throw insertErr;
-
-      await showSuccess(`Transaction logged successfully! ${newTx.tx_type === 'checkout' ? 'Checked out' : 'Returned'} ${requestedQty} units of "${itemData.item_name}".`, 'Transaction Recorded');
-      await fetchTransactions();
-      await fetchItemsList();
+      await showSuccess(
+        `Transaction logged successfully! ${newTx.tx_type === 'checkout' ? 'Checked out' : 'Returned'} ${requestedQty} units of "${rpcResult.item_name}".`,
+        'Transaction Recorded'
+      );
+      await Promise.all([fetchTransactions(), fetchItemsList()]);
       setIsAddModalOpen(false);
       setNewTx({
         item_id: '',

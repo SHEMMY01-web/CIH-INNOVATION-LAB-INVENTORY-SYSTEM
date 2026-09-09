@@ -2,23 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { HARDWARE_CATEGORIES, getStructuredItemType } from '../utils/inventoryClassifier';
 import { useAlert } from '../contexts/AlertContext';
-
-function slugify(text) {
-  return (text || '')
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\-]+/g, '')
-    .replace(/\-\-+/g, '-');
-}
-
-function getDefaultItemImage(item) {
-  if (!item) return null;
-  if (item.image_url) return item.image_url;
-  const slug = slugify(item.item_name);
-  return slug ? `/IMAGES/items/${slug}.webp` : null;
-}
+import { slugify, getItemImage as getDefaultItemImage } from '../utils/slugify';
 
 export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDeleted }) {
   const { showSuccess, showError, showWarning, showConfirm } = useAlert();
