@@ -65,6 +65,19 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
     }
   }, [item]);
 
+  // Handle ESC key to dismiss modal (WCAG 2.1 AA)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !item) return null;
 
   const handleImageFileChange = (e) => {
@@ -195,6 +208,9 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
     >
       <div 
         className="side-modal-panel" 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-item-modal-title"
         onClick={(e) => e.stopPropagation()}
         style={{ 
           width: '660px', 
@@ -220,7 +236,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
               <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>edit_note</span>
             </div>
             <div>
-              <h2 style={{ fontSize: '1.3rem', margin: 0, fontWeight: 700 }}>Edit Item Details</h2>
+              <h2 id="edit-item-modal-title" style={{ fontSize: '1.3rem', margin: 0, fontWeight: 700 }}>Edit Item Details</h2>
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                 Update inventory specifications, image, stock & condition
               </p>

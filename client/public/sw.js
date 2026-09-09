@@ -87,9 +87,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Supabase REST API Queries: Network-First with Cache Fallback (allows offline inventory browsing)
+  // 3. Supabase REST API Queries: Network-First with Cache Fallback ONLY for public catalog & comments.
+  // Privileged requests (with Authorization headers or targeting internal staff tables) strictly bypass CacheStorage.
   if (url.hostname.includes('supabase.co') && url.pathname.includes('/rest/v1/')) {
-    event.respondWith(networkFirstWithCacheFallback(request, API_CACHE));
+    const hasAuth = request.headers.has('authorization') || request.headers.has('Authorization');
+    const isPublicTable = url.pathname.includes('/items') || url.pathname.includes('/comments');
+    if (!hasAuth && isPublicTable) {
+      event.respondWith(networkFirstWithCacheFallback(request, API_CACHE));
+      return;
+    }
     return;
   }
 

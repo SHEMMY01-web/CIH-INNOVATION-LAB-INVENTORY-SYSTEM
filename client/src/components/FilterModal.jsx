@@ -37,6 +37,19 @@ export default function FilterModal({
     setSelectedAllocation(filters.allocation || 'all');
   }, [currentFilters, initialCriteria, isOpen]);
 
+  // Handle ESC key to dismiss modal (WCAG 2.1 AA)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   // Dynamic packaging units from real data
   const unitsList = useMemo(() => {
     if (customUnits && customUnits.length > 0) {
@@ -127,6 +140,9 @@ export default function FilterModal({
     >
       <div 
         className="center-modal-panel filter-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filter-modal-title"
         onClick={(e) => e.stopPropagation()}
         style={{ 
           width: '520px', 
@@ -151,7 +167,7 @@ export default function FilterModal({
             <span className="material-symbols-outlined" style={{ color: '#1c21df', fontSize: '22px' }}>
               tune
             </span>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, margin: 0, color: '#0f172a' }}>
+            <h2 id="filter-modal-title" style={{ fontSize: '1.15rem', fontWeight: 600, margin: 0, color: '#0f172a' }}>
               {getModalTitle()}
             </h2>
           </div>

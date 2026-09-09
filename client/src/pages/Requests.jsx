@@ -234,21 +234,27 @@ export default function Requests() {
         .from('items')
         .select('amount, item_name')
         .eq('id', newTx.item_id)
-        .single();
+        .maybeSingle();
 
       if (fetchErr) throw fetchErr;
+      if (!itemData) {
+        showError('Selected item could not be found in the inventory database.', 'Item Not Found');
+        setSubmitting(false);
+        return;
+      }
 
-      let newAmount = itemData.amount;
+      let currentStock = Number(itemData.amount) || 0;
+      let newAmount = currentStock;
       if (newTx.tx_type === 'checkout') {
-        if (itemData.amount < requestedQty) {
-          showWarning(`Insufficient stock available! Only ${itemData.amount} units of "${itemData.item_name}" remaining.`, 'Insufficient Stock');
+        if (currentStock < requestedQty) {
+          showWarning(`Insufficient stock available! Only ${currentStock} units of "${itemData.item_name}" remaining.`, 'Insufficient Stock');
           setSubmitting(false);
           return;
         }
-        newAmount = itemData.amount - requestedQty;
+        newAmount = Math.max(0, currentStock - requestedQty);
       } else {
         // Return adds back to stock
-        newAmount = itemData.amount + requestedQty;
+        newAmount = currentStock + requestedQty;
       }
 
       // 2. Convert proof image to base64 if selected

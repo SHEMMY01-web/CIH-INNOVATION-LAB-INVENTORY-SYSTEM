@@ -29,6 +29,9 @@ export default function Sidebar() {
         <NavLink to="/items" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
           <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>inventory</span> Items
         </NavLink>
+        <NavLink to="/tools" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+          <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>build</span> Tools
+        </NavLink>
         <NavLink to="/assets" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
           <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>leaderboard</span> Assets
         </NavLink>

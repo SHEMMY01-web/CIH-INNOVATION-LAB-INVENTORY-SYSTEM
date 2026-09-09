@@ -32,6 +32,17 @@ export function AuthProvider({ children }) {
     setIsLoggingOut(true);
     navigate('/', { replace: true });
     try {
+      // Purge any cached API queries on logout to prevent data leakage on shared lab workstations
+      if ('caches' in window) {
+        try {
+          const cacheKeys = await caches.keys();
+          await Promise.all(
+            cacheKeys.filter(k => k.includes('-api-')).map(k => caches.delete(k))
+          );
+        } catch (cacheErr) {
+          console.warn('[Auth] Cache cleanup error on logout:', cacheErr);
+        }
+      }
       await supabase.auth.signOut();
     } catch (err) {
       console.error('Error signing out:', err);

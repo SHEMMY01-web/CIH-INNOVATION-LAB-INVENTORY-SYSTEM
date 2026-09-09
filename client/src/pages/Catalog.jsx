@@ -22,7 +22,7 @@ export default function Catalog() {
       setLoading(true);
       const { data, error } = await supabase
         .from('items')
-        .select('*')
+        .select('id, item_name, model, type, amount, store, status, image_url, project')
         .order('created_at', { ascending: false });
 
       if (!error && data) {

@@ -91,15 +91,6 @@ export default function Items() {
           const t = (i.type || '').toLowerCase();
           return !t.startsWith('asset:') && !t.startsWith('tool:') && !isLabAsset(i) && !isLabTool(i) && (!i.project || i.project.trim() === '');
         }));
-
-        // Background type persistence to database for items that still have placeholder 'item:-'
-        const needsUpdate = data.filter(i => !i.type || i.type === 'item:-' || i.type === 'item:general' || i.type === '-');
-        if (needsUpdate.length > 0) {
-          Promise.all(needsUpdate.map(i => {
-            const resolvedType = getStructuredItemType(i);
-            return supabase.from('items').update({ type: resolvedType }).eq('id', i.id);
-          })).catch(err => console.warn('Background type sync error:', err));
-        }
       }
     } finally {
       setLoading(false);

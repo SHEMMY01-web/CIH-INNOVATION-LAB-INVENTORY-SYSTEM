@@ -1,6 +1,19 @@
 import { brandAlert } from '../contexts/AlertContext';
 
 /**
+ * HTML entity escaping helper to prevent stored DOM XSS
+ */
+export function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
  * Export utilities for inventory tables and transactions
  */
 
@@ -19,14 +32,18 @@ export function exportToCSV(rows, columns, filename = 'export.csv') {
   // Build CSV header
   const headers = columns.map(c => `"${c.label.replace(/"/g, '""')}"`).join(',');
 
-  // Build CSV rows
+  // Build CSV rows with formula injection neutralization (CWE-1236)
   const csvRows = rows.map(row => {
     return columns.map(c => {
       let val = c.transform ? c.transform(row[c.key], row) : (row[c.key] ?? '');
       if (typeof val === 'string' && val.includes(':')) {
         val = val.split(':')[1] || val;
       }
-      return `"${String(val).replace(/"/g, '""')}"`;
+      let strVal = String(val);
+      if (/^[=\+\-@\t\r]/.test(strVal)) {
+        strVal = `'${strVal}`;
+      }
+      return `"${strVal.replace(/"/g, '""')}"`;
     }).join(',');
   });
 
@@ -60,7 +77,8 @@ export function printTableReport(rows, columns, title = 'Report') {
     return;
   }
 
-  const theadHtml = columns.map(c => `<th style="padding: 8px 12px; border: 1px solid #cbd5e1; background: #171f32; color: #fff; text-align: left; font-size: 11px;">${c.label}</th>`).join('');
+  const safeTitle = escapeHtml(title);
+  const theadHtml = columns.map(c => `<th style="padding: 8px 12px; border: 1px solid #cbd5e1; background: #171f32; color: #fff; text-align: left; font-size: 11px;">${escapeHtml(c.label)}</th>`).join('');
 
   const tbodyHtml = rows.map((row, idx) => {
     const tds = columns.map(c => {
@@ -68,16 +86,17 @@ export function printTableReport(rows, columns, title = 'Report') {
       if (typeof val === 'string' && val.includes(':')) {
         val = val.split(':')[1] || val;
       }
-      return `<td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 11px;">${val}</td>`;
+      return `<td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 11px;">${escapeHtml(val)}</td>`;
     }).join('');
     return `<tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">${tds}</tr>`;
   }).join('');
 
   printWindow.document.write(`
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
-        <title>${title} - CIH Innovation Lab</title>
+        <meta charset="utf-8">
+        <title>${safeTitle} - CIH Innovation Lab</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; color: #0f172a; }
           h1 { margin-bottom: 4px; font-size: 18px; color: #171f32; }
@@ -92,8 +111,8 @@ export function printTableReport(rows, columns, title = 'Report') {
       <body>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <h1>${title}</h1>
-            <div class="meta">Generated: ${new Date().toLocaleString()} • Total Records: ${rows.length}</div>
+            <h1>${safeTitle}</h1>
+            <div class="meta">Generated: ${escapeHtml(new Date().toLocaleString())} • Total Records: ${rows.length}</div>
           </div>
           <div style="font-weight: bold; color: #1c21df; font-size: 14px;">CIH Innovation Lab</div>
         </div>
