@@ -75,6 +75,19 @@ export default function Requests() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [lightboxItem, setLightboxItem] = useState(null);
 
+  // Dismiss modal on Escape key (WCAG 2.1 AA)
+  useEffect(() => {
+    if (!isAddModalOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsAddModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAddModalOpen]);
+
   useEffect(() => {
     if (!user) return;
     fetchTransactions();

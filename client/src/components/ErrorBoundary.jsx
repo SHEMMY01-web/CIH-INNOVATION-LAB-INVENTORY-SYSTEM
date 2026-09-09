@@ -70,7 +70,7 @@ export default class ErrorBoundary extends React.Component {
               An unexpected error occurred. This has been logged and our team will investigate.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <pre style={{
                 background: '#fef2f2',
                 border: '1px solid #fecaca',

@@ -53,6 +53,7 @@ export default function Items() {
   const [editingItem, setEditingItem] = useState(null);
   const [lightboxItem, setLightboxItem] = useState(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState({ status: 'all', category: 'all', unit: 'all', store: 'all' });
 
   // Add Item State
@@ -76,6 +77,19 @@ export default function Items() {
     if (!user) return;
     fetchItems();
   }, [user]);
+
+  // Dismiss Add modal on Escape key (WCAG 2.1 AA)
+  useEffect(() => {
+    if (!isAddModalOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsAddModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAddModalOpen]);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -233,7 +247,7 @@ export default function Items() {
 
       await showSuccess('Item added to inventory successfully!');
       await fetchItems();
-      window.location.hash = '#';
+      setIsAddModalOpen(false);
       setNewItem({
         item_name: '',
         model: '',
@@ -269,9 +283,9 @@ export default function Items() {
         <div className="table-container">
           <div className="table-toolbar">
             <div className="toolbar-actions">
-              <a href="#add-modal" className="action-btn primary" style={{ textDecoration: 'none' }}>
+              <button type="button" onClick={() => setIsAddModalOpen(true)} className="action-btn primary">
                 <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', marginRight: '4px' }}>add_circle</span> Add Item
-              </a>
+              </button>
               <button 
                 type="button" 
                 className="action-btn"
@@ -423,11 +437,12 @@ export default function Items() {
         </div>
       </main>
 
-      <div id="add-modal" className="side-modal-overlay">
-        <div className="side-modal-panel" style={{ width: '640px', maxWidth: '94vw' }}>
+      {isAddModalOpen && (
+      <div className="side-modal-overlay open" style={{ display: 'flex', zIndex: 9999 }} onClick={() => setIsAddModalOpen(false)}>
+        <div className="side-modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-item-modal-title" style={{ width: '640px', maxWidth: '94vw' }} onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
-            <h2>Add New Item</h2>
-            <a href="#" className="close-btn">&times;</a>
+            <h2 id="add-item-modal-title">Add New Item</h2>
+            <button type="button" className="close-btn" onClick={() => setIsAddModalOpen(false)} aria-label="Close" style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>&times;</button>
           </div>
           
           <div className="modal-body" style={{ paddingBottom: '30px' }}>
@@ -627,7 +642,7 @@ export default function Items() {
               </div>
 
               <div className="modal-footer" style={{ padding: '20px 0 0 0', marginTop: '20px', borderTop: '1px solid #e2e8f0' }}>
-                <a href="#" className="btn-secondary">Cancel</a>
+                <button type="button" className="btn-secondary" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn-primary modal-btn" disabled={submitting}>
                   {submitting ? 'Adding...' : 'Add Item'}
                 </button>
@@ -636,6 +651,7 @@ export default function Items() {
           </div>
         </div>
       </div>
+      )}
 
       <EditItemModal
         isOpen={!!editingItem}

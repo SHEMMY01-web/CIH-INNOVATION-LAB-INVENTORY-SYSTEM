@@ -29,7 +29,7 @@ export default function Pagination({
   };
 
   return (
-    <div className="pagination-bar">
+    <div className="pagination-bar" role="navigation" aria-label="Pagination">
       <div className="showing-entries">
         Showing{' '}
         <select 
@@ -53,6 +53,7 @@ export default function Pagination({
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
           title="Previous Page"
+          aria-label="Previous Page"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 'inherit', verticalAlign: 'middle' }}>
             chevron_left
@@ -61,7 +62,7 @@ export default function Pagination({
 
         {getPageNumbers().map((p, idx) => (
           p === '...' ? (
-            <span key={`dots-${idx}`} className="pagination-ellipsis" style={{ padding: '0 6px', color: '#64748b' }}>
+            <span key={`dots-${idx}`} className="pagination-ellipsis" style={{ padding: '0 6px', color: '#64748b' }} aria-hidden="true">
               ...
             </span>
           ) : (
@@ -69,6 +70,8 @@ export default function Pagination({
               key={p}
               className={`page-btn ${currentPage === p ? 'active' : ''}`}
               onClick={() => onPageChange(p)}
+              aria-current={currentPage === p ? 'page' : undefined}
+              aria-label={`Page ${p}`}
             >
               {p}
             </button>
@@ -80,6 +83,7 @@ export default function Pagination({
           disabled={currentPage >= totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           title="Next Page"
+          aria-label="Next Page"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 'inherit', verticalAlign: 'middle' }}>
             chevron_right

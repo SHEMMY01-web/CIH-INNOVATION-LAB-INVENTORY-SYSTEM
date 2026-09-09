@@ -15,6 +15,9 @@ export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
     <div 
       className="img-lightbox-overlay" 
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || 'Image preview'}
       style={{
         position: 'fixed',
         inset: 0,
@@ -57,6 +60,7 @@ export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
           </span>
           <button 
             onClick={onClose}
+            aria-label="Close image preview"
             style={{
               background: 'none',
               border: 'none',

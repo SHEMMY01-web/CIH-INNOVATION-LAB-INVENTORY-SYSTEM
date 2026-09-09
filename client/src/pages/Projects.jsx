@@ -99,10 +99,6 @@ export default function Projects() {
     setCurrentPage(1);
   }, [search, filterCriteria]);
 
-  if (!user) {
-    return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
-  }
-
   // Active filter count
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -111,14 +107,6 @@ export default function Projects() {
     if (filterCriteria.allocation && filterCriteria.allocation !== 'all') count++;
     return count;
   }, [filterCriteria]);
-
-  const handleRemoveFilter = (filterKey) => {
-    setFilterCriteria(prev => ({ ...prev, [filterKey]: 'all' }));
-  };
-
-  const handleClearAllFilters = () => {
-    setFilterCriteria({ status: 'all', client: 'all', allocation: 'all' });
-  };
 
   // Filter projects by status, client, and item allocation
   const activeProjects = useMemo(() => {
@@ -158,6 +146,18 @@ export default function Projects() {
     const start = (currentPage - 1) * pageSize;
     return filteredProjects.slice(start, start + pageSize);
   }, [filteredProjects, currentPage, pageSize]);
+
+  if (!user) {
+    return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
+  }
+
+  const handleRemoveFilter = (filterKey) => {
+    setFilterCriteria(prev => ({ ...prev, [filterKey]: 'all' }));
+  };
+
+  const handleClearAllFilters = () => {
+    setFilterCriteria({ status: 'all', client: 'all', allocation: 'all' });
+  };
 
   const handleCreateProject = async (e) => {
     e.preventDefault();

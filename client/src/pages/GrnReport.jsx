@@ -73,10 +73,6 @@ export default function GrnReport() {
     setCurrentPage(1);
   }, [search, filterCriteria]);
 
-  if (!user) {
-    return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
-  }
-
   // Active filter count
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -84,14 +80,6 @@ export default function GrnReport() {
     if (filterCriteria.supplier && filterCriteria.supplier !== 'all') count++;
     return count;
   }, [filterCriteria]);
-
-  const handleRemoveFilter = (filterKey) => {
-    setFilterCriteria(prev => ({ ...prev, [filterKey]: 'all' }));
-  };
-
-  const handleClearAllFilters = () => {
-    setFilterCriteria({ status: 'all', supplier: 'all', store: 'all' });
-  };
 
   const filteredReports = useMemo(() => {
     let result = reports;
@@ -114,6 +102,18 @@ export default function GrnReport() {
     const start = (currentPage - 1) * pageSize;
     return filteredReports.slice(start, start + pageSize);
   }, [filteredReports, currentPage, pageSize]);
+
+  if (!user) {
+    return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
+  }
+
+  const handleRemoveFilter = (filterKey) => {
+    setFilterCriteria(prev => ({ ...prev, [filterKey]: 'all' }));
+  };
+
+  const handleClearAllFilters = () => {
+    setFilterCriteria({ status: 'all', supplier: 'all', store: 'all' });
+  };
 
   const handleExport = () => {
     const cols = [

@@ -92,7 +92,7 @@ export default function ProjectDetail() {
         .from('projects')
         .select('*')
         .eq('id', projectId)
-        .single();
+        .maybeSingle();
       if (projById) resolvedProject = projById;
     }
 
@@ -102,7 +102,7 @@ export default function ProjectDetail() {
         .from('projects')
         .select('*')
         .ilike('name', projectNameParam)
-        .single();
+        .maybeSingle();
       if (projByName) resolvedProject = projByName;
     }
 
@@ -152,6 +152,15 @@ export default function ProjectDetail() {
     setItemsPage(1);
     setAssetsPage(1);
   }, [search, filterCriteria]);
+
+  // Active filter count (must be above early returns per Rules of Hooks)
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filterCriteria.status && filterCriteria.status !== 'all') count++;
+    if (filterCriteria.category && filterCriteria.category !== 'all') count++;
+    if (filterCriteria.unit && filterCriteria.unit !== 'all') count++;
+    return count;
+  }, [filterCriteria]);
 
   if (!user) {
     return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
@@ -212,15 +221,6 @@ export default function ProjectDetail() {
       setUpdatingStatus(false);
     }
   };
-
-  // Active filter count
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filterCriteria.status && filterCriteria.status !== 'all') count++;
-    if (filterCriteria.category && filterCriteria.category !== 'all') count++;
-    if (filterCriteria.unit && filterCriteria.unit !== 'all') count++;
-    return count;
-  }, [filterCriteria]);
 
   const handleRemoveFilter = (filterKey) => {
     setFilterCriteria(prev => ({ ...prev, [filterKey]: 'all' }));
@@ -373,7 +373,16 @@ export default function ProjectDetail() {
           image_url: newItem.image_url || generalItem?.image_url || ''
         }]);
 
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        // Compensating rollback: restore general catalog stock if the insert failed
+        if (addType === 'item' && generalItem) {
+          await supabase
+            .from('items')
+            .update({ amount: generalItem.amount })
+            .eq('id', generalItem.id);
+        }
+        throw insertErr;
+      }
 
       await fetchProjectDetails();
       setIsAddModalOpen(false);
