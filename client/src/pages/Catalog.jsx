@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import Pagination from '../components/Pagination';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { smartSearch } from '../utils/searchUtils';
 import { isLabTool, isLabAsset, enrichItemsWithType } from '../utils/inventoryClassifier';
@@ -71,24 +72,7 @@ export default function Catalog() {
   return (
     <div className="catalog-page">
       {/* ─── Navigation ────────────────────────────────────── */}
-      <nav className="landing-nav">
-        <div className="nav-container">
-          <Link to="/" className="logo-area" style={{ textDecoration: 'none' }}>
-            <img src="/IMAGES/cih-footer-logo.png" alt="CIH Logo" className="landing-logo" />
-            <span className="logo-text">Innovation Lab Inventory</span>
-          </Link>
-          <div className="nav-links">
-            <Link to="/">Home</Link>
-            <Link to="/#about">About Us</Link>
-            <Link to="/#projects">Projects</Link>
-          </div>
-          <div className="nav-actions">
-            <Link to="/login" className="login-btn-nav">
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>login</span> Staff Login
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ─── Catalog Hero Banner with user gradient ───────── */}
       <div className="catalog-hero-banner">

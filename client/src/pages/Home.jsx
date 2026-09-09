@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ItemCard from '../components/ItemCard';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/landing.css';
 
@@ -110,25 +111,7 @@ export default function Home() {
   return (
     <>
       {/* ─── Navigation ────────────────────────────────────── */}
-      <nav className="landing-nav">
-        <div className="nav-container">
-          <div className="logo-area">
-            <img src="/IMAGES/cih-footer-logo.png" alt="CIH Logo" className="landing-logo" />
-            <span className="logo-text">Innovation Lab</span>
-          </div>
-          <div className="nav-links">
-            <a href="#about">About Us</a>
-            <a href="#projects">Projects</a>
-            <a href="#items">Inventory</a>
-            <a href="#comments">Feedback</a>
-          </div>
-          <div className="nav-actions">
-            <Link to="/login" className="login-btn-nav">
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>login</span> Staff Login
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ─── Hero Section with Background Image + Overlay ──── */}
       <header className="hero-section" id="home">

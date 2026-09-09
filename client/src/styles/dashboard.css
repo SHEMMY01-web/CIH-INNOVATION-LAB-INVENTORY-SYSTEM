@@ -338,31 +338,6 @@ body {
   border: 1px solid rgba(2, 132, 199, 0.12);
 }
 
-/* Dark Mode Icon Adaptations */
-[data-theme="dark"] .icon.blue {
-  background: rgba(37, 99, 235, 0.16);
-  color: #60a5fa;
-  border-color: rgba(96, 165, 250, 0.2);
-}
-
-[data-theme="dark"] .icon.purple {
-  background: rgba(124, 58, 237, 0.16);
-  color: #a78bfa;
-  border-color: rgba(167, 139, 250, 0.2);
-}
-
-[data-theme="dark"] .icon.orange {
-  background: rgba(234, 88, 12, 0.16);
-  color: #fb923c;
-  border-color: rgba(251, 146, 60, 0.2);
-}
-
-[data-theme="dark"] .icon.light-blue {
-  background: rgba(2, 132, 199, 0.16);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.2);
-}
-
 .stat h4 {
   margin: 0;
   font-size: 1.2rem;

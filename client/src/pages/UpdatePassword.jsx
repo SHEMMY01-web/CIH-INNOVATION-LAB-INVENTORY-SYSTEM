@@ -73,6 +73,10 @@ export default function UpdatePassword() {
   return (
     <section className="auth-section">
       <div className="auth-container">
+        <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }} title="Back to Innovation Lab Home">
+          <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" style={{ height: '36px', objectFit: 'contain' }} />
+          <span style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: "'Outfit', sans-serif" }}>Inventory</span>
+        </Link>
         <div className="auth-header">
           <h1>Update Password</h1>
           <p>Please enter your new password below.</p>

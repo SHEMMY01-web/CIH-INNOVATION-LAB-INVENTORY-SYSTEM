@@ -1,20 +1,23 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="cih-footer">
       <div className="footer-container">
         {/* Top section: Logo, Mission */}
         <div className="footer-top-section">
           <div className="footer-logo-wrapper">
-            <a href="https://cih.com.ng/" target="_blank" rel="noopener noreferrer">
+            <Link to="/" title="CIH Innovation Lab - Home">
               <img
                 src="/IMAGES/cih-footer-logo.png"
                 alt="Community Innovation Hub"
                 className="cih-footer-logo"
               />
-            </a>
+            </Link>
           </div>
 
           <div className="footer-mission-block">
@@ -32,7 +35,7 @@ export default function Footer() {
         {/* Bottom bar: Copyright, Menu links, Scroll-to-top */}
         <div className="footer-bottom-bar">
           <div className="footer-copyright-text">
-            &copy;copyright 2023 Community Innovation Hub.
+            &copy; {currentYear} Community Innovation Hub. All rights reserved.
           </div>
         </div>
       </div>

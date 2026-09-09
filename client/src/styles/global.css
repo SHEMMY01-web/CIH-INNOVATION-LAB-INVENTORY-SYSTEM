@@ -19,61 +19,6 @@
   --accent-color: #ff5421;
 }
 
-/* Dark Mode Overrides */
-[data-theme="dark"] {
-  --primary-color: #3b82f6;
-  --text-color: #e8e8f0;
-  --text-secondary: #8888aa;
-  --border-color: #2e2e3e;
-  --bg-color: #0f1422;
-  --surface-color: #161b2e;
-  --sidebar-bg: #101524;
-  --sidebar-active: #1e2640;
-  --sidebar-text: #ffffff;
-  --topbar-bg: #0f1422;
-  --card-bg: #161b2e;
-  --input-bg: #1b2138;
-  --shadow: rgba(0,0,0,0.4);
-}
-
-.theme-toggle {
-  display: flex;
-  margin: 16px 20px;
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.toggle-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 0.82rem;
-  color: #94a3b8;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.toggle-btn:hover {
-  color: #ffffff;
-}
-
-.toggle-btn.active {
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(28, 33, 223, 0.3);
-}
-
-
-
 body {
   margin: 0;
   padding: 0;
@@ -237,19 +182,6 @@ input[type="checkbox"] {
   flex-shrink: 0;
 }
 
-/* Dark Mode Overrides for Status Badges */
-[data-theme="dark"] .status-badge.available {
-  background-color: rgba(37, 99, 235, 0.16);
-  color: #93c5fd;
-  border-color: rgba(147, 197, 253, 0.25);
-}
-
-[data-theme="dark"] .status-badge.unavailable {
-  background-color: rgba(234, 88, 12, 0.16);
-  color: #fb923c;
-  border-color: rgba(251, 146, 60, 0.25);
-}
-
 /* Site-wide Skeleton Loading Shimmer */
 @keyframes skeleton-shimmer {
   0% {
@@ -274,16 +206,6 @@ input[type="checkbox"] {
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s infinite ease-in-out;
   border-radius: 6px;
-}
-
-[data-theme="dark"] .skeleton-box {
-  background-color: #1e293b;
-  background-image: linear-gradient(
-    90deg,
-    rgba(30, 41, 59, 0) 0,
-    rgba(51, 65, 85, 0.8) 50%,
-    rgba(30, 41, 59, 0) 100%
-  );
 }
 
 .skeleton-card {

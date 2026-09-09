@@ -39,10 +39,10 @@ export default function Login() {
   return (
     <section className="auth-section">
       <div className="auth-container form_section">
-        <div className="logo">
+        <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit' }} title="Back to Innovation Lab Home">
           <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" />
           <h1>Inventory</h1>
-        </div>
+        </Link>
         <div className="auth-header welcome">
           <h1>Welcome,</h1>
           <p>Please Login here</p>

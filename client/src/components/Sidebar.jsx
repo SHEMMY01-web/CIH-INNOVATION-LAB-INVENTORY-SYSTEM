@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Sidebar() {
   const { signOut } = useAuth();
-  const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'light');
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('app-theme', theme);
-  }, [theme]);
-
-  const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
-  };
+    // Clean up any previously stored dark theme attribute
+    document.documentElement.removeAttribute('data-theme');
+    try {
+      localStorage.removeItem('app-theme');
+    } catch (e) {
+      // Ignore storage errors
+    }
+  }, []);
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-header">
-        <img src="/IMAGES/cih-footer-logo.png" alt="Logo" className="sidebar-logo" />
+      <Link to="/" className="sidebar-header" style={{ textDecoration: 'none', color: 'inherit' }} title="Back to Innovation Lab Home">
+        <img src="/IMAGES/cih-footer-logo.png" alt="CIH Logo" className="sidebar-logo" />
         <h2>Inventory</h2>
-      </div>
+      </Link>
 
       <nav className="sidebar-nav">
         <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
@@ -42,23 +42,6 @@ export default function Sidebar() {
           <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>description</span> GRN Report
         </NavLink>
       </nav>
-
-      <div className="theme-toggle">
-        <button 
-          type="button"
-          className={`toggle-btn ${theme === 'light' ? 'active' : ''}`}
-          onClick={() => handleThemeChange('light')}
-        >
-          <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', marginRight: '5px' }}>light_mode</span>Light
-        </button>
-        <button 
-          type="button"
-          className={`toggle-btn ${theme === 'dark' ? 'active' : ''}`}
-          onClick={() => handleThemeChange('dark')}
-        >
-          <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', marginRight: '5px' }}>dark_mode</span>Dark
-        </button>
-      </div>
 
       <button 
         type="button" 
