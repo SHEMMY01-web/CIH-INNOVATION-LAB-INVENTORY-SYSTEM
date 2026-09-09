@@ -71,7 +71,7 @@ export default function UpdatePassword() {
   };
 
   return (
-    <section className="auth-section">
+    <main className="auth-section" id="main-content">
       <div className="auth-container">
         <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }} title="Back to Innovation Lab Home">
           <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" style={{ height: '36px', objectFit: 'contain' }} />
@@ -84,8 +84,11 @@ export default function UpdatePassword() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ position: 'relative' }}>
+            <label htmlFor="update-password" className="sr-only">New Password</label>
             <input 
               type={showPassword ? 'text' : 'password'} 
+              id="update-password"
+              aria-label="New Password"
               required 
               placeholder="New Password" 
               minLength={PASSWORD_MIN_LENGTH}
@@ -144,8 +147,11 @@ export default function UpdatePassword() {
           )}
 
           <div className="form-group" style={{ position: 'relative' }}>
+            <label htmlFor="update-confirm-password" className="sr-only">Confirm New Password</label>
             <input 
               type={showPassword ? 'text' : 'password'} 
+              id="update-confirm-password"
+              aria-label="Confirm New Password"
               required 
               placeholder="Confirm New Password"
               minLength={PASSWORD_MIN_LENGTH}
@@ -207,6 +213,6 @@ export default function UpdatePassword() {
           <Link to="/login">&larr; Back to Login</Link>
         </div>
       </div>
-    </section>
+    </main>
   );
 }

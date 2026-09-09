@@ -5,6 +5,7 @@ import { AlertProvider } from './contexts/AlertContext';
 import AlertPopup from './components/AlertPopup';
 import OfflineIndicator from './components/OfflineIndicator';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy-loaded pages for code splitting (reduces initial bundle ~60%)
 const Home = lazy(() => import('./pages/Home'));
@@ -58,21 +59,26 @@ function App() {
           <ScrollToTopButton />
           <Suspense fallback={<PageLoader />}>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/catalog" element={<Catalog />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/items" element={<Items />} />
-              <Route path="/tools" element={<Tools />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/project_detail" element={<ProjectDetail />} />
-              <Route path="/requests" element={<Requests />} />
-              <Route path="/grn-report" element={<GrnReport />} />
-              <Route path="/grn_report" element={<Navigate to="/grn-report" replace />} />
               <Route path="/forgot_password" element={<ForgotPassword />} />
               <Route path="/update_password" element={<UpdatePassword />} />
               <Route path="/login_successful" element={<LoginSuccessful />} />
+              
+              {/* Centralized Protected Staff/Admin Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+              <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
+              <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
+              <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+              <Route path="/project_detail" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+              <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+              <Route path="/grn-report" element={<ProtectedRoute><GrnReport /></ProtectedRoute>} />
+              <Route path="/grn_report" element={<Navigate to="/grn-report" replace />} />
+              
+              {/* 404 Catch-All */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -74,42 +74,46 @@ export default function Catalog() {
       {/* ─── Navigation ────────────────────────────────────── */}
       <Navbar />
 
-      {/* ─── Catalog Hero Banner with user gradient ───────── */}
-      <div className="catalog-hero-banner">
-        <div className="catalog-hero-bg">
-          <picture>
-            <source srcSet="/IMAGES/hero_bg_lab.webp" type="image/webp" />
-            <img 
-              src="/IMAGES/hero_bg_lab.png" 
-              alt="CIH Innovation Lab Equipment Catalog" 
-              onError={(e) => { e.currentTarget.src = '/IMAGES/hero-bg.jpg'; }}
-            />
-          </picture>
+      <main id="main-content">
+        {/* ─── Catalog Hero Banner with user gradient ───────── */}
+        <div className="catalog-hero-banner">
+          <div className="catalog-hero-bg">
+            <picture>
+              <source srcSet="/IMAGES/hero_bg_lab.webp" type="image/webp" />
+              <img 
+                src="/IMAGES/hero_bg_lab.png" 
+                alt="CIH Innovation Lab Equipment Catalog" 
+                fetchPriority="high"
+                onError={(e) => { e.currentTarget.src = '/IMAGES/hero-bg.jpg'; }}
+              />
+            </picture>
+          </div>
+          <div className="catalog-hero-overlay"></div>
+          <div className="section-container catalog-hero-inner">
+            <h1 className="catalog-hero-title">
+              Innovation Lab <span className="accent-orange">Catalog</span>
+            </h1>
+            <p className="catalog-hero-desc">
+              Explore verified components, microcontrollers, robotics hardware, sensors, heavy assets, and tools.
+            </p>
+          </div>
         </div>
-        <div className="catalog-hero-overlay"></div>
-        <div className="section-container catalog-hero-inner">
-          <h1 className="catalog-hero-title">
-            Innovation Lab <span className="accent-orange">Catalog</span>
-          </h1>
-          <p className="catalog-hero-desc">
-            Explore verified components, microcontrollers, robotics hardware, sensors, heavy assets, and tools.
-          </p>
-        </div>
-      </div>
 
-      {/* ─── Catalog Section ──────────────────────────────── */}
-      <section className="catalog-section" style={{ paddingTop: '40px', minHeight: '60vh' }}>
-        <div className="section-container">
-          <div className="catalog-top-bar">
-            <div className="catalog-controls" style={{ width: '100%' }}>
-              <div className="search-container">
-                <span className="material-symbols-outlined search-icon">search</span>
-                <input 
-                  type="text" 
-                  placeholder="Search catalog by item name or keyword (e.g. 'we-do', 'soil sensor', 'uno')..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+        {/* ─── Catalog Section ──────────────────────────────── */}
+        <section className="catalog-section" style={{ paddingTop: '40px', minHeight: '60vh' }}>
+          <div className="section-container">
+            <div className="catalog-top-bar">
+              <div className="catalog-controls" style={{ width: '100%' }}>
+                <div className="search-container">
+                  <span className="material-symbols-outlined search-icon">search</span>
+                  <input 
+                    type="text" 
+                    id="catalog-search-input"
+                    aria-label="Search catalog by equipment name or keyword"
+                    placeholder="Search catalog by item name or keyword (e.g. 'we-do', 'soil sensor', 'uno')..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 {searchQuery && (
                   <button 
                     type="button"
@@ -197,6 +201,7 @@ export default function Catalog() {
           )}
         </div>
       </section>
+      </main>
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <Footer />

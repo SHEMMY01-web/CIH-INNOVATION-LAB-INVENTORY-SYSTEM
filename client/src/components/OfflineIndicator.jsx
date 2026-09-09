@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function OfflineIndicator() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showBackOnline, setShowBackOnline] = useState(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
       setShowBackOnline(true);
-      const timer = setTimeout(() => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
         setShowBackOnline(false);
       }, 3500);
-      return () => clearTimeout(timer);
     };
 
     const handleOffline = () => {
       setIsOffline(true);
       setShowBackOnline(false);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };

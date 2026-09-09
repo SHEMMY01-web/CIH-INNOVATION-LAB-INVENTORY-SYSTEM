@@ -55,6 +55,9 @@ export default function Navbar({ activeSection }) {
 
   return (
     <>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <nav className={`landing-nav ${scrolled ? 'nav-scrolled' : ''}`}>
         <div className="nav-container">
           {/* Logo Area */}

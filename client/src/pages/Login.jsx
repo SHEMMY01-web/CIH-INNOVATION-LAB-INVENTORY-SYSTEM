@@ -38,7 +38,7 @@ export default function Login() {
   };
 
   return (
-    <section className="auth-section">
+    <main className="auth-section" id="main-content">
       <div className="auth-container form_section">
         <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit' }} title="Back to Innovation Lab Home">
           <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" />
@@ -54,9 +54,11 @@ export default function Login() {
         <div>
           <form id="login-form" onSubmit={handleLogin}>
             <div className="form-group">
+              <label htmlFor="login-email" className="sr-only">Email address</label>
               <input 
                 type="email" 
                 id="login-email" 
+                aria-label="Email address"
                 required 
                 placeholder="Email"
                 value={email} 
@@ -64,9 +66,11 @@ export default function Login() {
               />
             </div>
             <div className="form-group" style={{ position: 'relative' }}>
+              <label htmlFor="login-password" className="sr-only">Password</label>
               <input 
                 type={showPassword ? 'text' : 'password'} 
                 id="login-password" 
+                aria-label="Password"
                 required 
                 placeholder="Password" 
                 style={{ width: '100%', paddingRight: '46px', boxSizing: 'border-box' }}
@@ -116,6 +120,6 @@ export default function Login() {
           </form>
         </div>
       </div>
-    </section>
+    </main>
   );
 }

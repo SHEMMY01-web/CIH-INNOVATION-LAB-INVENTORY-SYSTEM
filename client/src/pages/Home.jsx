@@ -16,6 +16,7 @@ export default function Home() {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentName, setCommentName] = useState('');
   const [commentText, setCommentText] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
@@ -79,6 +80,21 @@ export default function Home() {
     e.preventDefault();
     if (!commentText.trim() || commentText.length > 500) return;
 
+    // 1. Anti-spam honeypot defense
+    if (honeypot) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Client-side rate-limiting cooldown (60 seconds)
+    const lastCommentTime = localStorage.getItem('cih_last_comment_ts');
+    const now = Date.now();
+    if (lastCommentTime && (now - Number(lastCommentTime)) < 60000) {
+      const remaining = Math.ceil((60000 - (now - Number(lastCommentTime))) / 1000);
+      setMessage({ text: `Please wait ${remaining}s before posting another comment.`, type: 'error' });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -88,6 +104,7 @@ export default function Home() {
 
       if (error) throw error;
 
+      localStorage.setItem('cih_last_comment_ts', String(Date.now()));
       setMessage({ text: 'Comment posted successfully!', type: 'success' });
       setCommentName('');
       setCommentText('');
@@ -113,20 +130,22 @@ export default function Home() {
       {/* ─── Navigation ────────────────────────────────────── */}
       <Navbar />
 
-      {/* ─── Hero Section with Background Image + Overlay ──── */}
-      <header className="hero-section" id="home">
-        <div className="hero-bg-image">
-          <picture>
-            <source srcSet="/IMAGES/hero-bg.webp" type="image/webp" />
-            <img 
-              src="/IMAGES/hero-bg.jpg" 
-              alt="Community Innovation Hub Lab" 
-              aria-hidden="true" 
-              onError={(e) => { e.currentTarget.src = '/IMAGES/hero-bg.jpg'; }}
-            />
-          </picture>
-        </div>
-        <div className="hero-overlay"></div>
+      <main id="main-content">
+        {/* ─── Hero Section with Background Image + Overlay ──── */}
+        <header className="hero-section" id="home">
+          <div className="hero-bg-image">
+            <picture>
+              <source srcSet="/IMAGES/hero-bg.webp" type="image/webp" />
+              <img 
+                src="/IMAGES/hero-bg.jpg" 
+                alt="Community Innovation Hub Lab" 
+                aria-hidden="true" 
+                fetchPriority="high"
+                onError={(e) => { e.currentTarget.src = '/IMAGES/hero-bg.jpg'; }}
+              />
+            </picture>
+          </div>
+          <div className="hero-overlay"></div>
 
         <div className="hero-content">
           <div className="hero-badge">
@@ -333,6 +352,20 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleCommentSubmit} className="comment-form">
+              {/* Anti-spam honeypot input */}
+              <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                <label htmlFor="comment-website-hp">Leave this field blank</label>
+                <input
+                  type="text"
+                  id="comment-website-hp"
+                  name="website_hp"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="input-group">
                 <label htmlFor="comment-name">Name</label>
                 <input
@@ -400,6 +433,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <Footer />

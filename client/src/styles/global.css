@@ -276,3 +276,38 @@ input[type="checkbox"] {
 .floating-scroll-top-btn:hover .material-symbols-outlined {
   transform: translateY(-2px);
 }
+
+/* Accessibility Utilities (WCAG 2.1 AA) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -120px;
+  left: 20px;
+  background: var(--primary-color, #1c21df);
+  color: #ffffff !important;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 100000;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skip-link:focus {
+  top: 20px;
+  outline: 3px solid #ff5421;
+  outline-offset: 3px;
+}

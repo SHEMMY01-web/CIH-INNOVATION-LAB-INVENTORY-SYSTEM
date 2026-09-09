@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SUPABASE_URL = 'https://kkltrgjszsuozlrnjrnb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_XhJwMl5PFjt7uEoKqlMwxw_pXJ0vcur';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://kkltrgjszsuozlrnjrnb.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || '';
 
 const outputDir = path.resolve(__dirname, '../public/IMAGES/items');
 if (!fs.existsSync(outputDir)) {

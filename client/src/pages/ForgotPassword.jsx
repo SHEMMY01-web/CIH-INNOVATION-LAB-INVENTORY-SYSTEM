@@ -34,7 +34,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <section className="auth-section">
+    <main className="auth-section" id="main-content">
       <div className="auth-container">
         <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }} title="Back to Innovation Lab Home">
           <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" style={{ height: '36px', objectFit: 'contain' }} />
@@ -50,8 +50,11 @@ export default function ForgotPassword() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
+            <label htmlFor="forgot-email" className="sr-only">Email address</label>
             <input 
               type="email" 
+              id="forgot-email"
+              aria-label="Email address"
               required 
               placeholder="Email" 
               value={email}
@@ -77,6 +80,6 @@ export default function ForgotPassword() {
           <Link to="/login">&larr; Back to Login</Link>
         </div>
       </div>
-    </section>
+    </main>
   );
 }
