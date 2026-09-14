@@ -203,9 +203,35 @@ export default function Assets() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/webp', 0.88);
-        setAddImagePreview(dataUrl);
-        setNewAsset(prev => ({ ...prev, image_url: dataUrl }));
+
+        // Show preview immediately; upload runs asynchronously
+        const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
+        setAddImagePreview(previewDataUrl);
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
+            return;
+          }
+          try {
+            const safeName = (newAsset.item_name || 'asset')
+              .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const filePath = `items/${safeName}-${Date.now()}.jpg`;
+            const { error: uploadError } = await supabase.storage
+              .from('inventory-images')
+              .upload(filePath, blob, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true });
+            if (uploadError) {
+              console.warn('[Assets] Storage upload failed:', uploadError.message);
+              setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
+              return;
+            }
+            const { data: { publicUrl } } = supabase.storage.from('inventory-images').getPublicUrl(filePath);
+            setNewAsset(prev => ({ ...prev, image_url: publicUrl }));
+          } catch (err) {
+            console.warn('[Assets] Storage upload exception:', err.message);
+            setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
+          }
+        }, 'image/jpeg', 0.82);
       };
       img.src = event.target.result;
     };

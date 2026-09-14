@@ -29,7 +29,7 @@ export default function Home() {
     const fetchPreviewItems = async () => {
       const { data, error } = await supabase
         .from('items')
-        .select('*')
+        .select('id, item_name, model, type, amount, status, image_url, store')
         .limit(4);
 
       if (!error && data) {
@@ -39,8 +39,14 @@ export default function Home() {
     };
 
     const fetchStats = async () => {
-      const { data: allItems } = await supabase.from('items').select('*');
-      const { data: projects } = await supabase.from('projects').select('id');
+      // Fetch only the columns needed for classification — avoids downloading
+      // image_url (Base64 blobs) and all other heavy columns just to count rows.
+      const { data: allItems } = await supabase.from('items').select('id, type');
+      // Count projects with a HEAD-only request (zero row data transfer)
+      const { count: projectCount } = await supabase
+        .from('projects')
+        .select('id', { count: 'exact', head: true });
+
       if (allItems) {
         const generalItems = allItems.filter(i => {
           const t = (i.type || '').toLowerCase();
@@ -51,7 +57,7 @@ export default function Home() {
         setStats({
           items: generalItems.length,
           assets: assets.length,
-          projects: projects?.length > 0 ? projects.length : 3,
+          projects: projectCount > 0 ? projectCount : 3,
           tools: tools.length > 0 ? tools.length : 15
         });
       }
@@ -61,7 +67,7 @@ export default function Home() {
       setCommentsLoading(true);
       const { data, error } = await supabase
         .from('comments')
-        .select('*')
+        .select('id, name, comment, created_at')
         .order('created_at', { ascending: false })
         .limit(10);
 

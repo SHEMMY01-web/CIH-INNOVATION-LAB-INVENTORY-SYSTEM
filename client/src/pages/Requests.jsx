@@ -33,12 +33,35 @@ function getTxImage(tx) {
   return slug ? `/IMAGES/items/${slug}.webp` : null;
 }
 
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = error => reject(error);
-});
+/**
+ * Uploads a proof image file to Supabase Storage (inventory-images/proofs/ bucket)
+ * and returns the public CDN URL. Stores only a URL in the DB — not Base64 binary.
+ * Falls back to null on failure so the transaction can still be recorded.
+ */
+async function uploadProofToStorage(file, supabaseClient) {
+  try {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const filePath = `proofs/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: uploadError } = await supabaseClient.storage
+      .from('inventory-images')
+      .upload(filePath, file, {
+        contentType: file.type || 'image/jpeg',
+        cacheControl: '31536000',
+        upsert: false
+      });
+    if (uploadError) {
+      console.warn('[Requests] Proof upload failed:', uploadError.message);
+      return null;
+    }
+    const { data: { publicUrl } } = supabaseClient.storage
+      .from('inventory-images')
+      .getPublicUrl(filePath);
+    return publicUrl;
+  } catch (err) {
+    console.warn('[Requests] Proof upload exception:', err.message);
+    return null;
+  }
+}
 
 export default function Requests() {
   const { user, isLoggingOut } = useAuth();
@@ -242,14 +265,11 @@ export default function Requests() {
 
     setSubmitting(true);
     try {
-      // 1. Convert proof image to base64 if selected
+      // 1. Upload proof image to Supabase Storage (URL only stored in DB — no Base64 bloat)
       let txImageUrl = null;
       if (proofFile) {
-        try {
-          txImageUrl = await fileToBase64(proofFile);
-        } catch (imgErr) {
-          console.warn('Proof image conversion failed:', imgErr);
-        }
+        txImageUrl = await uploadProofToStorage(proofFile, supabase);
+        // txImageUrl is null on failure — transaction still proceeds without proof image
       }
 
       // 2. Attempt atomic server-side RPC (pessimistic row locking + ACID consistency)

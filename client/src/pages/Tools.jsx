@@ -202,9 +202,35 @@ export default function Tools() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/webp', 0.88);
-        setAddImagePreview(dataUrl);
-        setNewTool(prev => ({ ...prev, image_url: dataUrl }));
+
+        // Show preview immediately; upload runs asynchronously
+        const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
+        setAddImagePreview(previewDataUrl);
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            setNewTool(prev => ({ ...prev, image_url: previewDataUrl }));
+            return;
+          }
+          try {
+            const safeName = (newTool.item_name || 'tool')
+              .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const filePath = `items/${safeName}-${Date.now()}.jpg`;
+            const { error: uploadError } = await supabase.storage
+              .from('inventory-images')
+              .upload(filePath, blob, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true });
+            if (uploadError) {
+              console.warn('[Tools] Storage upload failed:', uploadError.message);
+              setNewTool(prev => ({ ...prev, image_url: previewDataUrl }));
+              return;
+            }
+            const { data: { publicUrl } } = supabase.storage.from('inventory-images').getPublicUrl(filePath);
+            setNewTool(prev => ({ ...prev, image_url: publicUrl }));
+          } catch (err) {
+            console.warn('[Tools] Storage upload exception:', err.message);
+            setNewTool(prev => ({ ...prev, image_url: previewDataUrl }));
+          }
+        }, 'image/jpeg', 0.82);
       };
       img.src = event.target.result;
     };
