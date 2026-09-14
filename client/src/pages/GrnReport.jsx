@@ -23,51 +23,59 @@ export default function GrnReport() {
 
   useEffect(() => {
     if (!user) return;
-    fetchGrnReports();
-  }, [user]);
+    let isMounted = true;
 
-  const fetchGrnReports = async () => {
-    setLoading(true);
-    try {
-      // Attempt fetching from grn_reports table if it exists
-      const { data, error } = await supabase
-        .from('grn_reports')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        // Attempt fetching from grn_reports table if it exists
+        const { data, error } = await supabase
+          .from('grn_reports')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        setReports(data);
-      } else {
-        // Fallback: check transactions for GRN / Received / Returned records
-        const { data: txData } = await supabase
-          .from('transactions')
-          .select('*, items(item_name, store)')
-          .in('transaction_type', ['grn', 'received', 'return'])
-          .order('timestamp', { ascending: false });
-
-        if (txData && txData.length > 0) {
-          setReports(txData.map(tx => ({
-            id: tx.id,
-            grn_number: `GRN-${tx.id.toString().substring(0, 6).toUpperCase()}`,
-            item_name: tx.items?.item_name || 'Inventory Stock',
-            store: tx.items?.store || 'HQ main',
-            quantity: tx.amount || 1,
-            supplier: tx.project || 'CIH Supplier',
-            received_by: tx.requester || 'Staff',
-            date: tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : 'Recent',
-            status: 'Received'
-          })));
+        if (!error && data) {
+          if (isMounted) setReports(data);
         } else {
-          setReports([]);
+          // Fallback: check transactions for GRN / Received / Returned records
+          const { data: txData } = await supabase
+            .from('transactions')
+            .select('*, items(item_name, store)')
+            .in('transaction_type', ['grn', 'received', 'return'])
+            .order('timestamp', { ascending: false });
+
+          if (isMounted) {
+            if (txData && txData.length > 0) {
+              setReports(txData.map(tx => ({
+                id: tx.id,
+                grn_number: `GRN-${tx.id.toString().substring(0, 6).toUpperCase()}`,
+                item_name: tx.items?.item_name || 'Inventory Stock',
+                store: tx.items?.store || 'HQ main',
+                quantity: tx.amount || 1,
+                supplier: tx.project || 'CIH Supplier',
+                received_by: tx.requester || 'Staff',
+                date: tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : 'Recent',
+                status: 'Received'
+              })));
+            } else {
+              setReports([]);
+            }
+          }
         }
+      } catch (err) {
+        console.warn('GRN fetch info:', err);
+        if (isMounted) setReports([]);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch (err) {
-      console.warn('GRN fetch info:', err);
-      setReports([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     setCurrentPage(1);

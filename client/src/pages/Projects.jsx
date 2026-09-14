@@ -39,61 +39,76 @@ export default function Projects() {
 
   useEffect(() => {
     if (!user) return;
-    fetchProjects();
-  }, [user]);
+    let isMounted = true;
 
-  const fetchProjects = async () => {
-    setLoading(true);
-    try {
-      // 1. Fetch items to get dynamic count
-      const { data: allItems } = await supabase
-        .from('items')
-        .select('project');
-
-      // 2. Fetch projects from DB
-      let dbProjects = [];
+    const loadData = async () => {
+      setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false });
+        // 1. Fetch items to get dynamic count
+        const { data: allItems } = await supabase
+          .from('items')
+          .select('project');
 
-        if (error) throw error;
-        dbProjects = data || [];
-      } catch (projError) {
-        console.warn('Projects table error or missing, fallback to unique items:', projError);
+        // 2. Fetch projects from DB
+        let dbProjects = [];
+        try {
+          const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          dbProjects = data || [];
+        } catch (projError) {
+          console.warn('Projects table error or missing, fallback to unique items:', projError);
+        }
+
+        // Fallback: if projects table is empty, extract from items catalog
+        if (dbProjects.length === 0 && allItems && allItems.length > 0) {
+          const uniqueProjNames = Array.from(new Set(allItems.map(i => i.project).filter(Boolean)));
+          dbProjects = uniqueProjNames.map((name, idx) => ({
+            id: `proj-${idx + 1}`,
+            name: name,
+            client: name === 'BDU-DCF' ? 'Bahir Dar University' : 'CIH Partner',
+            manager: 'Letera Tadele',
+            status: 'active'
+          }));
+        }
+
+        // Map projects with dynamic counts and unified keys
+        const mapped = dbProjects.map(proj => {
+          const pName = (proj.name || '').trim().toLowerCase();
+          const count = (allItems || []).filter(i => (i.project || '').trim().toLowerCase() === pName).length;
+          return {
+            ...proj,
+            client: proj.client || proj.client_name || 'CIH Partner',
+            manager: proj.manager || proj.manager_name || 'Letera Tadele',
+            status: proj.status || 'active',
+            itemCount: count
+          };
+        });
+
+        if (isMounted) {
+          setProjects(mapped);
+        }
+      } catch (err) {
+        console.error('[Projects] Fetch error:', err);
+        if (isMounted) {
+          showError('Failed to load projects: ' + (err.message || 'Database error'));
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    };
 
-      // Fallback: if projects table is empty, extract from items catalog
-      if (dbProjects.length === 0 && allItems && allItems.length > 0) {
-        const uniqueProjNames = Array.from(new Set(allItems.map(i => i.project).filter(Boolean)));
-        dbProjects = uniqueProjNames.map((name, idx) => ({
-          id: `proj-${idx + 1}`,
-          name: name,
-          client: name === 'BDU-DCF' ? 'Bahir Dar University' : 'CIH Partner',
-          manager: 'Letera Tadele',
-          status: 'active'
-        }));
-      }
+    loadData();
 
-      // Map projects with dynamic counts and unified keys
-      const mapped = dbProjects.map(proj => {
-        const pName = (proj.name || '').trim().toLowerCase();
-        const count = (allItems || []).filter(i => (i.project || '').trim().toLowerCase() === pName).length;
-        return {
-          ...proj,
-          client: proj.client || proj.client_name || 'CIH Partner',
-          manager: proj.manager || proj.manager_name || 'Letera Tadele',
-          status: proj.status || 'active',
-          itemCount: count
-        };
-      });
-
-      setProjects(mapped);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [user, showError]);
 
   useEffect(() => {
     setCurrentPage(1);

@@ -340,19 +340,34 @@ export default function ProjectDetail() {
         generalItem = matchedRows?.[0] || null;
 
         if (generalItem) {
-          const freshStock = Number(generalItem.amount) || 0;
-          if (requestedQty > freshStock) {
-            showWarning(`Insufficient general inventory stock! Requested ${requestedQty}, but only ${freshStock} available in general catalog.`, 'Insufficient Stock');
-            setSubmitting(false);
-            return;
-          }
+          // Atomic server-side RPC (pessimistic lock + stock check + checkout ledger entry)
+          const { error: rpcErr } = await supabase.rpc('execute_inventory_transaction', {
+            p_item_id: generalItem.id,
+            p_tx_type: 'checkout',
+            p_amount: requestedQty,
+            p_requester: project.manager || user?.email || 'Project Lead',
+            p_project: project.name,
+            p_image_url: generalItem.image_url || null
+          });
 
-          // Decrement general catalog stock atomically
-          const updatedQty = Math.max(0, freshStock - requestedQty);
-          await supabase
-            .from('items')
-            .update({ amount: updatedQty, status: updatedQty === 0 ? 'Out of Stock' : 'available' })
-            .eq('id', generalItem.id);
+          if (rpcErr) {
+            if (rpcErr.message?.includes('Insufficient stock') || rpcErr.code === '23514') {
+              showWarning(`Insufficient stock in general catalog! ${rpcErr.message}`, 'Insufficient Stock');
+              setSubmitting(false);
+              return;
+            }
+            // Resilient fallback if RPC not yet deployed in remote DB
+            const freshStock = Number(generalItem.amount) || 0;
+            if (requestedQty > freshStock) {
+              showWarning(`Insufficient general inventory stock! Requested ${requestedQty}, but only ${freshStock} available.`, 'Insufficient Stock');
+              setSubmitting(false);
+              return;
+            }
+            await supabase
+              .from('items')
+              .update({ amount: Math.max(0, freshStock - requestedQty), status: (freshStock - requestedQty) === 0 ? 'Out of Stock' : 'available' })
+              .eq('id', generalItem.id);
+          }
         }
       }
 
