@@ -13,4 +13,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key'
-)
+);
+
+/**
+ * Broadcasts an invalidation message to the Service Worker to purge API cache
+ * whenever local mutations (checkouts, additions, edits, deletions) occur.
+ */
+export function invalidateApiCache() {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    try {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'INVALIDATE_API_CACHE'
+      });
+    } catch (err) {
+      console.warn('[SW] Cache invalidation broadcast failed:', err);
+    }
+  }
+}

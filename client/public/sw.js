@@ -200,3 +200,16 @@ async function staleWhileRevalidate(request, cacheName) {
 
   return cachedResponse || fetchPromise;
 }
+
+/**
+ * Message Event: Invalidate API cache upon inventory mutations to prevent stale stock reads
+ */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'INVALIDATE_API_CACHE') {
+    event.waitUntil(
+      caches.delete(API_CACHE).then(() => {
+        return caches.open(API_CACHE);
+      })
+    );
+  }
+});

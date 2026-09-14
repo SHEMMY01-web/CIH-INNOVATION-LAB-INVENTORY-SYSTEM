@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-const AlertContext = createContext(null);
+const AlertActionsContext = createContext(null);
+const AlertStateContext = createContext(null);
 
 // Global event bus for non-React contexts (e.g. utility scripts like exportUtils.js)
 let globalAlertHandler = null;
@@ -10,7 +11,6 @@ export const brandAlert = (message, title = '', type = 'info') => {
   if (globalAlertHandler) {
     return globalAlertHandler({ message, title, type });
   }
-  // Fallback if context not mounted yet
   console.log(`[Alert - ${type}] ${title ? title + ': ' : ''}${message}`);
   return Promise.resolve();
 };
@@ -118,27 +118,39 @@ export function AlertProvider({ children }) {
     };
   }, [showAlert, showConfirm]);
 
-  const contextValue = {
-    modalState,
+  const actions = useMemo(() => ({
     showAlert,
     showConfirm,
     showSuccess,
     showError,
     showWarning,
     handleClose
-  };
+  }), [showAlert, showConfirm, showSuccess, showError, showWarning, handleClose]);
 
   return (
-    <AlertContext.Provider value={contextValue}>
-      {children}
-    </AlertContext.Provider>
+    <AlertActionsContext.Provider value={actions}>
+      <AlertStateContext.Provider value={modalState}>
+        {children}
+      </AlertStateContext.Provider>
+    </AlertActionsContext.Provider>
   );
 }
 
+// Subscribed to by pages/modals: stable actions identity, zero re-renders on alert open/close
 export const useAlert = () => {
-  const context = useContext(AlertContext);
+  const context = useContext(AlertActionsContext);
   if (!context) {
     throw new Error('useAlert must be used within an AlertProvider');
   }
   return context;
+};
+
+// Subscribed to exclusively by AlertPopup
+export const useAlertModal = () => {
+  const actions = useContext(AlertActionsContext);
+  const modalState = useContext(AlertStateContext);
+  if (!actions || !modalState) {
+    throw new Error('useAlertModal must be used within an AlertProvider');
+  }
+  return { modalState, ...actions };
 };

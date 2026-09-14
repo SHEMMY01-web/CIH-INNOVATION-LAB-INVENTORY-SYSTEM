@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { useAlert } from '../contexts/AlertContext';
+import { useAlertModal } from '../contexts/AlertContext';
 
 export default function AlertPopup() {
-  const { modalState, handleClose } = useAlert();
+  const { modalState, handleClose } = useAlertModal();
   const confirmBtnRef = useRef(null);
 
   const {

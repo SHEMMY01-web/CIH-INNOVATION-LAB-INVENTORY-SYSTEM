@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import Pagination from '../components/Pagination';
@@ -353,6 +353,7 @@ export default function Requests() {
         `Transaction logged successfully! ${newTx.tx_type === 'checkout' ? 'Checked out' : 'Returned'} ${requestedQty} units of "${rpcResult.item_name}".`,
         'Transaction Recorded'
       );
+      invalidateApiCache();
       await Promise.all([fetchTransactions(), fetchItemsList()]);
       setIsAddModalOpen(false);
       setNewTx({

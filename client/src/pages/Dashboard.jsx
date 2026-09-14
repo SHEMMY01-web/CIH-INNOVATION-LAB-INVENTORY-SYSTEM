@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import { supabase } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -11,6 +12,7 @@ import '../styles/dashboard.css';
 
 export default function Dashboard() {
   const { user, isLoggingOut } = useAuth();
+  const { showError } = useAlert();
   
   const [items, setItems] = useState([]);
   const [assets, setAssets] = useState([]);
@@ -29,17 +31,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
+    let isMounted = true;
     
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
         // Fetch All Items
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('items')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!data) return;
+        if (error) throw error;
+        if (!data || !isMounted) return;
 
         // Filter out any items assigned to a project for general stats
         const generalItems = (data || []).filter(i => !i.project || i.project.trim() === '');
@@ -55,37 +59,48 @@ export default function Dashboard() {
           return t.startsWith('asset:') || isLabAsset(i);
         });
 
-        setItems(itemsData);
-        setAssets(assetsData);
+        if (isMounted) {
+          setItems(itemsData);
+          setAssets(assetsData);
 
-        // Dynamic stats calculation matching authentic lab inventory
-        const totalStock = generalItems.reduce((s, r) => s + (r.amount ?? 0), 0);
-        const totalToBeReceived = generalItems.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
-        const uniqueSuppliers = new Set(generalItems.map(i => i.supplier).filter(Boolean)).size;
-        const uniqueCategories = new Set(enrichedItems.map(i => classifyItem(i)).filter(Boolean)).size;
+          // Dynamic stats calculation matching authentic lab inventory
+          const totalStock = generalItems.reduce((s, r) => s + (r.amount ?? 0), 0);
+          const totalToBeReceived = generalItems.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+          const uniqueSuppliers = new Set(generalItems.map(i => i.supplier).filter(Boolean)).size;
+          const uniqueCategories = new Set(enrichedItems.map(i => classifyItem(i)).filter(Boolean)).size;
 
-        const itemsPending = itemsData.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
-        const assetsPending = assetsData.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+          const itemsPending = itemsData.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
+          const assetsPending = assetsData.reduce((s, r) => s + (r.to_be_received ?? 0), 0);
 
-        setStats({
-          qtyInHand: totalStock,
-          toBeReceived: totalToBeReceived,
-          suppliers: uniqueSuppliers,
-          categories: uniqueCategories,
-          totalItems: itemsData.length,
-          itemsPending: itemsPending,
-          totalAssets: assetsData.length,
-          assetsPending: assetsPending
-        });
+          setStats({
+            qtyInHand: totalStock,
+            toBeReceived: totalToBeReceived,
+            suppliers: uniqueSuppliers,
+            categories: uniqueCategories,
+            totalItems: itemsData.length,
+            itemsPending: itemsPending,
+            totalAssets: assetsData.length,
+            assetsPending: assetsPending
+          });
+        }
       } catch (err) {
-        console.error('Dashboard data fetch error:', err);
+        console.error('[Dashboard] Fetch error:', err);
+        if (isMounted) {
+          showError('Failed to load dashboard metrics: ' + (err.message || 'Database error'));
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchDashboardData();
-  }, [user]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, showError]);
 
   if (!user) {
     return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;

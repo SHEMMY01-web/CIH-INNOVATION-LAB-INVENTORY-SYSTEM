@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 import { HARDWARE_CATEGORIES, getStructuredItemType } from '../utils/inventoryClassifier';
 import { useAlert } from '../contexts/AlertContext';
 import { slugify, getItemImage as getDefaultItemImage } from '../utils/slugify';
@@ -142,6 +142,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
 
       if (error) throw error;
 
+      invalidateApiCache();
       await showSuccess('Item updated successfully!');
       if (onUpdated) onUpdated(data?.[0] || { ...item, ...updates });
       onClose();
@@ -174,6 +175,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
 
       if (error) throw error;
 
+      invalidateApiCache();
       await showSuccess('Item deleted successfully!');
       if (onDeleted) onDeleted(item.id);
       onClose();

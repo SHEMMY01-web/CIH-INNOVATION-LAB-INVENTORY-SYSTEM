@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import Pagination from '../components/Pagination';
@@ -391,6 +391,7 @@ export default function ProjectDetail() {
       }
 
       await fetchProjectDetails();
+      invalidateApiCache();
       setIsAddModalOpen(false);
       await showSuccess(`${addType === 'asset' ? 'Asset' : 'Item'} successfully added to ${project.name}!`);
     } catch (err) {

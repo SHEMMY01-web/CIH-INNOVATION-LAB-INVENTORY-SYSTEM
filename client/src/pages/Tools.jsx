@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import Pagination from '../components/Pagination';
@@ -85,11 +85,13 @@ export default function Tools() {
   const fetchTools = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('items')
         .select('*')
         .order('created_at', { ascending: false });
       
+      if (error) throw error;
+
       if (data) {
         const enriched = enrichItemsWithType(data);
         setTools(enriched.filter(i => {
@@ -97,6 +99,9 @@ export default function Tools() {
           return (t.startsWith('tool:') || isLabTool(i)) && (!i.project || i.project.trim() === '');
         }));
       }
+    } catch (err) {
+      console.error('[Tools] Fetch error:', err);
+      showError('Failed to load tools: ' + (err.message || 'Database error'));
     } finally {
       setLoading(false);
     }
@@ -233,6 +238,7 @@ export default function Tools() {
 
       if (error) throw error;
 
+      invalidateApiCache();
       await showSuccess('Lab tool added successfully!');
       await fetchTools();
       setIsAddModalOpen(false);

@@ -1,40 +1,99 @@
 -- ==========================================
--- 0. ADD NEW COLUMNS
+-- 0. ADD NEW COLUMNS & CONSTRAINTS
 -- ==========================================
 ALTER TABLE public.items ADD COLUMN IF NOT EXISTS perfectly_working INT DEFAULT 0;
 ALTER TABLE public.items ADD COLUMN IF NOT EXISTS not_working INT DEFAULT 0;
 ALTER TABLE public.items ADD COLUMN IF NOT EXISTS to_be_received INT DEFAULT 0;
 ALTER TABLE public.items ADD COLUMN IF NOT EXISTS supplier TEXT DEFAULT '';
 
+-- Validate item lifecycle status constraint
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'chk_item_valid_status'
+  ) THEN
+    ALTER TABLE public.items 
+      ADD CONSTRAINT chk_item_valid_status 
+      CHECK (status IN ('available', 'Out of Stock', 'In Use', 'Under Maintenance', 'Decommissioned'));
+  END IF;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 -- ==========================================
--- 1. UPDATE ITEMS TABLE POLICIES
+-- 1. ROLE-BASED ACCESS CONTROL (RBAC) SETUP
+-- ==========================================
+DO $$ BEGIN
+  CREATE TYPE public.app_role AS ENUM ('admin', 'staff', 'student');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.user_roles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role app_role NOT NULL DEFAULT 'staff',
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow authenticated read to user_roles" ON public.user_roles;
+CREATE POLICY "Allow authenticated read to user_roles" ON public.user_roles 
+  FOR SELECT TO authenticated USING (true);
+
+-- Helper function to verify admin/staff privileges
+CREATE OR REPLACE FUNCTION public.is_admin_or_staff()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- If user_roles has entries for current user, enforce role check
+  IF EXISTS (SELECT 1 FROM user_roles WHERE id = auth.uid()) THEN
+    RETURN EXISTS (
+      SELECT 1 FROM user_roles 
+      WHERE id = auth.uid() AND role IN ('admin', 'staff')
+    );
+  END IF;
+  -- Default fallback: Allow authenticated user if roles table is not yet populated
+  RETURN auth.uid() IS NOT NULL;
+END;
+$$;
+
+-- ==========================================
+-- 2. UPDATE ITEMS TABLE POLICIES (RBAC HARDENED)
 -- ==========================================
 DROP POLICY IF EXISTS "Allow authenticated update to items" ON public.items;
-CREATE POLICY "Allow authenticated update to items" ON public.items FOR UPDATE TO authenticated USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated update to items" ON public.items 
+  FOR UPDATE TO authenticated USING (is_admin_or_staff());
 
 DROP POLICY IF EXISTS "Allow authenticated insert to items" ON public.items;
-CREATE POLICY "Allow authenticated insert to items" ON public.items FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated insert to items" ON public.items 
+  FOR INSERT TO authenticated WITH CHECK (is_admin_or_staff());
 
 DROP POLICY IF EXISTS "Allow authenticated delete of items" ON public.items;
-CREATE POLICY "Allow authenticated delete of items" ON public.items FOR DELETE TO authenticated USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated delete of items" ON public.items 
+  FOR DELETE TO authenticated USING (is_admin_or_staff());
 
 -- ==========================================
--- 2. UPDATE TRANSACTIONS TABLE POLICIES
+-- 3. UPDATE TRANSACTIONS & PROJECTS POLICIES
 -- ==========================================
 DROP POLICY IF EXISTS "Allow authenticated insert to transactions" ON public.transactions;
-CREATE POLICY "Allow authenticated insert to transactions" ON public.transactions FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated insert to transactions" ON public.transactions 
+  FOR INSERT TO authenticated WITH CHECK (is_admin_or_staff());
 
--- ==========================================
--- 3. UPDATE PROJECTS TABLE POLICIES
--- ==========================================
 DROP POLICY IF EXISTS "Allow authenticated insert to projects" ON public.projects;
-CREATE POLICY "Allow authenticated insert to projects" ON public.projects FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated insert to projects" ON public.projects 
+  FOR INSERT TO authenticated WITH CHECK (is_admin_or_staff());
 
 DROP POLICY IF EXISTS "Allow authenticated update to projects" ON public.projects;
-CREATE POLICY "Allow authenticated update to projects" ON public.projects FOR UPDATE TO authenticated USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated update to projects" ON public.projects 
+  FOR UPDATE TO authenticated USING (is_admin_or_staff());
 
 DROP POLICY IF EXISTS "Allow authenticated delete of projects" ON public.projects;
-CREATE POLICY "Allow authenticated delete of projects" ON public.projects FOR DELETE TO authenticated USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Allow authenticated delete of projects" ON public.projects 
+  FOR DELETE TO authenticated USING (is_admin_or_staff());
 
 -- ==========================================
 -- 4. ATOMIC INVENTORY TRANSACTION RPC & CONSTRAINTS

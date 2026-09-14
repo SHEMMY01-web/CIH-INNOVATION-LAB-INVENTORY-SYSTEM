@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import Pagination from '../components/Pagination';
@@ -94,11 +94,15 @@ export default function Items() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('items')
         .select('*')
         .order('created_at', { ascending: false });
       
+      if (error) {
+        throw error;
+      }
+
       if (data) {
         const enriched = enrichItemsWithType(data);
         setItems(enriched.filter(i => {
@@ -106,6 +110,9 @@ export default function Items() {
           return !t.startsWith('asset:') && !t.startsWith('tool:') && !isLabAsset(i) && !isLabTool(i) && (!i.project || i.project.trim() === '');
         }));
       }
+    } catch (err) {
+      console.error('[Items] Fetch error:', err);
+      showError('Failed to load items: ' + (err.message || 'Database error'));
     } finally {
       setLoading(false);
     }
@@ -245,6 +252,7 @@ export default function Items() {
 
       if (error) throw error;
 
+      invalidateApiCache();
       await showSuccess('Item added to inventory successfully!');
       await fetchItems();
       setIsAddModalOpen(false);
