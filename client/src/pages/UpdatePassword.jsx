@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import '../styles/forgot.css';
@@ -33,12 +33,68 @@ export default function UpdatePassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
+  // Tracks whether the user arrived here via a cryptographically signed email recovery link
+  const [isRecoverySession, setIsRecoverySession] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    // Fast-path: Supabase appends #access_token=...&type=recovery to the URL
+    // when the user arrives from the password reset email link.
+    const hash = window.location.hash;
+    if (hash.includes('type=recovery')) {
+      if (isMounted) {
+        setIsRecoverySession(true);
+        setIsCheckingSession(false);
+      }
+      return;
+    }
+
+    // Supabase emits PASSWORD_RECOVERY event when it processes the recovery token
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (!isMounted) return;
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoverySession(true);
+        setIsCheckingSession(false);
+      }
+    });
+
+    // Fallback: check if there's an existing authenticated session (non-recovery)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+      if (!session) {
+        // No session at all — link is invalid or expired
+        setMessage({
+          text: 'This password reset link is invalid or has expired. Please request a new one.',
+          type: 'error'
+        });
+      }
+      // Even if a session exists, isRecoverySession stays false unless event fires
+      setIsCheckingSession(false);
+    });
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔴 Security gate: block password change from non-recovery sessions.
+    // Prevents a lab bystander from changing a logged-in user's password.
+    if (!isRecoverySession) {
+      setMessage({
+        text: 'Blocked: Password updates require arriving via a verified email reset link. Please check your email or request a new reset link.',
+        type: 'error'
+      });
+      return;
+    }
 
     if (password.length < PASSWORD_MIN_LENGTH) {
       setMessage({ text: `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`, type: 'error' });
@@ -64,11 +120,27 @@ export default function UpdatePassword() {
       setMessage({ text: error.message, type: 'error' });
       setIsLoading(false);
     } else {
-      setMessage({ text: 'Password updated securely!', type: 'success' });
-      await supabase.auth.signOut();
+      setMessage({ text: 'Password updated securely! Signing out all sessions...', type: 'success' });
+      // scope: 'global' revokes all refresh tokens across every device/browser
+      await supabase.auth.signOut({ scope: 'global' });
       navigate('/login_successful');
     }
   };
+
+  // Show verification spinner while checking session pedigree
+  if (isCheckingSession) {
+    return (
+      <main className="auth-section" id="main-content">
+        <div className="auth-container">
+          <p style={{ textAlign: 'center', color: '#64748b', padding: '40px 0' }}>
+            Verifying recovery credentials…
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+
 
   return (
     <main className="auth-section" id="main-content">

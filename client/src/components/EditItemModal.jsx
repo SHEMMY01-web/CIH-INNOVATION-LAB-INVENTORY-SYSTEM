@@ -95,14 +95,56 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        const compressedDataUrl = canvas.toDataURL('image/webp', 0.88);
-        setImagePreview(compressedDataUrl);
-        setFormData(prev => ({ ...prev, image_url: compressedDataUrl }));
+
+        // Show preview immediately while the upload runs asynchronously
+        const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
+        setImagePreview(previewDataUrl);
+
+        // Upload binary Blob to Supabase Storage — keeps the DB column lean (URL only)
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+            return;
+          }
+
+          try {
+            const safeName = (formData.item_name || item?.item_name || 'item')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+            const filePath = `items/${safeName}-${Date.now()}.jpg`;
+
+            const { error: uploadError } = await supabase.storage
+              .from('inventory-images')
+              .upload(filePath, blob, {
+                contentType: 'image/jpeg',
+                cacheControl: '31536000',
+                upsert: true
+              });
+
+            if (uploadError) {
+              // Bucket not configured or network error — fall back gracefully
+              console.warn('[EditItemModal] Storage upload failed:', uploadError.message);
+              setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+              return;
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('inventory-images')
+              .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
+          } catch (err) {
+            console.warn('[EditItemModal] Storage upload exception:', err.message);
+            setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+          }
+        }, 'image/jpeg', 0.82);
       };
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
+
 
   const handleRemoveImage = () => {
     setImagePreview(null);

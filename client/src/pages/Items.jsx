@@ -185,6 +185,15 @@ export default function Items() {
     return filteredItems.slice(start, start + pageSize);
   }, [filteredItems, currentPage, pageSize]);
 
+  /**
+   * Converts the selected image to a compressed JPEG Blob and uploads it
+   * to the 'inventory-images' Supabase Storage bucket.
+   *
+   * WHY: Storing Base64 in a TEXT column (canvas.toDataURL) pushes rows into
+   * PostgreSQL's TOAST table (off-page storage), which breaks index-only scans
+   * and inflates WAL replication size by 33% (Base64 overhead). Storing only
+   * a CDN URL keeps the main heap page compact and query performance intact.
+   */
   const handleAddImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -216,14 +225,59 @@ export default function Items() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/webp', 0.88);
-        setAddImagePreview(dataUrl);
-        setNewItem(prev => ({ ...prev, image_url: dataUrl }));
+
+        // Set local preview immediately so the UI is responsive
+        const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
+        setAddImagePreview(previewDataUrl);
+
+        // Upload as a binary Blob to Supabase Storage (not as Base64 in a column)
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            showWarning('Image processing failed. Using preview only.', 'Image Error');
+            setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
+            return;
+          }
+
+          try {
+            const safeName = (newItem.item_name || 'item')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+            const filePath = `items/${safeName}-${Date.now()}.jpg`;
+
+            const { error: uploadError } = await supabase.storage
+              .from('inventory-images')
+              .upload(filePath, blob, {
+                contentType: 'image/jpeg',
+                cacheControl: '31536000', // 1-year immutable CDN cache
+                upsert: true
+              });
+
+            if (uploadError) {
+              // Storage bucket may not be configured yet — fall back to preview URL
+              // so admins can still add items without blocking on bucket setup.
+              console.warn('[Items] Storage upload failed, using local preview:', uploadError.message);
+              setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
+              return;
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('inventory-images')
+              .getPublicUrl(filePath);
+
+            // Only persist the lightweight CDN URL in the database column
+            setNewItem(prev => ({ ...prev, image_url: publicUrl }));
+          } catch (err) {
+            console.warn('[Items] Storage upload exception:', err.message);
+            setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
+          }
+        }, 'image/jpeg', 0.82);
       };
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
+
 
   const handleAddItem = async (e) => {
     e.preventDefault();

@@ -268,14 +268,69 @@ CREATE POLICY "Allow authenticated read to attendance_logs" ON public.attendance
 DROP POLICY IF EXISTS "Allow service_role to insert logs" ON public.attendance_logs;
 CREATE POLICY "Allow service_role to insert logs" ON public.attendance_logs FOR INSERT TO service_role WITH CHECK (true);
 
-create table public.comments (
-  id uuid default gen_random_uuid() primary key,
-  name text,
-  comment text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- ==========================================
+-- 7. COMMENTS TABLE WITH FLOOD PROTECTION
+-- ==========================================
+
+-- Idempotent table creation (safe to run multiple times via migrations)
+CREATE TABLE IF NOT EXISTS public.comments (
+  id          UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  name        TEXT,
+  comment     TEXT        NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+
+  -- Database-engine hard limits: prevents TOAST bloat from multi-MB payloads
+  CONSTRAINT  chk_comment_length CHECK (char_length(comment) >= 3 AND char_length(comment) <= 500),
+  CONSTRAINT  chk_name_length    CHECK (name IS NULL OR (char_length(name) >= 2 AND char_length(name) <= 80))
 );
 
--- Allow public insert and select
-alter table public.comments enable row level security;
-create policy "Allow public read access" on public.comments for select using (true);
-create policy "Allow public insert access" on public.comments for insert with check (true);
+-- ── Rate-limiter: Cap anonymous inserts at 50 per 5-minute rolling window ──
+-- SECURITY DEFINER: executes with elevated privilege to count across all rows
+-- regardless of the caller's RLS context, preventing bypass via role switching.
+CREATE OR REPLACE FUNCTION public.check_comment_flood()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_recent_count INT;
+BEGIN
+  SELECT COUNT(*)
+  INTO   v_recent_count
+  FROM   public.comments
+  WHERE  created_at > (NOW() - INTERVAL '5 minutes');
+
+  IF v_recent_count >= 50 THEN
+    RAISE EXCEPTION 'Comment rate limit exceeded. Please wait a few minutes before submitting again.'
+      USING ERRCODE = 'P0001';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_check_comment_flood ON public.comments;
+CREATE TRIGGER trg_check_comment_flood
+  BEFORE INSERT ON public.comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.check_comment_flood();
+
+-- ── Row-Level Security ──
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+
+-- Public read: all visitors can view the feedback wall
+DROP POLICY IF EXISTS "Allow public read access" ON public.comments;
+CREATE POLICY "Allow public read access" ON public.comments
+  FOR SELECT USING (true);
+
+-- Public insert: allow only valid, size-bounded rows (open to anonymous users)
+-- The trigger above enforces global rate limiting before this policy runs.
+DROP POLICY IF EXISTS "Allow public insert access"   ON public.comments;
+DROP POLICY IF EXISTS "Allow bounded public insert"  ON public.comments;
+CREATE POLICY "Allow bounded public insert" ON public.comments
+  FOR INSERT WITH CHECK (
+    char_length(comment) >= 3 AND
+    char_length(comment) <= 500 AND
+    (name IS NULL OR char_length(name) <= 80)
+  );

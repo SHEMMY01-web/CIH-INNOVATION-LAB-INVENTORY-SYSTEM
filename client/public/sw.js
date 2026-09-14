@@ -156,6 +156,13 @@ async function cacheFirstStrategy(request, cacheName) {
 
 /**
  * Network-First Strategy with Offline Cache Fallback (for API data)
+ * 
+ * When serving from cache (offline mode), stamps the response with:
+ *   X-CIH-Cache-Status: STALE  — signals to the React layer that this is cached data
+ *   X-CIH-Cached-At: <ISO>     — timestamp of when the response was originally cached
+ *
+ * The application can inspect these headers after fetch() to show an ambient
+ * "Viewing cached data — stock levels may be outdated" warning banner.
  */
 async function networkFirstWithCacheFallback(request, cacheName) {
   try {
@@ -166,12 +173,14 @@ async function networkFirstWithCacheFallback(request, cacheName) {
     }
     return networkResponse;
   } catch (err) {
-    // Network failed (offline or timeout): Check cache
+    // Network failed (offline or timeout): serve from cache with staleness headers
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
-      // Add custom header indicating data served from offline cache
+      const cachedAt = cachedResponse.headers.get('date') || new Date().toISOString();
       const headers = new Headers(cachedResponse.headers);
       headers.set('X-Served-By', 'CIH-Offline-Cache');
+      headers.set('X-CIH-Cache-Status', 'STALE');
+      headers.set('X-CIH-Cached-At', cachedAt);
       return new Response(cachedResponse.body, {
         status: cachedResponse.status,
         statusText: cachedResponse.statusText,
