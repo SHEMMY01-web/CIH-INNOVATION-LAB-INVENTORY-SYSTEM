@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef, useDeferredValue } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -157,27 +157,35 @@ export default function Tools() {
       // Status filter
       if (filterCriteria.status === 'in_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt <= 0 || item.status === 'Out of Stock') return false;
+        if (amt <= 0 || item.status !== 'available') return false;
       } else if (filterCriteria.status === 'low_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt <= 0 || amt > 5) return false;
+        if (amt <= 0 || amt > 5 || item.status === 'Out of Stock' || item.status === 'Decommissioned') return false;
       } else if (filterCriteria.status === 'out_of_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt > 0 && item.status !== 'Out of Stock') return false;
+        if (amt > 0 && item.status === 'available') return false;
+      } else if (filterCriteria.status === 'in_use') {
+        if (item.status !== 'In Use') return false;
+      } else if (filterCriteria.status === 'under_maintenance') {
+        if (item.status !== 'Under Maintenance') return false;
+      } else if (filterCriteria.status === 'decommissioned') {
+        if (item.status !== 'Decommissioned') return false;
       }
       return true;
     });
   }, [tools, filterCriteria]);
 
+  const deferredSearch = useDeferredValue(search);
+
   // Ambiguity-resilient fuzzy search
   const filteredTools = useMemo(() => {
-    return smartSearch(activeTools, search, item => [
+    return smartSearch(activeTools, deferredSearch, item => [
       item.item_name || '',
       item.model || '',
       item.type || '',
       item.supplier || ''
     ]);
-  }, [activeTools, search]);
+  }, [activeTools, deferredSearch]);
 
   const paginatedTools = useMemo(() => {
     const start = (currentPage - 1) * pageSize;

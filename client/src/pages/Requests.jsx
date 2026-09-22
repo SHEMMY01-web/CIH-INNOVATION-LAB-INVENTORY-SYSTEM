@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useDeferredValue } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -71,6 +71,9 @@ export default function Requests() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('requested');
+  
+  // Concurrent primitive: keeps typing responsive under heavy fuzzy search
+  const deferredSearch = useDeferredValue(search);
   
   // Pagination for Requested
   const [pageReq, setPageReq] = useState(1);
@@ -216,13 +219,13 @@ export default function Requests() {
     if (filterCriteria.type && filterCriteria.type !== 'all') {
       result = result.filter(tx => tx.transaction_type === filterCriteria.type);
     }
-    return smartSearch(result, search, tx => [
+    return smartSearch(result, deferredSearch, tx => [
       tx.items?.item_name || '',
       tx.requester || '',
       tx.project || '',
       tx.items?.model || ''
     ]);
-  }, [transactions, search, filterCriteria]);
+  }, [transactions, deferredSearch, filterCriteria]);
 
   const requested = useMemo(() => {
     return filteredTransactions.filter(tx => tx.transaction_type === 'checkout' || tx.transaction_type === 'request');
@@ -370,12 +373,27 @@ export default function Requests() {
         if (insertErr) {
           // Compensating rollback: restore stock to original state if audit insert fails
           console.error('[Transactions] Audit log insert failed. Executing compensating stock rollback...');
-          const { error: rpcRollbackErr } = await supabase.rpc('restore_stock', {
-            p_item_id: newTx.item_id,
-            p_restore_qty: newTx.tx_type === 'checkout' ? requestedQty : -requestedQty
-          });
+          let rollbackSuccess = false;
+          try {
+            if (newTx.tx_type === 'checkout') {
+              const { error: rpcRollbackErr } = await supabase.rpc('restore_stock', {
+                p_item_id: newTx.item_id,
+                p_restore_qty: requestedQty
+              });
+              rollbackSuccess = !rpcRollbackErr;
+            } else {
+              // On failed return audit, stock was incremented and must be decremented back
+              const { error: rpcRollbackErr } = await supabase.rpc('decrement_stock', {
+                item_id: newTx.item_id,
+                check_amount: requestedQty
+              });
+              rollbackSuccess = !rpcRollbackErr;
+            }
+          } catch (rbErr) {
+            console.warn('[Transactions] RPC rollback exception:', rbErr);
+          }
 
-          if (rpcRollbackErr) {
+          if (!rollbackSuccess) {
             // Direct SQL fallback if RPC unavailable
             await supabase
               .from('items')

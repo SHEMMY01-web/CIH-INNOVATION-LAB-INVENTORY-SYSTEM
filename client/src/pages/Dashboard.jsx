@@ -145,7 +145,14 @@ export default function Dashboard() {
                     <>
                       {items.slice(0, 5).map(item => {
                         const imgSrc = getItemImage(item);
-                        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
+                        const isAvail = item.amount > 0 && item.status === 'available';
+                        let statusDisplay = item.status || 'Available';
+                        if (item.amount <= 0 || item.status === 'Out of Stock') {
+                          statusDisplay = 'Out of Stock';
+                        }
+                        const badgeClass = isAvail 
+                          ? 'available' 
+                          : (item.status === 'In Use' ? 'in-use' : item.status === 'Under Maintenance' ? 'maintenance' : item.status === 'Decommissioned' ? 'decommissioned' : 'unavailable');
 
                         return (
                           <tr key={item.id}>
@@ -166,8 +173,8 @@ export default function Dashboard() {
                               )}
                             </td>
                             <td>
-                              <span className={`status-badge ${isAvail ? 'available' : 'unavailable'}`}>
-                                {isAvail ? 'Available' : 'Out of Stock'}
+                              <span className={`status-badge ${badgeClass}`}>
+                                {statusDisplay}
                               </span>
                             </td>
                             <td>{item.amount} {item.store || 'pcs'}</td>
@@ -212,7 +219,14 @@ export default function Dashboard() {
                     <>
                       {assets.slice(0, 5).map(item => {
                         const imgSrc = getItemImage(item);
-                        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
+                        const isAvail = item.amount > 0 && item.status === 'available';
+                        let statusDisplay = item.status || 'Available';
+                        if (item.amount <= 0 || item.status === 'Out of Stock') {
+                          statusDisplay = 'Out of Stock';
+                        }
+                        const badgeClass = isAvail 
+                          ? 'available' 
+                          : (item.status === 'In Use' ? 'in-use' : item.status === 'Under Maintenance' ? 'maintenance' : item.status === 'Decommissioned' ? 'decommissioned' : 'unavailable');
 
                         return (
                           <tr key={item.id}>
@@ -233,8 +247,8 @@ export default function Dashboard() {
                               )}
                             </td>
                             <td>
-                              <span className={`status-badge ${isAvail ? 'available' : 'unavailable'}`}>
-                                {isAvail ? 'Available' : 'Out of Stock'}
+                              <span className={`status-badge ${badgeClass}`}>
+                                {statusDisplay}
                               </span>
                             </td>
                             <td>{item.amount} {item.store || 'pcs'}</td>

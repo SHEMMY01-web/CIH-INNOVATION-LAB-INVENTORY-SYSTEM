@@ -64,6 +64,10 @@ $$;
 -- ==========================================
 -- 2. UPDATE ITEMS TABLE POLICIES (RBAC HARDENED)
 -- ==========================================
+DROP POLICY IF EXISTS "Allow public read to items" ON public.items;
+CREATE POLICY "Allow public read to items" ON public.items 
+  FOR SELECT USING (true);
+
 DROP POLICY IF EXISTS "Allow authenticated update to items" ON public.items;
 CREATE POLICY "Allow authenticated update to items" ON public.items 
   FOR UPDATE TO authenticated USING (is_admin_or_staff());
@@ -79,9 +83,17 @@ CREATE POLICY "Allow authenticated delete of items" ON public.items
 -- ==========================================
 -- 3. UPDATE TRANSACTIONS & PROJECTS POLICIES
 -- ==========================================
+DROP POLICY IF EXISTS "Allow authenticated read to transactions" ON public.transactions;
+CREATE POLICY "Allow authenticated read to transactions" ON public.transactions 
+  FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
+
 DROP POLICY IF EXISTS "Allow authenticated insert to transactions" ON public.transactions;
 CREATE POLICY "Allow authenticated insert to transactions" ON public.transactions 
   FOR INSERT TO authenticated WITH CHECK (is_admin_or_staff());
+
+DROP POLICY IF EXISTS "Allow public read to projects" ON public.projects;
+CREATE POLICY "Allow public read to projects" ON public.projects 
+  FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Allow authenticated insert to projects" ON public.projects;
 CREATE POLICY "Allow authenticated insert to projects" ON public.projects 
@@ -234,16 +246,16 @@ create table if not exists attendance_logs (
 );
 
 create index if not exists idx_attendance_user_time on attendance_logs (device_user_id, punch_time desc);
+create index if not exists idx_attendance_user_punch_time on attendance_logs (device_user_id, punch_type, punch_time desc);
 
 -- Hardened duplicate punch filter using transactional advisory lock to prevent race conditions
 create or replace function filter_duplicate_punches()
 returns trigger as $$
-declare
-  v_lock_key bigint;
 begin
-  -- Hash device_user_id into a 64-bit integer to serialize concurrent punches for the same user
-  v_lock_key := ('x' || substr(md5(NEW.device_user_id), 1, 16))::bit(64)::bigint;
-  perform pg_advisory_xact_lock(v_lock_key);
+  -- Advisory lock scoped to (attendance_punch, device_user_id) hashes serializes concurrent punches for this user
+  perform pg_advisory_xact_lock(hashtext('attendance_punch'), hashtext(NEW.device_user_id));
+
+  NEW.punch_time := COALESCE(NEW.punch_time, timezone('utc'::text, now()));
 
   if exists (
     select 1 from attendance_logs
@@ -352,7 +364,10 @@ BEGIN
 
   UPDATE items
   SET amount = amount + p_restore_qty,
-      status = CASE WHEN amount + p_restore_qty > 0 THEN 'available' ELSE status END
+      status = CASE 
+        WHEN status = 'Out of Stock' AND amount + p_restore_qty > 0 THEN 'available' 
+        ELSE status 
+      END
   WHERE id = p_item_id;
 
   IF NOT FOUND THEN

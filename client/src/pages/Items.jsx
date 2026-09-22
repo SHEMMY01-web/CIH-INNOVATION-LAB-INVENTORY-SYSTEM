@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef, useDeferredValue } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -160,14 +160,22 @@ export default function Items() {
 
       // Stock Status filter
       if (filterCriteria.status === 'in_stock' || filterCriteria.status === 'available') {
-        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
+        const isAvail = Number(item.amount) > 0 && item.status === 'available';
         if (!isAvail) return false;
       } else if (filterCriteria.status === 'low_stock') {
-        const isLow = item.amount > 0 && item.amount <= 5 && item.status !== 'Out of Stock';
+        const amt = Number(item.amount) || 0;
+        const isLow = amt > 0 && amt <= 5 && item.status !== 'Out of Stock' && item.status !== 'Decommissioned';
         if (!isLow) return false;
       } else if (filterCriteria.status === 'out_of_stock') {
-        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
-        if (isAvail) return false;
+        const amt = Number(item.amount) || 0;
+        const isOut = amt <= 0 || item.status === 'Out of Stock';
+        if (!isOut) return false;
+      } else if (filterCriteria.status === 'in_use') {
+        if (item.status !== 'In Use') return false;
+      } else if (filterCriteria.status === 'under_maintenance') {
+        if (item.status !== 'Under Maintenance') return false;
+      } else if (filterCriteria.status === 'decommissioned') {
+        if (item.status !== 'Decommissioned') return false;
       }
 
       // Hardware Category filter
@@ -182,15 +190,17 @@ export default function Items() {
     });
   }, [items, filterCriteria]);
 
+  const deferredSearch = useDeferredValue(search);
+
   // High-performance ambiguity-resilient fuzzy search (bubbles best matches to top)
   const filteredItems = useMemo(() => {
-    return smartSearch(activeItems, search, item => [
+    return smartSearch(activeItems, deferredSearch, item => [
       item.item_name || '',
       item.model || '',
       item.type || '',
       item.supplier || ''
     ]);
-  }, [activeItems, search]);
+  }, [activeItems, deferredSearch]);
 
   // Paginated records
   const paginatedItems = useMemo(() => {

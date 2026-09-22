@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -91,6 +91,8 @@ export default function GrnReport() {
     return count;
   }, [filterCriteria]);
 
+  const deferredSearch = useDeferredValue(search);
+
   const filteredReports = useMemo(() => {
     let result = reports;
     if (filterCriteria.status && filterCriteria.status !== 'all') {
@@ -99,14 +101,14 @@ export default function GrnReport() {
     if (filterCriteria.supplier && filterCriteria.supplier !== 'all') {
       result = result.filter(r => (r.supplier || '').trim() === filterCriteria.supplier.trim());
     }
-    return smartSearch(result, search, r => [
+    return smartSearch(result, deferredSearch, r => [
       r.grn_number || '',
       r.item_name || '',
       r.supplier || '',
       r.received_by || '',
       r.status || ''
     ]);
-  }, [reports, search, filterCriteria]);
+  }, [reports, deferredSearch, filterCriteria]);
 
   const paginatedReports = useMemo(() => {
     const start = (currentPage - 1) * pageSize;

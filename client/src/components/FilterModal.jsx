@@ -575,7 +575,10 @@ export default function FilterModal({
                     { id: 'all', label: 'All Items' },
                     { id: 'in_stock', label: 'In Stock (Available)' },
                     { id: 'low_stock', label: 'Low Stock (1–5 Units)' },
-                    { id: 'out_of_stock', label: 'Out of Stock (0 Units)' }
+                    { id: 'out_of_stock', label: 'Out of Stock (0 Units)' },
+                    { id: 'in_use', label: 'In Use' },
+                    { id: 'under_maintenance', label: 'Under Maintenance' },
+                    { id: 'decommissioned', label: 'Decommissioned' }
                   ].map(opt => (
                     <label 
                       key={opt.id} 

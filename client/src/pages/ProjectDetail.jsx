@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useDeferredValue } from 'react';
 import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -47,6 +47,9 @@ export default function ProjectDetail() {
   const [generalCatalog, setGeneralCatalog] = useState([]);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('items'); // 'items' | 'assets'
+
+  // Concurrent primitive: keeps typing responsive under heavy fuzzy search
+  const deferredSearch = useDeferredValue(search);
 
   // Pagination states
   const [itemsPage, setItemsPage] = useState(1);
@@ -282,30 +285,34 @@ export default function ProjectDetail() {
     });
   };
 
-  const filteredItems = smartSearch(filterList(items), search, item => [
-    item.item_name || '',
-    item.model || '',
-    item.type || '',
-    item.supplier || ''
-  ]);
+  const filteredItems = useMemo(() => {
+    return smartSearch(filterList(items), deferredSearch, item => [
+      item.item_name || '',
+      item.model || '',
+      item.type || '',
+      item.supplier || ''
+    ]);
+  }, [items, deferredSearch, filterCriteria]);
 
-  const filteredAssets = smartSearch(filterList(assets), search, item => [
-    item.item_name || '',
-    item.model || '',
-    item.type || '',
-    item.supplier || ''
-  ]);
+  const filteredAssets = useMemo(() => {
+    return smartSearch(filterList(assets), deferredSearch, item => [
+      item.item_name || '',
+      item.model || '',
+      item.type || '',
+      item.supplier || ''
+    ]);
+  }, [assets, deferredSearch, filterCriteria]);
 
   // Paginated slices
-  const paginatedItems = filteredItems.slice(
-    (itemsPage - 1) * itemsPageSize,
-    (itemsPage - 1) * itemsPageSize + itemsPageSize
-  );
+  const paginatedItems = useMemo(() => {
+    const start = (itemsPage - 1) * itemsPageSize;
+    return filteredItems.slice(start, start + itemsPageSize);
+  }, [filteredItems, itemsPage, itemsPageSize]);
 
-  const paginatedAssets = filteredAssets.slice(
-    (assetsPage - 1) * assetsPageSize,
-    (assetsPage - 1) * assetsPageSize + assetsPageSize
-  );
+  const paginatedAssets = useMemo(() => {
+    const start = (assetsPage - 1) * assetsPageSize;
+    return filteredAssets.slice(start, start + assetsPageSize);
+  }, [filteredAssets, assetsPage, assetsPageSize]);
 
   // Open Add Modal
   const openAddModal = (type) => {
@@ -687,7 +694,14 @@ export default function ProjectDetail() {
                     <tbody>
                       {paginatedItems.map(item => {
                         const imgSrc = getItemImage(item);
-                        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
+                        const isAvail = item.amount > 0 && item.status === 'available';
+                        let statusDisplay = item.status || 'Available';
+                        if (item.amount <= 0 || item.status === 'Out of Stock') {
+                          statusDisplay = 'Out of Stock';
+                        }
+                        const badgeClass = isAvail 
+                          ? 'available' 
+                          : (item.status === 'In Use' ? 'in-use' : item.status === 'Under Maintenance' ? 'maintenance' : item.status === 'Decommissioned' ? 'decommissioned' : 'unavailable');
 
                         return (
                           <tr key={item.id}>
@@ -712,8 +726,8 @@ export default function ProjectDetail() {
                             <td>{item.amount} {item.store || 'pcs'}</td>
                             <td>{item.project || '—'}</td>
                             <td>
-                              <span className={`status-badge ${isAvail ? 'available' : 'unavailable'}`}>
-                                {isAvail ? 'Available' : 'Out of Stock'}
+                              <span className={`status-badge ${badgeClass}`}>
+                                {statusDisplay}
                               </span>
                             </td>
                             <td>
@@ -818,7 +832,14 @@ export default function ProjectDetail() {
                     <tbody>
                       {paginatedAssets.map(item => {
                         const imgSrc = getItemImage(item);
-                        const isAvail = item.amount > 0 && item.status !== 'Out of Stock' && item.status !== 'unavailable';
+                        const isAvail = item.amount > 0 && item.status === 'available';
+                        let statusDisplay = item.status || 'Available';
+                        if (item.amount <= 0 || item.status === 'Out of Stock') {
+                          statusDisplay = 'Out of Stock';
+                        }
+                        const badgeClass = isAvail 
+                          ? 'available' 
+                          : (item.status === 'In Use' ? 'in-use' : item.status === 'Under Maintenance' ? 'maintenance' : item.status === 'Decommissioned' ? 'decommissioned' : 'unavailable');
 
                         return (
                           <tr key={item.id}>
@@ -843,8 +864,8 @@ export default function ProjectDetail() {
                             <td>{item.amount} {item.store || 'pcs'}</td>
                             <td>{item.project || '—'}</td>
                             <td>
-                              <span className={`status-badge ${isAvail ? 'available' : 'unavailable'}`}>
-                                {isAvail ? 'Available' : 'Out of Stock'}
+                              <span className={`status-badge ${badgeClass}`}>
+                                {statusDisplay}
                               </span>
                             </td>
                             <td>
@@ -1019,7 +1040,10 @@ export default function ProjectDetail() {
                     onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
                   >
                     <option value="available">Available</option>
-                    <option value="unavailable">Unavailable</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Under Maintenance">Under Maintenance</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="Decommissioned">Decommissioned</option>
                   </select>
                 </div>
 

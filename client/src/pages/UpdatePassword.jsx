@@ -56,7 +56,9 @@ export default function UpdatePassword() {
       } catch (e) {
         console.warn('[UpdatePassword] Failed to clean URL hash:', e);
       }
-      return;
+      return () => {
+        isMounted = false;
+      };
     }
 
     // Supabase emits PASSWORD_RECOVERY event when it processes the recovery token

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ItemCard from '../components/ItemCard';
@@ -19,23 +19,31 @@ export default function Home() {
   const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const messageTimerRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.add('landing-body');
-    return () => document.body.classList.remove('landing-body');
+    return () => {
+      document.body.classList.remove('landing-body');
+      if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchPreviewItems = async () => {
       const { data, error } = await supabase
         .from('items')
         .select('id, item_name, model, type, amount, status, image_url, store')
         .limit(4);
 
-      if (!error && data) {
-        setItems(data);
+      if (isMounted) {
+        if (!error && data) {
+          setItems(data);
+        }
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     const fetchStats = async () => {
@@ -47,7 +55,7 @@ export default function Home() {
         .from('projects')
         .select('id', { count: 'exact', head: true });
 
-      if (allItems) {
+      if (isMounted && allItems) {
         const generalItems = allItems.filter(i => {
           const t = (i.type || '').toLowerCase();
           return !t.startsWith('asset:') && !t.startsWith('tool:');
@@ -71,15 +79,21 @@ export default function Home() {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (!error && data) {
-        setComments(data);
+      if (isMounted) {
+        if (!error && data) {
+          setComments(data);
+        }
+        setCommentsLoading(false);
       }
-      setCommentsLoading(false);
     };
 
     fetchPreviewItems();
     fetchStats();
     fetchComments();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleCommentSubmit = async (e) => {
@@ -118,12 +132,13 @@ export default function Home() {
       // Re-fetch comments
       const { data } = await supabase
         .from('comments')
-        .select('*')
+        .select('id, name, comment, created_at')
         .order('created_at', { ascending: false })
         .limit(10);
       if (data) setComments(data);
 
-      setTimeout(() => setMessage({ text: '', type: '' }), 5000);
+      if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+      messageTimerRef.current = setTimeout(() => setMessage({ text: '', type: '' }), 5000);
     } catch (err) {
       setMessage({ text: 'Something went wrong while posting your comment.', type: 'error' });
     } finally {

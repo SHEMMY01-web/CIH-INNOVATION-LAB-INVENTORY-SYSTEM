@@ -23,6 +23,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
   const [imagePreview, setImagePreview] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -101,9 +102,11 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
         setImagePreview(previewDataUrl);
 
         // Upload binary Blob to Supabase Storage — keeps the DB column lean (URL only)
+        setUploadingImage(true);
         canvas.toBlob(async (blob) => {
           if (!blob) {
-            setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+            setUploadingImage(false);
+            showError('Failed to process image file. Please try another image.', 'Image Processing Error');
             return;
           }
 
@@ -123,9 +126,8 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
               });
 
             if (uploadError) {
-              // Bucket not configured or network error — fall back gracefully
               console.warn('[EditItemModal] Storage upload failed:', uploadError.message);
-              setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+              showError('Image upload failed. Storage bucket unavailable or network issue. The item image was not modified.', 'Upload Failed');
               return;
             }
 
@@ -136,7 +138,9 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
           } catch (err) {
             console.warn('[EditItemModal] Storage upload exception:', err.message);
-            setFormData(prev => ({ ...prev, image_url: previewDataUrl }));
+            showError('Image upload failed: ' + err.message, 'Upload Failed');
+          } finally {
+            setUploadingImage(false);
           }
         }, 'image/jpeg', 0.82);
       };
@@ -215,7 +219,12 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
         .delete()
         .eq('id', item.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates foreign key')) {
+          throw new Error('This item cannot be deleted because it is recorded in past transactions. Please change its status to "Decommissioned" to archive it instead.');
+        }
+        throw error;
+      }
 
       invalidateApiCache();
       await showSuccess('Item deleted successfully!');
@@ -672,7 +681,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                 <button 
                   type="submit" 
                   className="action-btn primary"
-                  disabled={saving}
+                  disabled={saving || deleting || uploadingImage}
                   style={{
                     background: 'var(--primary-color, #1c21df)',
                     color: '#ffffff',
@@ -681,7 +690,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                     borderRadius: '8px',
                     fontSize: '0.88rem',
                     fontWeight: 600,
-                    cursor: 'pointer',
+                    cursor: (saving || deleting || uploadingImage) ? 'not-allowed' : 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
@@ -689,7 +698,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
-                  {saving ? 'Saving Changes...' : 'Save Changes'}
+                  {uploadingImage ? 'Uploading Image...' : (saving ? 'Saving Changes...' : 'Save Changes')}
                 </button>
               </div>
             </div>

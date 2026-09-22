@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef, useDeferredValue } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -36,6 +36,14 @@ export default function Projects() {
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -78,12 +86,18 @@ export default function Projects() {
         };
       });
 
-      setProjects(mapped);
+      if (isMountedRef.current) {
+        setProjects(mapped);
+      }
     } catch (err) {
-      console.error('[Projects] Fetch error:', err);
-      showError('Failed to load projects: ' + (err.message || 'Database error'));
+      if (isMountedRef.current) {
+        console.error('[Projects] Fetch error:', err);
+        showError('Failed to load projects: ' + (err.message || 'Database error'));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [showError]);
 
@@ -129,15 +143,17 @@ export default function Projects() {
     });
   }, [projects, filterCriteria]);
 
+  const deferredSearch = useDeferredValue(search);
+
   // Ambiguity-resilient fuzzy search
   const filteredProjects = useMemo(() => {
-    return smartSearch(activeProjects, search, p => [
+    return smartSearch(activeProjects, deferredSearch, p => [
       p.name || '',
       p.client || '',
       p.manager || '',
       p.status || ''
     ]);
-  }, [activeProjects, search]);
+  }, [activeProjects, deferredSearch]);
 
   const paginatedProjects = useMemo(() => {
     const start = (currentPage - 1) * pageSize;

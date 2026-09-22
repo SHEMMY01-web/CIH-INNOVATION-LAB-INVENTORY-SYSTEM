@@ -32,7 +32,13 @@ export default function Topbar({ onSearch }) {
         {onSearch && (
           <div className="search-box">
             <span className="material-symbols-outlined search-icon" style={{ verticalAlign: 'middle', fontSize: '20px' }}>search</span>
-            <input type="text" placeholder="Search" onChange={onSearch} />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              aria-label="Search records"
+              name="search"
+              onChange={onSearch} 
+            />
           </div>
         )}
 

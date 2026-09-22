@@ -42,14 +42,16 @@ export default function ItemCard({ item }) {
   else if (lowerName.includes('cable') || lowerName.includes('wire')) categoryIcon = 'cable';
   else if (lowerName.includes('battery') || lowerName.includes('power')) categoryIcon = 'battery_charging_full';
 
-  const isAvailable = (item.amount > 0) && (item.status !== 'Out of Stock') && (item.status !== 'Damaged');
+  const isAvailable = (Number(item.amount) > 0) && (item.status === 'available');
   
-  let statusText = 'Available';
-  if (!isAvailable) {
-    statusText = 'Unavailable';
-    if (item.status === 'Out of Stock') statusText = 'Out of Stock';
-    else if (item.status === 'Damaged') statusText = 'Damaged';
+  let statusText = item.status || 'Available';
+  if (Number(item.amount) <= 0 || item.status === 'Out of Stock') {
+    statusText = 'Out of Stock';
   }
+
+  const badgeClass = isAvailable 
+    ? 'available' 
+    : (item.status === 'In Use' ? 'in-use' : item.status === 'Under Maintenance' ? 'maintenance' : item.status === 'Decommissioned' ? 'decommissioned' : 'unavailable');
 
   const slug = slugify(item.item_name);
   const candidateUrl = item.image_url || (slug ? `/IMAGES/items/${slug}.webp` : null);
@@ -85,7 +87,7 @@ export default function ItemCard({ item }) {
         <p className="card-model">{item.model && item.model !== '-' ? item.model : 'Standard Lab Stock'}</p>
         
         <div className="card-footer">
-          <div className={`status-badge ${isAvailable ? 'available' : 'unavailable'}`}>
+          <div className={`status-badge ${badgeClass}`}>
             <div className="status-dot"></div>
             {statusText}
           </div>

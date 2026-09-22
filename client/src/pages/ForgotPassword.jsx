@@ -29,16 +29,25 @@ export default function ForgotPassword() {
     });
 
     if (error) {
-      setMessage({ text: error.message, type: 'error' });
-      setIsLoading(false);
-    } else {
-      setMessage({ text: 'Password reset link sent! Check your email.', type: 'success' });
-      // Re-enable button after 30 seconds in case user needs to retry
-      retryTimerRef.current = setTimeout(() => {
+      console.warn('[ForgotPassword] Reset error:', error.message);
+      // OWASP CWE-204: Prevent account enumeration via timing/error discrepancy.
+      // Only surface rate limit (429) errors; normalize all other responses.
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        setMessage({ text: 'Too many requests. Please wait a few minutes before trying again.', type: 'error' });
         setIsLoading(false);
-        setMessage({ text: '', type: '' });
-      }, 30000);
+        return;
+      }
     }
+
+    setMessage({ 
+      text: 'If an account exists with this email, a password reset link has been sent. Please check your inbox.', 
+      type: 'success' 
+    });
+    // Re-enable button after 30 seconds in case user needs to retry
+    retryTimerRef.current = setTimeout(() => {
+      setIsLoading(false);
+      setMessage({ text: '', type: '' });
+    }, 30000);
   };
 
   return (

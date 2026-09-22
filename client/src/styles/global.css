@@ -175,6 +175,24 @@ input[type="checkbox"] {
   border: 1px solid rgba(255, 84, 33, 0.2);
 }
 
+.status-badge.in-use {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.status-badge.maintenance {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-badge.decommissioned {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
 .status-dot {
   width: 6px;
   height: 6px;
