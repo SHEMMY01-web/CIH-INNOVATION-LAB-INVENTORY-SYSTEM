@@ -19,16 +19,43 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable_XhJwMl5PFjt7uEoKqlMwxw_pXJ0vcur' }}
         run: |
           echo "Pinging Supabase database at $SUPABASE_URL..."
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/items?select=id&limit=1")
           
-          echo "Supabase HTTP response: $STATUS_CODE"
+          MAX_RETRIES=4
+          RETRY_DELAY=10
+          SUCCESS=false
           
-          if [ "$STATUS_CODE" -eq 200 ]; then
-            echo "✅ Success! Supabase database responded with HTTP 200. Project is warm and active."
-          else
-            echo "❌ Error: Received HTTP $STATUS_CODE from Supabase."
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "--- Attempt $i of $MAX_RETRIES ---"
+            
+            HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" \
+              --connect-timeout 10 \
+              --max-time 30 \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              "$SUPABASE_URL/rest/v1/items?select=id&limit=1")
+            
+            STATUS_CODE=$(echo "$HTTP_RESPONSE" | tail -n1)
+            BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+            
+            echo "Supabase HTTP response: $STATUS_CODE"
+            
+            if [ "$STATUS_CODE" -ge 200 ] && [ "$STATUS_CODE" -lt 300 ]; then
+              echo "✅ Success! Supabase database responded with HTTP $STATUS_CODE. Project is warm and active."
+              SUCCESS=true
+              break
+            elif [ "$STATUS_CODE" -eq 502 ] || [ "$STATUS_CODE" -eq 503 ] || [ "$STATUS_CODE" -eq 504 ] || [ "$STATUS_CODE" -eq 000 ]; then
+              echo "⏳ Cold start or transient gateway timeout (HTTP $STATUS_CODE). Database may be waking up. Retrying in ${RETRY_DELAY}s..."
+              sleep $RETRY_DELAY
+            else
+              echo "⚠️ Unexpected HTTP response: $STATUS_CODE. Body: $BODY"
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "Retrying in ${RETRY_DELAY}s..."
+                sleep $RETRY_DELAY
+              fi
+            fi
+          done
+          
+          if [ "$SUCCESS" = false ]; then
+            echo "❌ Error: Failed to ping Supabase after $MAX_RETRIES attempts (Last HTTP $STATUS_CODE)."
             exit 1
           fi
