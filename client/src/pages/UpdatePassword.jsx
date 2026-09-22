@@ -51,6 +51,11 @@ export default function UpdatePassword() {
         setIsRecoverySession(true);
         setIsCheckingSession(false);
       }
+      try {
+        window.history.replaceState(null, '', window.location.pathname);
+      } catch (e) {
+        console.warn('[UpdatePassword] Failed to clean URL hash:', e);
+      }
       return;
     }
 

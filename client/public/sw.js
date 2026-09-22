@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.2';
+const CACHE_VERSION = 'v1.0.3';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -90,6 +90,12 @@ self.addEventListener('fetch', (event) => {
   // 3. Supabase REST API Queries: Network-First with Cache Fallback for public catalog & comments.
   // Privileged queries (transactions, projects, attendance, RPCs) bypass CacheStorage to ensure fresh data.
   if (url.hostname.includes('supabase.co') && url.pathname.includes('/rest/v1/')) {
+    // CRITICAL: CacheStorage only supports idempotent GET requests.
+    // Mutations (POST, PATCH, PUT, DELETE) must bypass the cache handler completely.
+    if (request.method !== 'GET') {
+      return;
+    }
+
     const isPublicEndpoint = url.pathname.includes('/items') || url.pathname.includes('/comments');
     const isStaffEndpoint = url.pathname.includes('/transactions') || 
                             url.pathname.includes('/projects') || 

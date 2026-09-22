@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase, invalidateApiCache } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -38,11 +38,12 @@ export function AuthProvider({ children }) {
     };
   }, [navigate]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setIsLoggingOut(true);
     navigate('/', { replace: true });
     try {
       // Purge any cached API queries on logout to prevent data leakage on shared lab workstations
+      invalidateApiCache();
       if ('caches' in window) {
         try {
           const cacheKeys = await caches.keys();
@@ -60,14 +61,14 @@ export function AuthProvider({ children }) {
       setUser(null);
       setIsLoggingOut(false);
     }
-  };
+  }, [navigate]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     isLoggingOut,
     signOut,
-  };
+  }), [user, loading, isLoggingOut, signOut]);
 
   return (
     <AuthContext.Provider value={value}>

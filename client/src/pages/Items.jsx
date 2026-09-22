@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -72,11 +72,51 @@ export default function Items() {
   });
   const [addImagePreview, setAddImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const fetchItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        throw error;
+      }
+
+      if (isMountedRef.current && data) {
+        const enriched = enrichItemsWithType(data);
+        setItems(enriched.filter(i => {
+          const t = (i.type || '').toLowerCase();
+          return !t.startsWith('asset:') && !t.startsWith('tool:') && !isLabAsset(i) && !isLabTool(i) && (!i.project || i.project.trim() === '');
+        }));
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        console.error('[Items] Fetch error:', err);
+        showError('Failed to load items: ' + (err.message || 'Database error'));
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [showError]);
 
   useEffect(() => {
     if (!user) return;
     fetchItems();
-  }, [user]);
+  }, [user, fetchItems]);
 
   // Dismiss Add modal on Escape key (WCAG 2.1 AA)
   useEffect(() => {
@@ -90,33 +130,6 @@ export default function Items() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAddModalOpen]);
-
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        throw error;
-      }
-
-      if (data) {
-        const enriched = enrichItemsWithType(data);
-        setItems(enriched.filter(i => {
-          const t = (i.type || '').toLowerCase();
-          return !t.startsWith('asset:') && !t.startsWith('tool:') && !isLabAsset(i) && !isLabTool(i) && (!i.project || i.project.trim() === '');
-        }));
-      }
-    } catch (err) {
-      console.error('[Items] Fetch error:', err);
-      showError('Failed to load items: ' + (err.message || 'Database error'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Reset to page 1 on search or filter change
   useEffect(() => {
@@ -230,15 +243,15 @@ export default function Items() {
         const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
         setAddImagePreview(previewDataUrl);
 
-        // Upload as a binary Blob to Supabase Storage (not as Base64 in a column)
+        // Upload as a binary Blob to Supabase Storage (CDN URL only — no Base64 in database)
+        setUploadingImage(true);
         canvas.toBlob(async (blob) => {
-          if (!blob) {
-            showWarning('Image processing failed. Using preview only.', 'Image Error');
-            setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
-            return;
-          }
-
           try {
+            if (!blob) {
+              showWarning('Image processing failed.', 'Image Error');
+              return;
+            }
+
             const safeName = (newItem.item_name || 'item')
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, '-')
@@ -254,10 +267,8 @@ export default function Items() {
               });
 
             if (uploadError) {
-              // Storage bucket may not be configured yet — fall back to preview URL
-              // so admins can still add items without blocking on bucket setup.
-              console.warn('[Items] Storage upload failed, using local preview:', uploadError.message);
-              setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
+              console.warn('[Items] Storage upload failed:', uploadError.message);
+              showWarning('Image upload failed: ' + uploadError.message, 'Upload Error');
               return;
             }
 
@@ -269,7 +280,8 @@ export default function Items() {
             setNewItem(prev => ({ ...prev, image_url: publicUrl }));
           } catch (err) {
             console.warn('[Items] Storage upload exception:', err.message);
-            setNewItem(prev => ({ ...prev, image_url: previewDataUrl }));
+          } finally {
+            setUploadingImage(false);
           }
         }, 'image/jpeg', 0.82);
       };
@@ -698,15 +710,18 @@ export default function Items() {
                     onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
                   >
                     <option value="available">Available</option>
-                    <option value="out_of_stock">Out of Stock</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Under Maintenance">Under Maintenance</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="Decommissioned">Decommissioned</option>
                   </select>
                 </div>
               </div>
 
               <div className="modal-footer" style={{ padding: '20px 0 0 0', marginTop: '20px', borderTop: '1px solid #e2e8f0' }}>
                 <button type="button" className="btn-secondary" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn-primary modal-btn" disabled={submitting}>
-                  {submitting ? 'Adding...' : 'Add Item'}
+                <button type="submit" className="btn-primary modal-btn" disabled={submitting || uploadingImage}>
+                  {uploadingImage ? 'Uploading Image...' : (submitting ? 'Adding...' : 'Add Item')}
                 </button>
               </div>
             </form>

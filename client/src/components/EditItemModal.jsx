@@ -523,9 +523,10 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
                     <option value="available">Available</option>
-                    <option value="unavailable">Unavailable</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Under Maintenance">Under Maintenance</option>
                     <option value="Out of Stock">Out of Stock</option>
-                    <option value="Damaged">Damaged</option>
+                    <option value="Decommissioned">Decommissioned</option>
                   </select>
                 </div>
               </div>

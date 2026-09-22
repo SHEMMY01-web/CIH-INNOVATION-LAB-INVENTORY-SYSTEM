@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -63,11 +63,49 @@ export default function Assets() {
   });
   const [addImagePreview, setAddImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const fetchAssets = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+
+      if (isMountedRef.current && data) {
+        const enriched = enrichItemsWithType(data);
+        setAssets(enriched.filter(i => {
+          const t = (i.type || '').toLowerCase();
+          return (t.startsWith('asset:') || isLabAsset(i)) && (!i.project || i.project.trim() === '');
+        }));
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        console.error('[Assets] Fetch error:', err);
+        showError('Failed to load assets: ' + (err.message || 'Database error'));
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [showError]);
 
   useEffect(() => {
     if (!user) return;
     fetchAssets();
-  }, [user]);
+  }, [user, fetchAssets]);
 
   // Dismiss Add modal on Escape key (WCAG 2.1 AA)
   useEffect(() => {
@@ -81,31 +119,6 @@ export default function Assets() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAddModalOpen]);
-
-  const fetchAssets = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-
-      if (data) {
-        const enriched = enrichItemsWithType(data);
-        setAssets(enriched.filter(i => {
-          const t = (i.type || '').toLowerCase();
-          return (t.startsWith('asset:') || isLabAsset(i)) && (!i.project || i.project.trim() === '');
-        }));
-      }
-    } catch (err) {
-      console.error('[Assets] Fetch error:', err);
-      showError('Failed to load assets: ' + (err.message || 'Database error'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Reset to page 1 on search or filter change
   useEffect(() => {
@@ -204,16 +217,18 @@ export default function Assets() {
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Show preview immediately; upload runs asynchronously
+        // Set local preview immediately so the UI is responsive
         const previewDataUrl = canvas.toDataURL('image/webp', 0.88);
         setAddImagePreview(previewDataUrl);
 
+        // Upload as a binary Blob to Supabase Storage (CDN URL only — no Base64 in database)
+        setUploadingImage(true);
         canvas.toBlob(async (blob) => {
-          if (!blob) {
-            setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
-            return;
-          }
           try {
+            if (!blob) {
+              showWarning('Image processing failed.', 'Image Error');
+              return;
+            }
             const safeName = (newAsset.item_name || 'asset')
               .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
             const filePath = `items/${safeName}-${Date.now()}.jpg`;
@@ -222,14 +237,15 @@ export default function Assets() {
               .upload(filePath, blob, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true });
             if (uploadError) {
               console.warn('[Assets] Storage upload failed:', uploadError.message);
-              setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
+              showWarning('Image upload failed: ' + uploadError.message, 'Upload Error');
               return;
             }
             const { data: { publicUrl } } = supabase.storage.from('inventory-images').getPublicUrl(filePath);
             setNewAsset(prev => ({ ...prev, image_url: publicUrl }));
           } catch (err) {
             console.warn('[Assets] Storage upload exception:', err.message);
-            setNewAsset(prev => ({ ...prev, image_url: previewDataUrl }));
+          } finally {
+            setUploadingImage(false);
           }
         }, 'image/jpeg', 0.82);
       };
@@ -644,15 +660,18 @@ export default function Assets() {
                     onChange={(e) => setNewAsset({ ...newAsset, status: e.target.value })}
                   >
                     <option value="available">Available</option>
-                    <option value="out_of_stock">Out of Stock</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Under Maintenance">Under Maintenance</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="Decommissioned">Decommissioned</option>
                   </select>
                 </div>
               </div>
 
               <div className="modal-footer" style={{ padding: '20px 0 0 0', marginTop: '20px', borderTop: '1px solid #e2e8f0' }}>
                 <button type="button" className="btn-secondary" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn-primary modal-btn" disabled={submitting}>
-                  {submitting ? 'Adding...' : 'Add Asset'}
+                <button type="submit" className="btn-primary modal-btn" disabled={submitting || uploadingImage}>
+                  {uploadingImage ? 'Uploading Image...' : (submitting ? 'Adding...' : 'Add Asset')}
                 </button>
               </div>
             </form>

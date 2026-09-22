@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/login.css'; // Or whatever global styles for auth
@@ -11,11 +11,16 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+
+  const from = location.state?.from?.pathname 
+    ? `${location.state.from.pathname}${location.state.from.search || ''}` 
+    : '/dashboard';
 
   // If already logged in, redirect
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   const handleLogin = async (e) => {
@@ -33,7 +38,7 @@ export default function Login() {
       setError('Invalid email or password. Please try again.');
       setLoading(false); // Only reset on failure — navigate() unmounts the component on success
     } else {
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     }
   };
 

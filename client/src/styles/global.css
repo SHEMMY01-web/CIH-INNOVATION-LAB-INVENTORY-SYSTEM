@@ -14,6 +14,7 @@
   --sidebar-text: #ffffff;
   --topbar-bg: #fafbfc;
   --card-bg: #ffffff;
+  --card-background: var(--card-bg);
   --input-bg: #ffffff;
   --shadow: rgba(0,0,0,0.05);
   --accent-color: #ff5421;

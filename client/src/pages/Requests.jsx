@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -111,19 +111,14 @@ export default function Requests() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAddModalOpen]);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchTransactions();
-    fetchItemsList();
-  }, [user]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('transactions')
         .select('*, items(*)')
-        .order('timestamp', { ascending: false });
+        .order('timestamp', { ascending: false })
+        .limit(1000);
       
       if (error) {
         console.error('Error fetching transactions:', error);
@@ -138,9 +133,9 @@ export default function Requests() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchItemsList = async () => {
+  const fetchItemsList = useCallback(async () => {
     const { data, error } = await supabase
       .from('items')
       .select('id, item_name, amount, store, type, project')
@@ -150,7 +145,18 @@ export default function Requests() {
       return;
     }
     if (data) setItemsList(enrichItemsWithType(data));
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    let isMounted = true;
+    Promise.all([fetchTransactions(), fetchItemsList()]).catch(err => {
+      if (isMounted) console.error('[Requests] Initial load error:', err);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [user, fetchTransactions, fetchItemsList]);
 
   // Reset pagination on search or filter change
   useEffect(() => {
@@ -361,7 +367,24 @@ export default function Requests() {
           insertErr = retry.error;
         }
 
-        if (insertErr) throw insertErr;
+        if (insertErr) {
+          // Compensating rollback: restore stock to original state if audit insert fails
+          console.error('[Transactions] Audit log insert failed. Executing compensating stock rollback...');
+          const { error: rpcRollbackErr } = await supabase.rpc('restore_stock', {
+            p_item_id: newTx.item_id,
+            p_restore_qty: newTx.tx_type === 'checkout' ? requestedQty : -requestedQty
+          });
+
+          if (rpcRollbackErr) {
+            // Direct SQL fallback if RPC unavailable
+            await supabase
+              .from('items')
+              .update({ amount: currentStock, status: currentStock === 0 ? 'Out of Stock' : 'available' })
+              .eq('id', newTx.item_id);
+          }
+
+          throw new Error(`Transaction failed to record (${insertErr.message}). Inventory stock was restored.`);
+        }
 
         rpcResult = {
           item_name: itemData.item_name,

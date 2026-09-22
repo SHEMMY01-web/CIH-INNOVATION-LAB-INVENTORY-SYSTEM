@@ -72,9 +72,20 @@ export default function Catalog() {
     });
   }, [allItems, filter]);
 
-  const assetCount = useMemo(() => allItems.filter(i => (i.type || '').toLowerCase().startsWith('asset:') || isLabAsset(i)).length, [allItems]);
-  const toolCount = useMemo(() => allItems.filter(i => (i.type || '').toLowerCase().startsWith('tool:') || isLabTool(i)).length, [allItems]);
-  const generalCount = useMemo(() => Math.max(0, allItems.length - assetCount - toolCount), [allItems, assetCount, toolCount]);
+  const { assetCount, toolCount, generalCount } = useMemo(() => {
+    let assets = 0, tools = 0, general = 0;
+    for (const item of allItems) {
+      const t = (item.type || '').toLowerCase();
+      if (t.startsWith('asset:') || isLabAsset(item)) {
+        assets++;
+      } else if (t.startsWith('tool:') || isLabTool(item)) {
+        tools++;
+      } else {
+        general++;
+      }
+    }
+    return { assetCount: assets, toolCount: tools, generalCount: general };
+  }, [allItems]);
 
   // High-performance ambiguity-resilient fuzzy search with deferred query evaluation
   const filteredItems = useMemo(() => {

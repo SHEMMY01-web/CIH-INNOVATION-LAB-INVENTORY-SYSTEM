@@ -161,7 +161,11 @@ BEGIN
   -- 1. Mutate item stock atomically
   UPDATE items
   SET amount = v_new_stock,
-      status = CASE WHEN v_new_stock = 0 THEN 'Out of Stock' ELSE status END
+      status = CASE 
+        WHEN v_new_stock = 0 THEN 'Out of Stock' 
+        WHEN status = 'Out of Stock' AND v_new_stock > 0 THEN 'available'
+        ELSE status 
+      END
   WHERE id = p_item_id;
 
   -- 2. Commit transaction audit record atomically
@@ -244,8 +248,9 @@ begin
   if exists (
     select 1 from attendance_logs
     where device_user_id = NEW.device_user_id
-    and punch_time >= NEW.punch_time - interval '5 minutes'
-    and punch_time <= NEW.punch_time + interval '5 minutes'
+    and punch_type = NEW.punch_type
+    and punch_time >= NEW.punch_time - interval '2 minutes'
+    and punch_time <= NEW.punch_time + interval '2 minutes'
   ) then 
     return null; 
   end if;
