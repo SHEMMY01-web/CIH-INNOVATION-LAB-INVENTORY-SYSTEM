@@ -1,6 +1,17 @@
 import React, { useEffect } from 'react';
+import { getItemImage } from '../utils/slugify';
 
-export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
+export default function ImageLightbox({ 
+  isOpen, 
+  onClose, 
+  imageSrc, 
+  imageUrl, 
+  title, 
+  item 
+}) {
+  const resolvedSrc = imageSrc || imageUrl || (item ? getItemImage(item) : null);
+  const resolvedTitle = title || item?.item_name || item?.name || item?.title || 'Item Image';
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -17,7 +28,7 @@ export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={title || 'Image preview'}
+      aria-label={resolvedTitle}
       style={{
         position: 'fixed',
         inset: 0,
@@ -56,7 +67,7 @@ export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
           }}
         >
           <span style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>
-            {title || 'Item Image'}
+            {resolvedTitle}
           </span>
           <button 
             onClick={onClose}
@@ -88,10 +99,10 @@ export default function ImageLightbox({ isOpen, onClose, imageSrc, title }) {
             backgroundColor: '#ffffff'
           }}
         >
-          {imageSrc ? (
+          {resolvedSrc ? (
             <img 
-              src={imageSrc} 
-              alt={title || 'Item'} 
+              src={resolvedSrc} 
+              alt={resolvedTitle} 
               style={{
                 maxWidth: '75vw',
                 maxHeight: '65vh',

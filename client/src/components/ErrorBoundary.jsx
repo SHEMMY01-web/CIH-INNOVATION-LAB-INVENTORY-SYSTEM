@@ -3,7 +3,7 @@ import React from 'react';
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, showDetails: false };
   }
 
   static getDerivedStateFromError(error) {
@@ -15,12 +15,12 @@ export default class ErrorBoundary extends React.Component {
   }
 
   handleReload = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, showDetails: false });
     window.location.reload();
   };
 
   handleGoHome = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, showDetails: false });
     window.location.href = '/';
   };
 
@@ -70,23 +70,50 @@ export default class ErrorBoundary extends React.Component {
               An unexpected error occurred. This has been logged and our team will investigate.
             </p>
 
-            {import.meta.env.DEV && this.state.error && (
-              <pre style={{
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '10px',
-                padding: '14px',
-                fontSize: '0.78rem',
-                color: '#991b1b',
-                textAlign: 'left',
-                overflow: 'auto',
-                maxHeight: '120px',
-                marginBottom: '24px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word'
-              }}>
-                {this.state.error.toString()}
-              </pre>
+            {this.state.error && (
+              <div style={{ marginBottom: '24px', textAlign: 'left' }}>
+                <button
+                  type="button"
+                  onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0,
+                    fontFamily: 'inherit',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {this.state.showDetails ? 'expand_less' : 'expand_more'}
+                  </span>
+                  {this.state.showDetails ? 'Hide technical details' : 'Show technical details'}
+                </button>
+                {this.state.showDetails && (
+                  <pre style={{
+                    marginTop: '8px',
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '10px',
+                    padding: '12px',
+                    fontSize: '0.76rem',
+                    color: '#991b1b',
+                    textAlign: 'left',
+                    overflow: 'auto',
+                    maxHeight: '140px',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                  }}>
+                    {this.state.error.toString()}
+                    {this.state.error?.stack ? `\n\nStack:\n${this.state.error.stack}` : ''}
+                  </pre>
+                )}
+              </div>
             )}
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>

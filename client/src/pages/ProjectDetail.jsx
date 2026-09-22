@@ -273,13 +273,19 @@ export default function ProjectDetail() {
       // Status filter
       if (filterCriteria.status === 'in_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt <= 0 || item.status === 'Out of Stock') return false;
+        if (amt <= 0 || item.status !== 'available') return false;
       } else if (filterCriteria.status === 'low_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt <= 0 || amt > 5) return false;
+        if (amt <= 0 || amt > 5 || item.status === 'Out of Stock' || item.status === 'Decommissioned') return false;
       } else if (filterCriteria.status === 'out_of_stock') {
         const amt = Number(item.amount) || 0;
-        if (amt > 0 && item.status !== 'Out of Stock') return false;
+        if (amt > 0 && item.status === 'available') return false;
+      } else if (filterCriteria.status === 'in_use') {
+        if (item.status !== 'In Use') return false;
+      } else if (filterCriteria.status === 'under_maintenance') {
+        if (item.status !== 'Under Maintenance') return false;
+      } else if (filterCriteria.status === 'decommissioned') {
+        if (item.status !== 'Decommissioned') return false;
       }
       return true;
     });
@@ -930,7 +936,8 @@ export default function ProjectDetail() {
         isOpen={Boolean(lightboxItem)}
         onClose={() => setLightboxItem(null)}
         item={lightboxItem}
-        imageUrl={getItemImage(lightboxItem)}
+        imageSrc={getItemImage(lightboxItem)}
+        title={lightboxItem?.item_name}
       />
 
       {/* Unified Edit Modal */}

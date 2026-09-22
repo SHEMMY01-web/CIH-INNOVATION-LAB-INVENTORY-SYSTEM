@@ -28,14 +28,20 @@ export default function Login() {
     setLoading(true);
     setError(null);
 
+    const cleanEmail = email.trim();
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: cleanEmail,
       password,
     });
 
     if (error) {
-      // Never distinguish "invalid email" from "invalid password" — prevents account enumeration
-      setError('Invalid email or password. Please try again.');
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        setError('Too many login attempts. Please wait a few moments before trying again.');
+      } else {
+        // Never distinguish "invalid email" from "invalid password" — prevents account enumeration
+        setError('Invalid email or password. Please try again.');
+      }
       setLoading(false); // Only reset on failure — navigate() unmounts the component on success
     } else {
       navigate(from, { replace: true });

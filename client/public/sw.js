@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.3';
+const CACHE_VERSION = 'v1.0.4';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -171,15 +171,21 @@ async function cacheFirstStrategy(request, cacheName) {
  * "Viewing cached data — stock levels may be outdated" warning banner.
  */
 async function networkFirstWithCacheFallback(request, cacheName) {
+  const controller = new AbortController();
+  // 4-second timeout: Prevents stalling on Lie-Fi / captive portals by falling back to cache
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
+
   try {
-    const networkResponse = await fetch(request);
+    const networkResponse = await fetch(request, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (networkResponse && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
   } catch (err) {
-    // Network failed (offline or timeout): serve from cache with staleness headers
+    clearTimeout(timeoutId);
+    // Network failed or timed out (offline/Lie-Fi): serve from cache with staleness headers
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       const cachedAt = cachedResponse.headers.get('date') || new Date().toISOString();

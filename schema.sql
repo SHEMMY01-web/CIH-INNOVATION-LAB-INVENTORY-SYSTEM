@@ -212,7 +212,7 @@ $$;
 REVOKE EXECUTE ON FUNCTION public.execute_inventory_transaction(UUID, TEXT, INT, TEXT, TEXT, TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.execute_inventory_transaction(UUID, TEXT, INT, TEXT, TEXT, TEXT) TO authenticated;
 
--- Legacy helper (preserved for backward compatibility, hardened with validation)
+-- Legacy helper (preserved for backward compatibility, hardened with validation and status synchronization)
 CREATE OR REPLACE FUNCTION public.decrement_stock(item_id UUID, check_amount INT)
 RETURNS void AS $$
 BEGIN
@@ -221,14 +221,18 @@ BEGIN
   END IF;
 
   UPDATE items
-  SET amount = amount - check_amount
+  SET amount = amount - check_amount,
+      status = CASE 
+        WHEN amount - check_amount = 0 THEN 'Out of Stock' 
+        ELSE status 
+      END
   WHERE id = item_id AND amount >= check_amount;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Insufficient stock or item not found';
   END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY INVOKER SET search_path = public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 REVOKE EXECUTE ON FUNCTION public.decrement_stock(UUID, INT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.decrement_stock(UUID, INT) TO authenticated;
