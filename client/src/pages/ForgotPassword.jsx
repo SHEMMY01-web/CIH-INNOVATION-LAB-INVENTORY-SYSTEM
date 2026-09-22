@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import '../styles/forgot.css';
@@ -7,6 +7,14 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const retryTimerRef = useRef(null);
+
+  // Cleanup timer on unmount to prevent setState on dead component
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +34,7 @@ export default function ForgotPassword() {
     } else {
       setMessage({ text: 'Password reset link sent! Check your email.', type: 'success' });
       // Re-enable button after 30 seconds in case user needs to retry
-      setTimeout(() => {
+      retryTimerRef.current = setTimeout(() => {
         setIsLoading(false);
         setMessage({ text: '', type: '' });
       }, 30000);

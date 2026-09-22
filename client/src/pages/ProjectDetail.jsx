@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -78,12 +78,7 @@ export default function ProjectDetail() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchProjectDetails();
-  }, [user, projectId, projectNameParam]);
-
-  const fetchProjectDetails = async () => {
+  const fetchProjectDetails = useCallback(async (signal) => {
     let resolvedProject = null;
 
     // 1. Try finding by ID
@@ -106,6 +101,8 @@ export default function ProjectDetail() {
       if (projByName) resolvedProject = projByName;
     }
 
+    if (signal?.aborted) return;
+
     // 3. Self-healing fallback if project not in table
     const projName = resolvedProject?.name || projectNameParam || 'BDU-DCF';
     if (!resolvedProject) {
@@ -124,6 +121,8 @@ export default function ProjectDetail() {
       .from('items')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (signal?.aborted) return;
 
     if (allItems && !error) {
       const enrichedAll = enrichItemsWithType(allItems);
@@ -145,7 +144,33 @@ export default function ProjectDetail() {
         return t.startsWith('asset:');
       }));
     }
-  };
+  }, [projectId, projectNameParam]);
+
+  useEffect(() => {
+    if (!user) return;
+    const controller = new AbortController();
+    fetchProjectDetails(controller.signal);
+    return () => controller.abort();
+  }, [user, fetchProjectDetails]);
+
+  // Close status dropdown on click outside or Escape
+  useEffect(() => {
+    if (!isStatusMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('[data-status-dropdown]')) {
+        setIsStatusMenuOpen(false);
+      }
+    };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setIsStatusMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [isStatusMenuOpen]);
 
   // Reset pagination on search or filter change
   useEffect(() => {
@@ -397,10 +422,27 @@ export default function ProjectDetail() {
       if (insertErr) {
         // Compensating rollback: restore general catalog stock if the insert failed
         if (addType === 'item' && generalItem) {
-          await supabase
-            .from('items')
-            .update({ amount: generalItem.amount })
-            .eq('id', generalItem.id);
+          // Attempt atomic server-side restoration RPC first to avoid overwriting concurrent modifications
+          const { error: rpcRollbackErr } = await supabase.rpc('restore_stock', {
+            p_item_id: generalItem.id,
+            p_restore_qty: requestedQty
+          });
+          if (rpcRollbackErr) {
+            // Fallback: fetch current fresh stock then increment
+            const { data: freshItem } = await supabase
+              .from('items')
+              .select('amount')
+              .eq('id', generalItem.id)
+              .maybeSingle();
+            const currentAmount = Number(freshItem?.amount ?? generalItem.amount);
+            await supabase
+              .from('items')
+              .update({ 
+                amount: currentAmount + requestedQty,
+                status: (currentAmount + requestedQty) > 0 ? 'available' : 'Out of Stock'
+              })
+              .eq('id', generalItem.id);
+          }
         }
         throw insertErr;
       }
@@ -459,7 +501,7 @@ export default function ProjectDetail() {
             <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary-color)' }}>{project.name}</span>
 
             {/* Status Dropdown */}
-            <div style={{ position: 'relative', display: 'inline-block', marginLeft: '8px' }}>
+            <div data-status-dropdown style={{ position: 'relative', display: 'inline-block', marginLeft: '8px' }}>
               <button
                 type="button"
                 onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}

@@ -29,12 +29,12 @@ export default function Login() {
     });
 
     if (error) {
-      setError(error.message);
+      // Never distinguish "invalid email" from "invalid password" — prevents account enumeration
+      setError('Invalid email or password. Please try again.');
+      setLoading(false); // Only reset on failure — navigate() unmounts the component on success
     } else {
       navigate('/dashboard');
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -42,7 +42,7 @@ export default function Login() {
       <div className="auth-container form_section">
         <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit' }} title="Back to Innovation Lab Home">
           <img src="/IMAGES/cih-removebg-preview.png" alt="CIH Logo" />
-          <h1>Inventory</h1>
+          <span style={{ fontSize: '1.4rem', fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>Inventory</span>
         </Link>
         <div className="auth-header welcome">
           <h1>Welcome,</h1>

@@ -39,7 +39,8 @@ export default function Dashboard() {
         // Fetch All Items
         const { data, error } = await supabase
           .from('items')
-          .select('*')
+          // Lean select: only the columns Dashboard actually reads for stats + display
+          .select('id, item_name, type, amount, store, status, project, supplier, to_be_received, image_url')
           .order('created_at', { ascending: false });
 
         if (error) throw error;

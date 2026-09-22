@@ -40,9 +40,11 @@ export default function GrnReport() {
           // Fallback: check transactions for GRN / Received / Returned records
           const { data: txData } = await supabase
             .from('transactions')
-            .select('*, items(item_name, store)')
+            // Lean select: only the columns GRN view consumes — avoids downloading proof_url blobs
+            .select('id, transaction_type, amount, timestamp, requester, project, items(item_name, store)')
             .in('transaction_type', ['grn', 'received', 'return'])
-            .order('timestamp', { ascending: false });
+            .order('timestamp', { ascending: false })
+            .limit(500); // Hard cap — GRN reports don't need all historical records
 
           if (isMounted) {
             if (txData && txData.length > 0) {

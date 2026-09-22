@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.1';
+const CACHE_VERSION = 'v1.0.2';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -198,27 +198,42 @@ async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
 
-  const fetchPromise = fetch(request)
+  // Clone the request before fetch — Request bodies are single-use streams.
+  // Without this, the second read (background fetch) is undefined behaviour in Firefox.
+  const fetchRequest = request.clone();
+
+  const fetchPromise = fetch(fetchRequest)
     .then((networkResponse) => {
-      if (networkResponse && networkResponse.status === 200) {
+      if (networkResponse?.ok) {
         cache.put(request, networkResponse.clone());
       }
       return networkResponse;
     })
     .catch(() => null);
 
-  return cachedResponse || fetchPromise;
+  return cachedResponse ?? fetchPromise;
 }
 
 /**
  * Message Event: Invalidate API cache upon inventory mutations to prevent stale stock reads
  */
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'INVALIDATE_API_CACHE') {
+  if (event.data?.type === 'INVALIDATE_API_CACHE') {
     event.waitUntil(
-      caches.delete(API_CACHE).then(() => {
-        return caches.open(API_CACHE);
-      })
+      caches.open(API_CACHE)
+        .then(async (cache) => {
+          // Delete all keys within the cache instead of deleting the cache itself.
+          // caches.delete() then caches.open() has a race window where concurrent
+          // fetches see no cache and fail to store responses.
+          const keys = await cache.keys();
+          await Promise.all(keys.map(key => cache.delete(key)));
+
+          // Notify all controlled clients that invalidation is complete
+          const clients = await self.clients.matchAll({ includeUncontrolled: false });
+          clients.forEach(client => {
+            client.postMessage({ type: 'API_CACHE_INVALIDATED', timestamp: Date.now() });
+          });
+        })
     );
   }
 });

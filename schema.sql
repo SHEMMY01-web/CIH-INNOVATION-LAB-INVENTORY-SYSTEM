@@ -334,3 +334,28 @@ CREATE POLICY "Allow bounded public insert" ON public.comments
     char_length(comment) <= 500 AND
     (name IS NULL OR char_length(name) <= 80)
   );
+
+-- ==========================================
+-- 8. ATOMIC STOCK RESTORATION RPC
+-- ==========================================
+CREATE OR REPLACE FUNCTION public.restore_stock(p_item_id UUID, p_restore_qty INT)
+RETURNS void AS $$
+BEGIN
+  IF p_restore_qty <= 0 THEN
+    RAISE EXCEPTION 'Restore quantity must be positive';
+  END IF;
+
+  UPDATE items
+  SET amount = amount + p_restore_qty,
+      status = CASE WHEN amount + p_restore_qty > 0 THEN 'available' ELSE status END
+  WHERE id = p_item_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Item not found for stock restoration';
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE EXECUTE ON FUNCTION public.restore_stock(UUID, INT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.restore_stock(UUID, INT) TO authenticated;
+

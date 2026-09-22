@@ -11,6 +11,7 @@ import '../styles/landing.css';
 export default function Catalog() {
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +25,7 @@ export default function Catalog() {
 
     const fetchAllItems = async () => {
       setLoading(true);
+      setFetchError(null);
       try {
         const { data, error } = await supabase
           .from('items')
@@ -33,12 +35,15 @@ export default function Catalog() {
         if (isMounted) {
           if (!error && data) {
             setAllItems(enrichItemsWithType(data));
+          } else if (error) {
+            setFetchError('Unable to load the catalog. Please check your connection and try again.');
           }
           setLoading(false);
         }
       } catch (err) {
         if (isMounted) {
           console.warn('[Catalog] Error loading items:', err);
+          setFetchError('Unable to load the catalog. Please check your connection and try again.');
           setLoading(false);
         }
       }
@@ -147,24 +152,28 @@ export default function Catalog() {
                 <button 
                   className={`chip ${filter === 'all' ? 'active' : ''}`} 
                   onClick={() => setFilter('all')}
+                  aria-pressed={filter === 'all'}
                 >
                   All Items ({allItems.length})
                 </button>
                 <button 
                   className={`chip ${filter === 'general' ? 'active' : ''}`} 
                   onClick={() => setFilter('general')}
+                  aria-pressed={filter === 'general'}
                 >
                   General Items ({generalCount})
                 </button>
                 <button 
                   className={`chip ${filter === 'assets' ? 'active' : ''}`} 
                   onClick={() => setFilter('assets')}
+                  aria-pressed={filter === 'assets'}
                 >
                   Heavy Assets ({assetCount})
                 </button>
                 <button 
                   className={`chip ${filter === 'tools' ? 'active' : ''}`} 
                   onClick={() => setFilter('tools')}
+                  aria-pressed={filter === 'tools'}
                 >
                   Lab Tools ({toolCount})
                 </button>
@@ -172,7 +181,20 @@ export default function Catalog() {
             </div>
           </div>
 
-          {loading ? (
+          {fetchError ? (
+            <div className="empty-state" role="alert" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#ef4444', marginBottom: '12px' }}>wifi_off</span>
+              <h3>Failed to Load Catalog</h3>
+              <p style={{ color: '#64748b', marginBottom: '20px' }}>{fetchError}</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => { setFetchError(null); setLoading(true); window.location.reload(); }}
+                style={{ padding: '10px 24px', borderRadius: '8px' }}
+              >
+                Retry
+              </button>
+            </div>
+          ) : loading ? (
             <div className="catalog-grid skeleton-grid">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                 <div key={i} className="skeleton-card">
