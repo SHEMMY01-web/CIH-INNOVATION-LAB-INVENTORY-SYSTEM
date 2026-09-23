@@ -4,6 +4,7 @@ import ItemCard from '../components/ItemCard';
 import Pagination from '../components/Pagination';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import OrderRequestModal from '../components/OrderRequestModal';
 import { smartSearch } from '../utils/searchUtils';
 import { isLabTool, isLabAsset, enrichItemsWithType } from '../utils/inventoryClassifier';
 import '../styles/landing.css';
@@ -16,6 +17,7 @@ export default function Catalog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
+  const [orderModalItem, setOrderModalItem] = useState(null);
 
   // React 18 concurrent primitive: keeps typing responsive by deferring heavy fuzzy calculations
   const deferredSearch = useDeferredValue(searchQuery);
@@ -105,7 +107,7 @@ export default function Catalog() {
   return (
     <div className="catalog-page">
       {/* ─── Navigation ────────────────────────────────────── */}
-      <Navbar />
+      <Navbar onRequestEquipment={() => setOrderModalItem({})} />
 
       <main id="main-content">
         {/* ─── Catalog Hero Banner with user gradient ───────── */}
@@ -222,7 +224,11 @@ export default function Catalog() {
             <>
               <div className="catalog-grid">
                 {paginatedItems.map(item => (
-                  <ItemCard key={item.id} item={item} />
+                  <ItemCard 
+                    key={item.id} 
+                    item={item} 
+                    onRequest={(targetItem) => setOrderModalItem(targetItem)}
+                  />
                 ))}
                 
                 {filteredItems.length === 0 && (
@@ -255,6 +261,13 @@ export default function Catalog() {
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <Footer />
+
+      {/* ─── Equipment Requisition Modal ───────────────────── */}
+      <OrderRequestModal
+        isOpen={Boolean(orderModalItem)}
+        initialItem={orderModalItem?.id ? orderModalItem : null}
+        onClose={() => setOrderModalItem(null)}
+      />
     </div>
   );
 }

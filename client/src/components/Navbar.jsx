@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-export default function Navbar({ activeSection }) {
+export default function Navbar({ activeSection, onRequestEquipment }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -127,6 +127,53 @@ export default function Navbar({ activeSection }) {
 
           {/* Desktop & Tablet Actions */}
           <div className="nav-actions">
+            {onRequestEquipment ? (
+              <button
+                type="button"
+                onClick={onRequestEquipment}
+                style={{
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '8px 16px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 10px rgba(255, 84, 33, 0.35)',
+                  fontFamily: 'inherit'
+                }}
+                title="Request equipment for your project"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>shopping_cart_checkout</span>
+                <span>Request Tool</span>
+              </button>
+            ) : (
+              <Link
+                to="/catalog"
+                style={{
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  borderRadius: '10px',
+                  padding: '8px 16px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 10px rgba(255, 84, 33, 0.35)'
+                }}
+                title="Browse & order lab tools"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>shopping_cart_checkout</span>
+                <span>Request Tool</span>
+              </Link>
+            )}
+
             <Link to="/login" className="login-btn-nav" title="Staff Management Portal">
               <span className="material-symbols-outlined nav-action-icon">login</span>
               <span className="nav-btn-text">Staff Login</span>
@@ -287,7 +334,61 @@ export default function Navbar({ activeSection }) {
             )}
           </div>
 
-          <div className="mobile-drawer-footer">
+          <div className="mobile-drawer-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {onRequestEquipment ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onRequestEquipment();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
+                  fontFamily: 'inherit'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>shopping_cart_checkout</span>
+                <span>Request Equipment Online</span>
+              </button>
+            ) : (
+              <Link
+                to="/catalog"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  width: '100%',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>shopping_cart_checkout</span>
+                <span>Request Equipment Online</span>
+              </Link>
+            )}
+
             <Link 
               to="/login" 
               className="mobile-drawer-login-cta"

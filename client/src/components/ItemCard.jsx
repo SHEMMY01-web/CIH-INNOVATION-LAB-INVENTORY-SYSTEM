@@ -10,7 +10,7 @@ function slugify(text) {
     .replace(/\-\-+/g, '-');
 }
 
-export default function ItemCard({ item }) {
+export default function ItemCard({ item, onRequest }) {
   const rawType = item.type || '';
   let displayType = 'General Item';
   let categoryIcon = 'inventory_2';
@@ -95,6 +95,43 @@ export default function ItemCard({ item }) {
             {item.amount || 0} <span>{item.store || 'pcs'}</span>
           </div>
         </div>
+
+        {onRequest && (
+          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+            <button
+              type="button"
+              disabled={!isAvailable}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isAvailable) onRequest(item);
+              }}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                borderRadius: '8px',
+                border: 'none',
+                background: isAvailable ? 'linear-gradient(135deg, #1c21df 0%, #3b40f8 100%)' : '#e2e8f0',
+                color: isAvailable ? '#ffffff' : '#94a3b8',
+                cursor: isAvailable ? 'pointer' : 'not-allowed',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.2s ease',
+                fontFamily: 'inherit',
+                boxShadow: isAvailable ? '0 2px 8px rgba(28, 33, 223, 0.2)' : 'none'
+              }}
+              title={isAvailable ? `Place requisition for ${item.item_name}` : 'Item is currently unavailable'}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                {isAvailable ? 'add_shopping_cart' : 'block'}
+              </span>
+              {isAvailable ? 'Request / Order' : 'Out of Stock'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

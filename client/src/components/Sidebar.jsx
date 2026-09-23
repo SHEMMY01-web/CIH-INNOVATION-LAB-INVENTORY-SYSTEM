@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function Sidebar() {
   const { signOut } = useAuth();
+  const [pendingReqCount, setPendingReqCount] = useState(0);
 
   useEffect(() => {
     // Clean up any previously stored dark theme attribute
@@ -13,6 +15,30 @@ export default function Sidebar() {
     } catch (e) {
       // Ignore storage errors
     }
+
+    let isMounted = true;
+    const fetchPendingCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('item_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        
+        let total = 0;
+        if (!error && typeof count === 'number') {
+          total = count;
+        }
+        try {
+          const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
+          total += localQueue.filter(r => r.status === 'pending').length;
+        } catch (_) {}
+
+        if (isMounted) setPendingReqCount(total);
+      } catch (_) {}
+    };
+
+    fetchPendingCount();
+    return () => { isMounted = false; };
   }, []);
 
   return (
@@ -39,7 +65,21 @@ export default function Sidebar() {
           <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>folder</span> Project
         </NavLink>
         <NavLink to="/requests" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-          <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>sync_alt</span> Requested & Returned
+          <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>sync_alt</span>
+          <span style={{ flex: 1 }}>Requests & Orders</span>
+          {pendingReqCount > 0 && (
+            <span style={{
+              background: '#ff5421',
+              color: '#ffffff',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              padding: '1px 7px',
+              borderRadius: '10px',
+              marginLeft: 'auto'
+            }} title={`${pendingReqCount} pending online equipment requisitions`}>
+              {pendingReqCount}
+            </span>
+          )}
         </NavLink>
         <NavLink to="/grn-report" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
           <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>description</span> GRN Report

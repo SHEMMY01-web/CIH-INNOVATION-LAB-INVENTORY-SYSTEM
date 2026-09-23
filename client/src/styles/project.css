@@ -172,13 +172,15 @@
 
 /* When radio is checked, style the corresponding label */
 #tab-items:checked ~ .tabs-header .label-items,
-#tab-assets:checked ~ .tabs-header .label-assets {
+#tab-assets:checked ~ .tabs-header .label-assets,
+#tab-online:checked ~ .tabs-header .label-online {
   color: var(--primary-color);
   font-weight: 600;
 }
 
 #tab-items:checked ~ .tabs-header .label-items::after,
-#tab-assets:checked ~ .tabs-header .label-assets::after {
+#tab-assets:checked ~ .tabs-header .label-assets::after,
+#tab-online:checked ~ .tabs-header .label-online::after {
   transform: scaleX(1);
 }
 
@@ -189,7 +191,8 @@
 }
 
 #tab-items:checked ~ #content-items,
-#tab-assets:checked ~ #content-assets {
+#tab-assets:checked ~ #content-assets,
+#tab-online:checked ~ #content-online {
   display: block;
 }
 

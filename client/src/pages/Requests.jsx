@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback, useDeferredValue } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
 import { supabase, invalidateApiCache } from '../lib/supabase';
@@ -12,6 +12,7 @@ import ImageLightbox from '../components/ImageLightbox';
 import { exportToCSV } from '../utils/exportUtils';
 import { smartSearch } from '../utils/searchUtils';
 import { getItemTypeLabel, enrichItemWithType, enrichItemsWithType } from '../utils/inventoryClassifier';
+import { getItemImage } from '../utils/slugify';
 import '../styles/table_layout.css';
 import '../styles/project.css';
 import '../styles/modal.css';
@@ -70,7 +71,26 @@ export default function Requests() {
   const [itemsList, setItemsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('requested');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined' && (window.location.hash === '#online' || new URLSearchParams(window.location.search).get('tab') === 'online')) {
+      return 'online';
+    }
+    return 'requested';
+  });
+  
+  // Online equipment requisitions state
+  const [itemRequests, setItemRequests] = useState([]);
+  const [reqStatusFilter, setReqStatusFilter] = useState('all');
+  const [pageOnline, setPageOnline] = useState(1);
+  const [pageSizeOnline, setPageSizeOnline] = useState(10);
+  const [actionModal, setActionModal] = useState({
+    isOpen: false,
+    type: 'approve',
+    request: null,
+    notes: '',
+    loading: false
+  });
   
   // Concurrent primitive: keeps typing responsive under heavy fuzzy search
   const deferredSearch = useDeferredValue(search);
@@ -150,16 +170,40 @@ export default function Requests() {
     if (data) setItemsList(enrichItemsWithType(data));
   }, []);
 
+  const fetchItemRequests = useCallback(async () => {
+    let remoteRequests = [];
+    try {
+      const { data, error } = await supabase
+        .from('item_requests')
+        .select('*, items(*)')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        remoteRequests = data;
+      }
+    } catch (e) {
+      console.warn('[Requests] Remote requisitions fetch notice:', e);
+    }
+
+    try {
+      const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
+      const existingIds = new Set(remoteRequests.map(r => r.id));
+      const unmerged = localQueue.filter(r => !existingIds.has(r.id));
+      setItemRequests([...unmerged, ...remoteRequests]);
+    } catch (_) {
+      setItemRequests(remoteRequests);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     let isMounted = true;
-    Promise.all([fetchTransactions(), fetchItemsList()]).catch(err => {
+    Promise.all([fetchTransactions(), fetchItemsList(), fetchItemRequests()]).catch(err => {
       if (isMounted) console.error('[Requests] Initial load error:', err);
     });
     return () => {
       isMounted = false;
     };
-  }, [user, fetchTransactions, fetchItemsList]);
+  }, [user, fetchTransactions, fetchItemsList, fetchItemRequests]);
 
   // Reset pagination on search or filter change
   useEffect(() => {
@@ -245,6 +289,124 @@ export default function Requests() {
     const start = (pageRet - 1) * pageSizeRet;
     return returned.slice(start, start + pageSizeRet);
   }, [returned, pageRet, pageSizeRet]);
+
+  // Online orders filtering and pagination
+  const filteredOnlineRequests = useMemo(() => {
+    let list = itemRequests;
+    if (reqStatusFilter !== 'all') {
+      list = list.filter(r => (r.status || 'pending').toLowerCase() === reqStatusFilter);
+    }
+    return smartSearch(list, deferredSearch, r => [
+      r.items?.item_name || '',
+      r.requester_name || '',
+      r.project_name || '',
+      r.requester_email || '',
+      r.requester_phone || '',
+      r.purpose || '',
+      r.status || ''
+    ]);
+  }, [itemRequests, reqStatusFilter, deferredSearch]);
+
+  const paginatedOnlineRequests = useMemo(() => {
+    const start = (pageOnline - 1) * pageSizeOnline;
+    return filteredOnlineRequests.slice(start, start + pageSizeOnline);
+  }, [filteredOnlineRequests, pageOnline, pageSizeOnline]);
+
+  const handleOpenActionModal = (request, type) => {
+    setActionModal({
+      isOpen: true,
+      type,
+      request,
+      notes: '',
+      loading: false
+    });
+  };
+
+  const handleConfirmAction = async () => {
+    if (!actionModal.request) return;
+    const req = actionModal.request;
+    const isApprove = actionModal.type === 'approve';
+
+    setActionModal(prev => ({ ...prev, loading: true }));
+
+    try {
+      if (isApprove) {
+        const currentItemStock = req.items ? Number(req.items.amount) : 0;
+        if (currentItemStock < req.quantity) {
+          showError(`Cannot approve: Only ${currentItemStock} units available in lab, but ${req.quantity} requested.`);
+          setActionModal(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        try {
+          await supabase.rpc('execute_inventory_transaction', {
+            p_item_id: req.item_id,
+            p_tx_type: 'checkout',
+            p_amount: req.quantity,
+            p_requester: req.requester_name,
+            p_project: req.project_name || 'General',
+            p_image_url: null
+          });
+        } catch (rpcErr) {
+          console.warn('[Requests] RPC checkout notice:', rpcErr);
+        }
+      }
+
+      const updatedStatus = isApprove ? 'approved' : 'declined';
+      const { error: updateErr } = await supabase
+        .from('item_requests')
+        .update({
+          status: updatedStatus,
+          admin_notes: actionModal.notes.trim() || null,
+          reviewed_by: user.email || 'Admin',
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', req.id);
+
+      if (updateErr) {
+        try {
+          const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
+          const idx = localQueue.findIndex(r => r.id === req.id);
+          if (idx !== -1) {
+            localQueue[idx].status = updatedStatus;
+            localQueue[idx].admin_notes = actionModal.notes.trim() || null;
+            localQueue[idx].reviewed_by = user.email || 'Admin';
+            localQueue[idx].reviewed_at = new Date().toISOString();
+            localStorage.setItem('cih_pending_requisitions', JSON.stringify(localQueue));
+          }
+        } catch (_) {}
+      }
+
+      await showSuccess(
+        `Requisition ${isApprove ? 'approved & tools checked out' : 'declined'} successfully.`,
+        isApprove ? 'Request Approved' : 'Request Declined'
+      );
+      invalidateApiCache();
+      await Promise.all([fetchTransactions(), fetchItemsList(), fetchItemRequests()]);
+      setActionModal(prev => ({ ...prev, isOpen: false }));
+    } catch (err) {
+      showError('Action failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setActionModal(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const exportOnlineOrders = () => {
+    exportToCSV(filteredOnlineRequests, [
+      { label: 'Item Name', key: 'item_name', transform: (_, row) => row.items?.item_name || 'Equipment' },
+      { label: 'Quantity', key: 'quantity' },
+      { label: 'Requester Name', key: 'requester_name' },
+      { label: 'Requester Email', key: 'requester_email' },
+      { label: 'Requester Phone', key: 'requester_phone' },
+      { label: 'Project', key: 'project_name' },
+      { label: 'Needed Date', key: 'needed_date' },
+      { label: 'Return Date', key: 'return_date' },
+      { label: 'Purpose', key: 'purpose' },
+      { label: 'Status', key: 'status', transform: val => val ? val.toUpperCase() : 'PENDING' },
+      { label: 'Date Submitted', key: 'created_at', transform: val => val ? new Date(val).toLocaleString() : '—' },
+      { label: 'Admin Notes', key: 'admin_notes' }
+    ], `online_requisitions_${reqStatusFilter}.csv`);
+  };
 
   if (!user) {
     return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
@@ -470,6 +632,14 @@ export default function Requests() {
             checked={activeTab === 'returned'}
             onChange={() => setActiveTab('returned')} 
           />
+          <input 
+            type="radio" 
+            id="tab-online" 
+            name="request-tabs" 
+            className="tab-radio" 
+            checked={activeTab === 'online'}
+            onChange={() => setActiveTab('online')} 
+          />
 
           {/* Tab Headers */}
           <div className="tabs-header">
@@ -486,6 +656,13 @@ export default function Requests() {
               onClick={() => setActiveTab('returned')}
             >
               <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>assignment_return</span> Returned ({returned.length})
+            </label>
+            <label 
+              htmlFor="tab-online" 
+              className={`tab-label label-online ${activeTab === 'online' ? 'active' : ''}`}
+              onClick={() => setActiveTab('online')}
+            >
+              <span className="material-symbols-outlined nav-icon" style={{ verticalAlign: 'middle' }}>shopping_cart_checkout</span> Online Orders ({itemRequests.filter(r => (r.status || 'pending').toLowerCase() === 'pending').length > 0 ? `${itemRequests.filter(r => (r.status || 'pending').toLowerCase() === 'pending').length} pending` : itemRequests.length})
             </label>
           </div>
 
@@ -736,6 +913,270 @@ export default function Requests() {
               />
             </div>
           </div>
+
+          {/* Tab Content: Online Orders */}
+          <div className="tab-content" id="content-online">
+            <div className="table-container" style={{ borderRadius: 0, boxShadow: 'none', paddingTop: '20px', margin: 0, border: 'none' }}>
+              <div className="table-toolbar">
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {['all', 'pending', 'approved', 'declined'].map(st => {
+                    const count = st === 'all' 
+                      ? itemRequests.length 
+                      : itemRequests.filter(r => (r.status || 'pending').toLowerCase() === st).length;
+                    return (
+                      <button
+                        key={st}
+                        type="button"
+                        onClick={() => { setReqStatusFilter(st); setPageOnline(1); }}
+                        style={{
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          border: reqStatusFilter === st ? '1px solid var(--primary-color)' : '1px solid #e2e8f0',
+                          background: reqStatusFilter === st ? 'var(--primary-color)' : '#ffffff',
+                          color: reqStatusFilter === st ? '#ffffff' : '#64748b',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <span style={{ textTransform: 'capitalize' }}>{st}</span>
+                        <span style={{
+                          background: reqStatusFilter === st ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                          color: reqStatusFilter === st ? '#ffffff' : '#475569',
+                          padding: '1px 6px',
+                          borderRadius: '10px',
+                          fontSize: '0.72rem'
+                        }}>
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="toolbar-actions">
+                  <button 
+                    type="button" 
+                    className="action-btn" 
+                    onClick={exportOnlineOrders}
+                  >
+                    <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', marginRight: '4px' }}>download</span> Export Orders
+                  </button>
+                </div>
+              </div>
+
+              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                <table className="list-table">
+                  <thead>
+                    <tr>
+                      <th>Equipment / Item</th>
+                      <th>Image</th>
+                      <th>Requester Contact</th>
+                      <th>Target Project</th>
+                      <th>Qty</th>
+                      <th>Needed Date</th>
+                      <th>Return Date</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'center' }}>Admin Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <tr key={`skel-online-${idx}`}>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '65%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-img"></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '55%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '50%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '35%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
+                          <td><span className="skeleton-box skeleton-text" style={{ width: '40%' }}></span></td>
+                          <td style={{ textAlign: 'center' }}><span className="skeleton-box skeleton-btn"></span></td>
+                        </tr>
+                      ))
+                    ) : (
+                      <>
+                        {paginatedOnlineRequests.map(req => {
+                          const itemImg = getItemImage(req.items);
+                          const status = (req.status || 'pending').toLowerCase();
+                          const isPending = status === 'pending';
+                          const isApproved = status === 'approved';
+
+                          return (
+                            <tr key={req.id}>
+                              <td>
+                                <div style={{ fontWeight: 600, color: 'var(--text-color)' }}>
+                                  {req.items?.item_name || 'Equipment'}
+                                </div>
+                                {req.items?.model && (
+                                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                    Model: {req.items.model}
+                                  </div>
+                                )}
+                              </td>
+                              <td>
+                                {itemImg ? (
+                                  <img 
+                                    src={itemImg} 
+                                    alt="Item" 
+                                    width="40" 
+                                    height="40" 
+                                    style={{ borderRadius: '6px', objectFit: 'contain', background: '#fff', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
+                                    onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: req.items?.item_name })} 
+                                    onError={(e) => { e.target.style.display = 'none'; }} 
+                                  />
+                                ) : (
+                                  <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>image</span>
+                                )}
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 600 }}>{req.requester_name}</div>
+                                {req.requester_email && (
+                                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.requester_email}</div>
+                                )}
+                                {req.requester_phone && (
+                                  <div style={{ fontSize: '0.75rem', color: '#1c21df', fontWeight: 500 }}>{req.requester_phone}</div>
+                                )}
+                              </td>
+                              <td>
+                                <span style={{
+                                  background: '#eff6ff',
+                                  color: '#1d4ed8',
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.78rem',
+                                  fontWeight: 600
+                                }}>
+                                  {req.project_name}
+                                </span>
+                                {req.purpose && (
+                                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={req.purpose}>
+                                    {req.purpose}
+                                  </div>
+                                )}
+                              </td>
+                              <td>
+                                <strong>{req.quantity}</strong> {req.items?.store || 'pcs'}
+                              </td>
+                              <td style={{ fontSize: '0.85rem', color: '#334155' }}>
+                                {req.needed_date || '—'}
+                              </td>
+                              <td style={{ fontSize: '0.85rem', color: '#334155' }}>
+                                {req.return_date || '—'}
+                              </td>
+                              <td>
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '3px 10px',
+                                  borderRadius: '12px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                  background: isPending ? '#fffbeb' : (isApproved ? '#ecfdf5' : '#fef2f2'),
+                                  color: isPending ? '#b45309' : (isApproved ? '#047857' : '#b91c1c'),
+                                  border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#a7f3d0' : '#fecaca')}`
+                                }}>
+                                  <span style={{
+                                    width: '6px',
+                                    height: '6px',
+                                    borderRadius: '50%',
+                                    background: isPending ? '#f59e0b' : (isApproved ? '#10b981' : '#ef4444')
+                                  }} />
+                                  {status.toUpperCase()}
+                                </span>
+                                {req.admin_notes && (
+                                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '3px', maxWidth: '140px' }} title={req.admin_notes}>
+                                    Note: {req.admin_notes}
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                {isPending ? (
+                                  <div style={{ display: 'inline-flex', gap: '6px' }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenActionModal(req, 'approve')}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '5px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #10b981',
+                                        background: '#ecfdf5',
+                                        color: '#047857',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer'
+                                      }}
+                                      title="Accept and checkout item"
+                                    >
+                                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>check</span>
+                                      Accept
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenActionModal(req, 'decline')}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '5px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #ef4444',
+                                        background: '#fef2f2',
+                                        color: '#b91c1c',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer'
+                                      }}
+                                      title="Decline requisition"
+                                    >
+                                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>close</span>
+                                      Decline
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                    {isApproved ? 'Fulfilled' : 'Closed'}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {filteredOnlineRequests.length === 0 && (
+                          <tr>
+                            <td colSpan="9" style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
+                              No online requisitions found {reqStatusFilter !== 'all' ? `with status "${reqStatusFilter}"` : ''}
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={pageOnline}
+                pageSize={pageSizeOnline}
+                totalRecords={filteredOnlineRequests.length}
+                onPageChange={setPageOnline}
+                onPageSizeChange={(size) => {
+                  setPageSizeOnline(size);
+                  setPageOnline(1);
+                }}
+                pageSizeOptions={[6, 10, 20, 50]}
+              />
+            </div>
+          </div>
         </div>
       </main>
 
@@ -901,6 +1342,130 @@ export default function Requests() {
         mode="requests"
         transactions={transactions}
       />
+
+      {/* Admin Approve / Decline Requisition Modal */}
+      {actionModal.isOpen && actionModal.request && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '20px'
+        }} onClick={() => !actionModal.loading && setActionModal(prev => ({ ...prev, isOpen: false }))}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            padding: '24px',
+            boxSizing: 'border-box'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                background: actionModal.type === 'approve' ? '#ecfdf5' : '#fef2f2',
+                color: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span className="material-symbols-outlined">
+                  {actionModal.type === 'approve' ? 'check_circle' : 'cancel'}
+                </span>
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>
+                  {actionModal.type === 'approve' ? 'Approve Equipment Requisition' : 'Decline Requisition'}
+                </h3>
+                <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+                  {actionModal.type === 'approve' 
+                    ? 'Will check out item and decrement stock atomically' 
+                    : 'Stock will be preserved without deduction'}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', marginBottom: '16px', fontSize: '0.85rem' }}>
+              <div style={{ marginBottom: '6px' }}>
+                <strong style={{ color: '#0f172a' }}>{actionModal.request.requester_name}</strong> requested:
+              </div>
+              <div style={{ color: '#1c21df', fontWeight: 600 }}>
+                {actionModal.request.quantity}x {actionModal.request.items?.item_name || 'Equipment'}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
+                Project: <strong>{actionModal.request.project_name}</strong> • Duration: {actionModal.request.needed_date} to {actionModal.request.return_date}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                {actionModal.type === 'approve' ? 'Pickup Notes / Instructions (Optional)' : 'Reason for Declining (Optional)'}
+              </label>
+              <textarea
+                rows="2"
+                placeholder={actionModal.type === 'approve' ? 'e.g. Approved. Pick up at Innovation Lab Bench 2.' : 'e.g. Currently reserved for the upcoming robotics hackathon.'}
+                value={actionModal.notes}
+                onChange={(e) => setActionModal({ ...actionModal, notes: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.85rem',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                disabled={actionModal.loading}
+                onClick={() => setActionModal(prev => ({ ...prev, isOpen: false }))}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#64748b',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={actionModal.loading}
+                onClick={handleConfirmAction}
+                style={{
+                  padding: '8px 20px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: actionModal.loading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {actionModal.loading 
+                  ? 'Processing...' 
+                  : (actionModal.type === 'approve' ? 'Confirm Approval' : 'Confirm Decline')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

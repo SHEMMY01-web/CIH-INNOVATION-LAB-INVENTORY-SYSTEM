@@ -383,3 +383,58 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 REVOKE EXECUTE ON FUNCTION public.restore_stock(UUID, INT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.restore_stock(UUID, INT) TO authenticated;
 
+-- ==========================================
+-- 9. ONLINE ITEM REQUISITIONS & ORDERS TABLE
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS public.item_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  item_id UUID NOT NULL REFERENCES public.items(id) ON DELETE CASCADE,
+  requester_name TEXT NOT NULL,
+  requester_email TEXT,
+  requester_phone TEXT,
+  project_name TEXT NOT NULL DEFAULT 'General',
+  quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
+  needed_date DATE NOT NULL,
+  return_date DATE NOT NULL,
+  purpose TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'declined', 'returned')),
+  admin_notes TEXT,
+  reviewed_by TEXT,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+
+  CONSTRAINT chk_item_requests_dates CHECK (return_date >= needed_date),
+  CONSTRAINT chk_requester_name_len CHECK (char_length(trim(requester_name)) >= 2 AND char_length(requester_name) <= 120),
+  CONSTRAINT chk_project_name_len CHECK (char_length(trim(project_name)) >= 2 AND char_length(project_name) <= 150)
+);
+
+CREATE INDEX IF NOT EXISTS idx_item_requests_status ON public.item_requests(status);
+CREATE INDEX IF NOT EXISTS idx_item_requests_created_at ON public.item_requests(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_item_requests_item_id ON public.item_requests(item_id);
+
+ALTER TABLE public.item_requests ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can submit an equipment requisition online
+DROP POLICY IF EXISTS "Allow public insert to item_requests" ON public.item_requests;
+CREATE POLICY "Allow public insert to item_requests" ON public.item_requests
+  FOR INSERT WITH CHECK (
+    char_length(trim(requester_name)) >= 2 AND
+    quantity > 0 AND
+    return_date >= needed_date
+  );
+
+-- Anyone can read requisitions (or students can view status)
+DROP POLICY IF EXISTS "Allow public read to item_requests" ON public.item_requests;
+CREATE POLICY "Allow public read to item_requests" ON public.item_requests
+  FOR SELECT USING (true);
+
+-- Authenticated staff/admin can approve, decline, update notes, or delete requisitions
+DROP POLICY IF EXISTS "Allow authenticated update to item_requests" ON public.item_requests;
+CREATE POLICY "Allow authenticated update to item_requests" ON public.item_requests
+  FOR UPDATE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated delete to item_requests" ON public.item_requests;
+CREATE POLICY "Allow authenticated delete to item_requests" ON public.item_requests
+  FOR DELETE TO authenticated USING (true);
+
