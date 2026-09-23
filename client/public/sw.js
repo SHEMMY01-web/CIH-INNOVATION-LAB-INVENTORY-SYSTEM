@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.5';
+const CACHE_VERSION = 'v1.0.6';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -17,6 +17,7 @@ const CORE_STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
+  '/fonts/material-symbols-outlined.woff2',
   '/IMAGES/cih-footer-logo.png',
   '/IMAGES/cih.jpeg',
   '/IMAGES/community-innovation-hub-logo.jpeg',
@@ -71,8 +72,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Google Fonts & Material Symbols: Cache-First
-  if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+  // 1. Google Fonts, Local Fonts & Material Symbols: Cache-First
+  if (
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com') ||
+    url.pathname.startsWith('/fonts/')
+  ) {
     event.respondWith(cacheFirstStrategy(request, FONTS_CACHE));
     return;
   }
@@ -145,7 +150,8 @@ async function cacheFirstStrategy(request, cacheName) {
 
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse && networkResponse.status === 200) {
+    // Support both standard 200 responses and cross-origin opaque responses (status 0)
+    if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
@@ -155,6 +161,11 @@ async function cacheFirstStrategy(request, cacheName) {
     if (request.destination === 'image') {
       const fallback = await caches.match('/IMAGES/empty-state.png');
       if (fallback) return fallback;
+    }
+    // If offline or network error and request is a font, fallback to cached local font
+    if (request.destination === 'font' || request.url.includes('materialsymbols') || request.url.includes('/fonts/')) {
+      const fallbackFont = await caches.match('/fonts/material-symbols-outlined.woff2');
+      if (fallbackFont) return fallbackFont;
     }
     throw err;
   }
