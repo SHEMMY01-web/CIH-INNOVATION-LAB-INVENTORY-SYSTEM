@@ -222,6 +222,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           const existingQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
           existingQueue.unshift(localRecord);
           localStorage.setItem('cih_pending_requisitions', JSON.stringify(existingQueue));
+          
+          const userOrders = JSON.parse(localStorage.getItem('cih_user_orders') || '[]');
+          const filtered = userOrders.filter(o => o.id !== localRecord.id);
+          filtered.unshift(localRecord);
+          localStorage.setItem('cih_user_orders', JSON.stringify(filtered.slice(0, 30)));
+          localStorage.setItem('cih_last_user_email', formData.requester_email.trim());
         } catch (_) {}
 
         setSuccessOrder(localRecord);
@@ -229,8 +235,17 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         return;
       }
 
-      setSuccessOrder(data || { id: 'REQ-OK', ...requestPayload, items: selectedItem });
-      if (onOrderSuccess) onOrderSuccess(data);
+      const confirmedRecord = data || { id: 'REQ-OK', ...requestPayload, items: selectedItem };
+      try {
+        const userOrders = JSON.parse(localStorage.getItem('cih_user_orders') || '[]');
+        const filtered = userOrders.filter(o => o.id !== confirmedRecord.id);
+        filtered.unshift(confirmedRecord);
+        localStorage.setItem('cih_user_orders', JSON.stringify(filtered.slice(0, 30)));
+        localStorage.setItem('cih_last_user_email', formData.requester_email.trim());
+      } catch (_) {}
+
+      setSuccessOrder(confirmedRecord);
+      if (onOrderSuccess) onOrderSuccess(confirmedRecord);
     } catch (err) {
       console.error('[OrderRequestModal] Submission exception:', err);
       showError('Unable to submit request. Please try again.');
@@ -434,23 +449,52 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: '#1c21df',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Done
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const email = formData.requester_email.trim();
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('open-track-orders', { 
+                      detail: { email } 
+                    }));
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid #1c21df',
+                    background: '#eff6ff',
+                    color: '#1c21df',
+                    fontWeight: 600,
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
+                  <span>Track Status</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#1c21df',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    fontSize: '0.88rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Done
+                </button>
+              </div>
             </div>
           ) : (
             /* Order Form */

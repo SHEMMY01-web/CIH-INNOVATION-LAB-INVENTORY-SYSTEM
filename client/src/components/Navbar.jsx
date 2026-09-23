@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import TrackRequestsModal from './TrackRequestsModal';
 
 export default function Navbar({ activeSection, onRequestEquipment }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [trackModalOpen, setTrackModalOpen] = useState(false);
+  const [trackEmail, setTrackEmail] = useState('');
   const location = useLocation();
+
+  useEffect(() => {
+    const handleOpenTrack = (e) => {
+      if (e.detail?.email) {
+        setTrackEmail(e.detail.email);
+      }
+      setTrackModalOpen(true);
+    };
+    window.addEventListener('open-track-orders', handleOpenTrack);
+    return () => window.removeEventListener('open-track-orders', handleOpenTrack);
+  }, []);
 
   // Handle scroll detection for dynamic glassmorphism elevation
   useEffect(() => {
@@ -173,6 +187,30 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 <span>Request Tool</span>
               </Link>
             )}
+
+            <button
+              type="button"
+              onClick={() => setTrackModalOpen(true)}
+              style={{
+                background: '#eff6ff',
+                color: '#1c21df',
+                border: '1px solid #bfdbfe',
+                borderRadius: '10px',
+                padding: '7px 14px',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontFamily: 'inherit',
+                transition: 'all 0.15s ease'
+              }}
+              title="Track your equipment requests and status"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
+              <span>My Requests</span>
+            </button>
 
             <Link to="/login" className="login-btn-nav" title="Staff Management Portal">
               <span className="material-symbols-outlined nav-action-icon">login</span>
@@ -389,6 +427,33 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               </Link>
             )}
 
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTrackModalOpen(true);
+              }}
+              style={{
+                width: '100%',
+                padding: '11px 16px',
+                borderRadius: '12px',
+                border: '1px solid #bfdbfe',
+                background: '#eff6ff',
+                color: '#1c21df',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
+              <span>Track My Requests</span>
+            </button>
+
             <Link 
               to="/login" 
               className="mobile-drawer-login-cta"
@@ -400,6 +465,13 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
           </div>
         </div>
       </div>
+
+      {/* Live Request Tracking Modal */}
+      <TrackRequestsModal 
+        isOpen={trackModalOpen} 
+        onClose={() => setTrackModalOpen(false)} 
+        initialEmail={trackEmail} 
+      />
     </>
   );
 }

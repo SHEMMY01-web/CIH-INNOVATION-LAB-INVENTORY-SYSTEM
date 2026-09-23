@@ -190,6 +190,25 @@ export default function Catalog() {
                 >
                   Lab Tools ({toolCount})
                 </button>
+                <button 
+                  type="button"
+                  className="chip" 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-track-orders'))}
+                  style={{
+                    marginLeft: 'auto',
+                    background: '#eff6ff',
+                    color: '#1c21df',
+                    borderColor: '#bfdbfe',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Check live status of your requests"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>receipt_long</span>
+                  Track My Requests
+                </button>
               </div>
             </div>
           </div>
