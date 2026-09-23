@@ -212,11 +212,6 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               <span>My Requests</span>
             </button>
 
-            <Link to="/login" className="login-btn-nav" title="Staff Management Portal">
-              <span className="material-symbols-outlined nav-action-icon">login</span>
-              <span className="nav-btn-text">Staff Login</span>
-            </Link>
-
             {/* Mobile Animated Hamburger Button */}
             <button
               type="button"
@@ -453,15 +448,6 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
               <span>Track My Requests</span>
             </button>
-
-            <Link 
-              to="/login" 
-              className="mobile-drawer-login-cta"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>lock_open</span>
-              <span>Staff Management Portal</span>
-            </Link>
           </div>
         </div>
       </div>

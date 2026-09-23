@@ -185,10 +185,10 @@ export default function Home() {
               Browse Catalog
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
             </a>
-            <Link to="/login" className="hero-btn-secondary">
-              Staff Portal
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>lock_open</span>
-            </Link>
+            <a href="#projects" className="hero-btn-secondary">
+              Explore Projects
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>rocket_launch</span>
+            </a>
           </div>
         </div>
 
