@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
     },
     build: {
+      cssCodeSplit: false,
       rollupOptions: {
         output: {
           manualChunks: {

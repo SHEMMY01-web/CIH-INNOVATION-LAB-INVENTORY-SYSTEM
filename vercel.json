@@ -17,6 +17,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|IMAGES/|sw\\.js|manifest\\.webmanifest|favicon\\.ico).*)", "destination": "/index.html" }
   ]
 }

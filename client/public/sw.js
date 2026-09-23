@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.4';
+const CACHE_VERSION = 'v1.0.5';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -205,25 +205,50 @@ async function networkFirstWithCacheFallback(request, cacheName) {
 
 /**
  * Stale-While-Revalidate Strategy (Instant cache return + background refresh)
+ * Includes MIME type guards to prevent caching HTML SPA rewrites as CSS/JS assets.
  */
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
+  const isCodeAsset = /\.(js|css)$/i.test(request.url);
 
-  // Clone the request before fetch — Request bodies are single-use streams.
-  // Without this, the second read (background fetch) is undefined behaviour in Firefox.
-  const fetchRequest = request.clone();
+  // If cached response exists, verify it is not a corrupted HTML fallback
+  if (cachedResponse) {
+    const cachedType = cachedResponse.headers.get('content-type') || '';
+    if (isCodeAsset && cachedType.includes('text/html')) {
+      // Poisoned entry from SPA rewrite! Discard and purge from cache.
+      await cache.delete(request);
+    } else {
+      // Revalidate in background to keep cache fresh
+      fetch(request.clone())
+        .then((networkResponse) => {
+          if (networkResponse?.ok) {
+            const netType = networkResponse.headers.get('content-type') || '';
+            if (!isCodeAsset || !netType.includes('text/html')) {
+              cache.put(request, networkResponse.clone());
+            }
+          }
+        })
+        .catch(() => null);
 
-  const fetchPromise = fetch(fetchRequest)
-    .then((networkResponse) => {
-      if (networkResponse?.ok) {
+      return cachedResponse;
+    }
+  }
+
+  // Not in cache or purged: fetch fresh from network
+  try {
+    const networkResponse = await fetch(request.clone());
+    if (networkResponse && networkResponse.ok) {
+      const netType = networkResponse.headers.get('content-type') || '';
+      if (!isCodeAsset || !netType.includes('text/html')) {
         cache.put(request, networkResponse.clone());
       }
-      return networkResponse;
-    })
-    .catch(() => null);
-
-  return cachedResponse ?? fetchPromise;
+    }
+    return networkResponse;
+  } catch (err) {
+    if (cachedResponse) return cachedResponse;
+    throw err;
+  }
 }
 
 /**

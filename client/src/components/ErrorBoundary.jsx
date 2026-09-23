@@ -12,10 +12,39 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught error:', error, errorInfo);
+
+    // Auto-recover from stale chunks or preload errors after new deployments
+    const isChunkOrPreloadError = error?.message && (
+      error.message.includes('dynamically imported module') ||
+      error.message.includes('Unable to preload') ||
+      error.message.includes('Unexpected token')
+    );
+
+    if (isChunkOrPreloadError) {
+      const lastRetry = sessionStorage.getItem('chunk_auto_retry');
+      const now = Date.now();
+      if (!lastRetry || now - parseInt(lastRetry, 10) > 15000) {
+        sessionStorage.setItem('chunk_auto_retry', String(now));
+        if ('caches' in window) {
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+            .finally(() => { window.location.reload(); });
+        } else {
+          window.location.reload();
+        }
+      }
+    }
   }
 
-  handleReload = () => {
+  handleReload = async () => {
     this.setState({ hasError: false, error: null, showDetails: false });
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      } catch (e) {
+        console.warn('[ErrorBoundary] Cache purge error:', e);
+      }
+    }
     window.location.reload();
   };
 
