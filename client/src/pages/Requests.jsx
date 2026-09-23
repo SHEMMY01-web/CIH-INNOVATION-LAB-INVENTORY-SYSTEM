@@ -331,62 +331,148 @@ export default function Requests() {
 
     try {
       if (isApprove) {
-        const currentItemStock = req.items ? Number(req.items.amount) : 0;
-        if (currentItemStock < req.quantity) {
-          showError(`Cannot approve: Only ${currentItemStock} units available in lab, but ${req.quantity} requested.`);
+        // 1. Fetch latest real-time stock to verify sufficiency
+        let currentStock = req.items ? Number(req.items.amount) || 0 : 0;
+        if (req.item_id) {
+          try {
+            const { data: latestItem } = await supabase
+              .from('items')
+              .select('amount, item_name')
+              .eq('id', req.item_id)
+              .maybeSingle();
+            if (latestItem && latestItem.amount != null) {
+              currentStock = Number(latestItem.amount) || 0;
+            }
+          } catch (_) {}
+        }
+
+        if (currentStock < req.quantity) {
           setActionModal(prev => ({ ...prev, loading: false }));
+          showError(`Cannot approve: Only ${currentStock} units available in lab, but ${req.quantity} requested.`, 'Insufficient Stock');
           return;
         }
 
+        // 2. Perform atomic checkout via RPC with robust client-side fallback
+        let rpcSuccess = false;
         try {
-          await supabase.rpc('execute_inventory_transaction', {
+          const { data: rpcData, error: rpcErr } = await supabase.rpc('execute_inventory_transaction', {
             p_item_id: req.item_id,
             p_tx_type: 'checkout',
             p_amount: req.quantity,
-            p_requester: req.requester_name,
+            p_requester: req.requester_name.trim(),
             p_project: req.project_name || 'General',
             p_image_url: null
           });
+          if (!rpcErr && rpcData) {
+            rpcSuccess = true;
+          }
         } catch (rpcErr) {
           console.warn('[Requests] RPC checkout notice:', rpcErr);
         }
-      }
 
-      const updatedStatus = isApprove ? 'approved' : 'declined';
-      const { error: updateErr } = await supabase
-        .from('item_requests')
-        .update({
-          status: updatedStatus,
-          admin_notes: actionModal.notes.trim() || null,
-          reviewed_by: user.email || 'Admin',
-          reviewed_at: new Date().toISOString()
-        })
-        .eq('id', req.id);
+        // Client-side fallback if RPC is not available in database
+        if (!rpcSuccess && req.item_id) {
+          try {
+            const newAmount = Math.max(0, currentStock - req.quantity);
+            await supabase
+              .from('items')
+              .update({
+                amount: newAmount,
+                status: newAmount === 0 ? 'Out of Stock' : 'available'
+              })
+              .eq('id', req.item_id);
 
-      if (updateErr) {
-        try {
-          const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
-          const idx = localQueue.findIndex(r => r.id === req.id);
-          if (idx !== -1) {
-            localQueue[idx].status = updatedStatus;
-            localQueue[idx].admin_notes = actionModal.notes.trim() || null;
-            localQueue[idx].reviewed_by = user.email || 'Admin';
-            localQueue[idx].reviewed_at = new Date().toISOString();
-            localStorage.setItem('cih_pending_requisitions', JSON.stringify(localQueue));
+            await supabase
+              .from('transactions')
+              .insert([{
+                item_id: req.item_id,
+                transaction_type: 'checkout',
+                amount: req.quantity,
+                requester: req.requester_name.trim(),
+                project: req.project_name || 'General',
+                timestamp: new Date().toISOString()
+              }]);
+          } catch (fallbackErr) {
+            console.warn('[Requests] Direct stock checkout notice:', fallbackErr);
           }
-        } catch (_) {}
+        }
       }
 
-      await showSuccess(
-        `Requisition ${isApprove ? 'approved & tools checked out' : 'declined'} successfully.`,
-        isApprove ? 'Request Approved' : 'Request Declined'
-      );
+      // 3. Update requisition status
+      const updatedStatus = isApprove ? 'approved' : 'declined';
+      const adminNotes = actionModal.notes.trim() || (isApprove ? 'Approved by Admin' : 'Declined by Admin');
+      const adminEmail = user?.email || 'Admin';
+      const reviewedAt = new Date().toISOString();
+
+      try {
+        await supabase
+          .from('item_requests')
+          .update({
+            status: updatedStatus,
+            admin_notes: adminNotes,
+            reviewed_by: adminEmail,
+            reviewed_at: reviewedAt
+          })
+          .eq('id', req.id);
+      } catch (dbErr) {
+        console.warn('[Requests] Remote requisition update notice:', dbErr);
+      }
+
+      // 4. Update local storage queues (both admin queue and user tracking queue)
+      const updateLocalQueue = (storageKey) => {
+        try {
+          const list = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          const updated = list.map(item => {
+            if (item.id === req.id) {
+              return {
+                ...item,
+                status: updatedStatus,
+                admin_notes: adminNotes,
+                reviewed_by: adminEmail,
+                reviewed_at: reviewedAt
+              };
+            }
+            return item;
+          });
+          localStorage.setItem(storageKey, JSON.stringify(updated));
+        } catch (_) {}
+      };
+      updateLocalQueue('cih_pending_requisitions');
+      updateLocalQueue('cih_user_orders');
+
+      // 5. Update local state immediately
+      setItemRequests(prev => prev.map(r => r.id === req.id ? {
+        ...r,
+        status: updatedStatus,
+        admin_notes: adminNotes,
+        reviewed_by: adminEmail,
+        reviewed_at: reviewedAt
+      } : r));
+
+      // 6. CLOSE MODAL IMMEDIATELY to prevent UI freezing
+      setActionModal({ isOpen: false, type: 'approve', request: null, notes: '', loading: false });
+
+      // 7. Invalidate caches and trigger re-fetch in background
       invalidateApiCache();
-      await Promise.all([fetchTransactions(), fetchItemsList(), fetchItemRequests()]);
-      setActionModal(prev => ({ ...prev, isOpen: false }));
+      fetchTransactions().catch(() => null);
+      fetchItemsList().catch(() => null);
+      fetchItemRequests().catch(() => null);
+
+      // 8. Show user confirmation alert
+      if (isApprove) {
+        showSuccess(
+          `Requisition approved for ${req.requester_name}. ${req.quantity}x "${req.items?.item_name || 'Equipment'}" checked out.`,
+          'Request Approved'
+        );
+      } else {
+        showWarning(
+          `Requisition declined for ${req.requester_name}.`,
+          'Request Declined'
+        );
+      }
     } catch (err) {
+      console.error('[Requests] Action failed:', err);
       showError('Action failed: ' + (err.message || 'Unknown error'));
-    } finally {
       setActionModal(prev => ({ ...prev, loading: false }));
     }
   };
@@ -1353,7 +1439,7 @@ export default function Requests() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 99999,
+          zIndex: 1100,
           padding: '20px'
         }} onClick={() => !actionModal.loading && setActionModal(prev => ({ ...prev, isOpen: false }))}>
           <div style={{
