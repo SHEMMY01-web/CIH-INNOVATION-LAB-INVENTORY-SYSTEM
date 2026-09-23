@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -12,7 +12,7 @@ import '../styles/dashboard.css';
 
 export default function Dashboard() {
   const { user, isLoggingOut } = useAuth();
-  const { showError } = useAlert();
+  const { showSuccess, showError, showWarning } = useAlert();
   
   const [items, setItems] = useState([]);
   const [assets, setAssets] = useState([]);
