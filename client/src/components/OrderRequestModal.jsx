@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAlert } from '../contexts/AlertContext';
 import { getItemImage } from '../utils/slugify';
 
 export default function OrderRequestModal({ isOpen, onClose, initialItem = null, onOrderSuccess }) {
-  const { showSuccess, showError, showWarning } = useAlert();
+  const { showError, showWarning } = useAlert();
 
   const [itemsList, setItemsList] = useState([]);
   const [projectsList, setProjectsList] = useState([]);
   const [selectedItem, setSelectedItem] = useState(initialItem);
   const [isCustomProject, setIsCustomProject] = useState(false);
-  const [searchItemQuery, setSearchItemQuery] = useState('');
-  const [loadingInitial, setLoadingInitial] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
 
@@ -34,10 +32,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
   useEffect(() => {
     if (initialItem) {
       setSelectedItem(initialItem);
-      setFormData(prev => ({
-        ...prev,
-        quantity: 1
-      }));
+      setFormData(prev => ({ ...prev, quantity: 1 }));
     }
   }, [initialItem]);
 
@@ -50,7 +45,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
     }
 
     let isMounted = true;
-    setLoadingInitial(true);
 
     const loadData = async () => {
       try {
@@ -69,23 +63,30 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
         if (!isMounted) return;
 
-        if (itemsRes.data) {
+        if (itemsRes.data && itemsRes.data.length > 0) {
           setItemsList(itemsRes.data);
-          // If no initialItem was provided, select the first available item
-          if (!selectedItem && itemsRes.data.length > 0) {
+          if (!selectedItem) {
             setSelectedItem(itemsRes.data[0]);
           }
         }
 
         if (projectsRes.data && projectsRes.data.length > 0) {
-          setProjectsList(projectsRes.data.map(p => p.name).filter(Boolean));
+          const names = projectsRes.data.map(p => p.name).filter(Boolean);
+          setProjectsList(names);
+          setFormData(prev => ({
+            ...prev,
+            project_name: prev.project_name || names[0] || 'General'
+          }));
         } else {
-          setProjectsList(['IoT & Robotics', 'Smart Agriculture', 'Renewable Energy', 'Embedded Systems', 'General Hardware']);
+          const defaultProjects = ['General', 'Robotics', 'IoT & Embedded', 'Renewable Energy'];
+          setProjectsList(defaultProjects);
+          setFormData(prev => ({
+            ...prev,
+            project_name: prev.project_name || defaultProjects[0]
+          }));
         }
       } catch (err) {
         console.warn('[OrderRequestModal] Error loading reference data:', err);
-      } finally {
-        if (isMounted) setLoadingInitial(false);
       }
     };
 
@@ -121,16 +122,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const filteredItems = useMemo(() => {
-    if (!searchItemQuery.trim()) return itemsList;
-    const q = searchItemQuery.toLowerCase();
-    return itemsList.filter(i => 
-      (i.item_name || '').toLowerCase().includes(q) ||
-      (i.model || '').toLowerCase().includes(q) ||
-      (i.type || '').toLowerCase().includes(q)
-    );
-  }, [itemsList, searchItemQuery]);
-
   const maxAvailable = selectedItem ? Number(selectedItem.amount) || 1 : 1;
 
   const handleQuantityChange = (newQty) => {
@@ -141,7 +132,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
   const handleNeededDateChange = (val) => {
     setFormData(prev => {
       const updated = { ...prev, needed_date: val };
-      // Ensure return date is not prior to needed date
       if (prev.return_date && prev.return_date < val) {
         updated.return_date = val;
       }
@@ -157,21 +147,21 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
     }
 
     if (!formData.requester_name.trim()) {
-      showWarning('Please enter your full name.', 'Name Required');
+      showWarning('Please enter your name.', 'Name Required');
       return;
     }
 
     if (!formData.requester_email.trim()) {
-      showWarning('Please provide your email address.', 'Email Required');
+      showWarning('Please enter your email address.', 'Email Required');
       return;
     }
 
     const finalProjectName = isCustomProject 
       ? formData.custom_project.trim() 
-      : (formData.project_name || (projectsList[0] || 'General'));
+      : (formData.project_name || 'General');
 
     if (!finalProjectName) {
-      showWarning('Please specify the project you want to use the tools for.', 'Project Required');
+      showWarning('Please specify the project.', 'Project Required');
       return;
     }
 
@@ -212,7 +202,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
     };
 
     try {
-      // 1. Attempt to insert into Supabase item_requests table
       const { data, error } = await supabase
         .from('item_requests')
         .insert([requestPayload])
@@ -220,9 +209,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         .single();
 
       if (error) {
-        // Fallback resilience: If item_requests table does not exist in PostgREST yet
-        console.warn('[OrderRequestModal] Supabase table insert issue, activating local queue:', error.message);
-        
+        console.warn('[OrderRequestModal] Supabase table insert issue, queuing locally:', error.message);
         const fallbackId = `REQ-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random()*1000)}`;
         const localRecord = {
           id: fallbackId,
@@ -245,8 +232,8 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
       setSuccessOrder(data || { id: 'REQ-OK', ...requestPayload, items: selectedItem });
       if (onOrderSuccess) onOrderSuccess(data);
     } catch (err) {
-      console.error('[OrderRequestModal] Unexpected submission failure:', err);
-      showError('Unable to submit request. Please verify connection and try again.');
+      console.error('[OrderRequestModal] Submission exception:', err);
+      showError('Unable to submit request. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -267,9 +254,9 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(8px)',
+        padding: '16px',
+        backgroundColor: 'rgba(15, 23, 42, 0.5)',
+        backdropFilter: 'blur(6px)',
         zIndex: 1100
       }}
     >
@@ -277,101 +264,101 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         className="order-request-card"
         style={{
           width: '100%',
-          maxWidth: '680px',
-          maxHeight: '90vh',
+          maxWidth: '520px',
+          maxHeight: '92vh',
           backgroundColor: '#ffffff',
-          borderRadius: '20px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1)'
+          animation: 'modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
         <style>{`
-          @keyframes modalSlideUp {
-            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+          @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
           }
-          .order-input-group label {
-            display: block;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 6px;
+          .clean-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
           }
-          .order-input-field {
+          .clean-field-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #475569;
+            letter-spacing: 0.01em;
+          }
+          .clean-input {
             width: 100%;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff !important;
             color: #0f172a;
             outline: none;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
             box-sizing: border-box;
             font-family: inherit;
           }
-          .order-input-field:focus {
+          .clean-input:focus {
             border-color: #1c21df;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(28, 33, 223, 0.12);
+            box-shadow: 0 0 0 3px rgba(28, 33, 223, 0.1);
           }
-          .stepper-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
+          .clean-input::placeholder {
+            color: #94a3b8;
+          }
+          /* Strip Chrome aggressive blue autofill background */
+          .clean-input:-webkit-autofill,
+          .clean-input:-webkit-autofill:hover, 
+          .clean-input:-webkit-autofill:focus,
+          .clean-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #0f172a !important;
+            transition: background-color 5000s ease-in-out 0s;
+          }
+          .clean-stepper-btn {
+            width: 32px;
+            height: 34px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
             background: #f8fafc;
             color: #334155;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             transition: background 0.15s;
           }
-          .stepper-btn:hover:not(:disabled) {
+          .clean-stepper-btn:hover:not(:disabled) {
             background: #e2e8f0;
           }
-          .stepper-btn:disabled {
-            opacity: 0.4;
+          .clean-stepper-btn:disabled {
+            opacity: 0.35;
             cursor: not-allowed;
           }
         `}</style>
 
         {/* Modal Header */}
         <div style={{
-          padding: '20px 28px',
-          borderBottom: '1px solid #e2e8f0',
+          padding: '16px 20px',
+          borderBottom: '1px solid #f1f5f9',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'linear-gradient(to right, #ffffff, #f8fafc)'
+          justifyContent: 'space-between'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #1c21df 0%, #ff5421 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff'
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>shopping_cart_checkout</span>
-            </div>
-            <div>
-              <h2 id="order-modal-title" style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                {successOrder ? 'Requisition Confirmed' : 'Request Equipment Online'}
-              </h2>
-              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>
-                {successOrder ? 'Reference details for your records' : 'Place an order for tools or hardware components'}
-              </p>
-            </div>
+          <div>
+            <h2 id="order-modal-title" style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              {successOrder ? 'Requisition Submitted' : 'Request Equipment'}
+            </h2>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0 0' }}>
+              {successOrder ? 'Your order reference details' : 'Specify when you need tools and for which project'}
+            </p>
           </div>
           <button
             type="button"
@@ -381,142 +368,131 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
               border: 'none',
               color: '#94a3b8',
               cursor: 'pointer',
-              padding: '6px',
-              borderRadius: '8px',
+              padding: '4px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'color 0.15s'
             }}
             aria-label="Close modal"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>close</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>close</span>
           </button>
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
+        <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
           {successOrder ? (
-            /* Success Screen */
-            <div style={{ textAlign: 'center', padding: '16px 8px' }}>
+            /* Success State */
+            <div style={{ textAlign: 'center', padding: '12px 6px' }}>
               <div style={{
-                width: '64px',
-                height: '64px',
+                width: '52px',
+                height: '52px',
                 borderRadius: '50%',
                 background: '#ecfdf5',
                 color: '#059669',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '16px',
-                border: '2px solid #a7f3d0'
+                marginBottom: '12px',
+                border: '1.5px solid #a7f3d0'
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '36px' }}>check_circle</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>check</span>
               </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                Requisition Submitted!
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+                Request Sent Successfully
               </h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', maxWidth: '460px', margin: '0 auto 24px auto', lineHeight: 1.5 }}>
-                Your order has been queued on the <strong>Admin Dashboard</strong> for staff review. Once approved, you can pick up the equipment at the Innovation Lab.
+              <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 16px 0', lineHeight: 1.45 }}>
+                Your order is on the lab admin dashboard. Once approved, the tools will be prepared for pickup.
               </p>
 
               <div style={{
                 background: '#f8fafc',
-                borderRadius: '14px',
+                borderRadius: '10px',
                 border: '1px solid #e2e8f0',
-                padding: '18px 22px',
+                padding: '14px 16px',
                 textAlign: 'left',
-                marginBottom: '24px'
+                marginBottom: '20px',
+                fontSize: '0.82rem'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Requisition Reference</span>
-                  <span style={{ fontSize: '0.82rem', fontFamily: 'monospace', fontWeight: 700, color: '#1c21df' }}>
-                    {String(successOrder.id).slice(0, 14)}
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
+                  <span style={{ color: '#64748b' }}>Item</span>
+                  <strong style={{ color: '#0f172a' }}>{selectedItem?.item_name || 'Equipment'}</strong>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
-                  <div>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.75rem' }}>Equipment Item</span>
-                    <strong style={{ color: '#0f172a' }}>{selectedItem?.item_name || 'Selected Item'}</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.75rem' }}>Quantity</span>
-                    <strong style={{ color: '#0f172a' }}>{successOrder.quantity} {selectedItem?.store || 'pcs'}</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.75rem' }}>Target Project</span>
-                    <strong style={{ color: '#0f172a' }}>{successOrder.project_name}</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.75rem' }}>Duration</span>
-                    <strong style={{ color: '#0f172a' }}>{successOrder.needed_date} → {successOrder.return_date}</strong>
-                  </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
+                  <span style={{ color: '#64748b' }}>Quantity</span>
+                  <strong style={{ color: '#0f172a' }}>{successOrder.quantity} {selectedItem?.store || 'pcs'}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
+                  <span style={{ color: '#64748b' }}>Project</span>
+                  <strong style={{ color: '#0f172a' }}>{successOrder.project_name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>Duration</span>
+                  <strong style={{ color: '#0f172a' }}>{successOrder.needed_date} to {successOrder.return_date}</strong>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  style={{
-                    padding: '10px 28px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: '#1c21df',
-                    color: '#ffffff',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Done
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#1c21df',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Done
+              </button>
             </div>
           ) : (
             /* Order Form */
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              {/* Selected Item Banner */}
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Clean Equipment Summary Chip */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 background: '#f8fafc',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 border: '1px solid #e2e8f0',
-                gap: '14px'
+                gap: '10px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
                   {selectedItem && (
                     <img 
                       src={getItemImage(selectedItem) || '/IMAGES/placeholder.png'} 
-                      alt={selectedItem.item_name}
+                      alt=""
                       style={{
-                        width: '44px',
-                        height: '44px',
+                        width: '34px',
+                        height: '34px',
                         objectFit: 'contain',
-                        borderRadius: '8px',
+                        borderRadius: '6px',
                         background: '#ffffff',
-                        border: '1px solid #cbd5e1'
+                        border: '1px solid #e2e8f0',
+                        flexShrink: 0
                       }}
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Selected Equipment
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {selectedItem?.item_name || 'Select Tool'}
                     </div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {selectedItem?.item_name || 'No Item Selected'}
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span>
-                      {selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} Available in Lab
+                    <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: 500 }}>
+                      {selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock
                     </div>
                   </div>
                 </div>
 
-                {/* Change item dropdown selector if items list is populated */}
                 {itemsList.length > 1 && (
                   <select
                     value={selectedItem?.id || ''}
@@ -528,129 +504,139 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       }
                     }}
                     style={{
-                      padding: '6px 10px',
-                      fontSize: '0.8rem',
-                      borderRadius: '8px',
+                      padding: '4px 8px',
+                      fontSize: '0.75rem',
+                      borderRadius: '6px',
                       border: '1px solid #cbd5e1',
                       background: '#ffffff',
                       color: '#475569',
-                      outline: 'none',
                       cursor: 'pointer',
-                      maxWidth: '160px'
+                      maxWidth: '140px'
                     }}
+                    aria-label="Change equipment"
                   >
                     {itemsList.map(item => (
                       <option key={item.id} value={item.id}>
-                        {item.item_name} ({item.amount})
+                        {item.item_name}
                       </option>
                     ))}
                   </select>
                 )}
               </div>
 
-              {/* Requester Contact Info Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
-                <div className="order-input-group">
-                  <label htmlFor="order-requester-name">Your Full Name *</label>
+              {/* Row 1: Requester Name & Email (2 columns) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="clean-field-group">
+                  <label className="clean-field-label" htmlFor="order-req-name">Full Name *</label>
                   <input
-                    id="order-requester-name"
+                    id="order-req-name"
+                    name="full_name"
                     type="text"
                     required
-                    placeholder="e.g. Victor Olaewe"
+                    placeholder="John Doe"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                     value={formData.requester_name}
                     onChange={(e) => setFormData({ ...formData, requester_name: e.target.value })}
-                    className="order-input-field"
+                    className="clean-input"
                   />
                 </div>
 
-                <div className="order-input-group">
-                  <label htmlFor="order-requester-email">Email Address *</label>
+                <div className="clean-field-group">
+                  <label className="clean-field-label" htmlFor="order-req-email">Email Address *</label>
                   <input
-                    id="order-requester-email"
+                    id="order-req-email"
+                    name="contact_email"
                     type="email"
                     required
-                    placeholder="e.g. student@institution.edu"
+                    placeholder="john.doe@example.com"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                     value={formData.requester_email}
                     onChange={(e) => setFormData({ ...formData, requester_email: e.target.value })}
-                    className="order-input-field"
+                    className="clean-input"
                   />
                 </div>
+              </div>
 
-                <div className="order-input-group">
-                  <label htmlFor="order-requester-phone">Phone / WhatsApp</label>
+              {/* Row 2: Phone & Project (2 columns) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="clean-field-group">
+                  <label className="clean-field-label" htmlFor="order-req-phone">Phone / WhatsApp</label>
                   <input
-                    id="order-requester-phone"
+                    id="order-req-phone"
+                    name="contact_phone"
                     type="tel"
-                    placeholder="e.g. +234 801 234 5678"
+                    placeholder="+1 (555) 000-0000"
+                    autoComplete="off"
                     value={formData.requester_phone}
                     onChange={(e) => setFormData({ ...formData, requester_phone: e.target.value })}
-                    className="order-input-field"
+                    className="clean-input"
                   />
                 </div>
-              </div>
 
-              {/* Target Project Selection */}
-              <div className="order-input-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label htmlFor="order-project-select" style={{ margin: 0 }}>
-                    Target Project * <span style={{ fontWeight: 400, color: '#64748b' }}>(Specify what project tools are for)</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomProject(!isCustomProject)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#1c21df',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
-                  >
-                    {isCustomProject ? '← Select existing project' : '+ Add custom project'}
-                  </button>
-                </div>
-
-                {isCustomProject ? (
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter custom project title (e.g. Smart Drone Obstacle Avoidance)"
-                    value={formData.custom_project}
-                    onChange={(e) => setFormData({ ...formData, custom_project: e.target.value })}
-                    className="order-input-field"
-                    autoFocus
-                  />
-                ) : (
-                  <select
-                    id="order-project-select"
-                    value={formData.project_name || (projectsList[0] || 'General')}
-                    onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
-                    className="order-input-field"
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {projectsList.map(proj => (
-                      <option key={proj} value={proj}>{proj}</option>
-                    ))}
-                    <option value="General Hardware Experiment">General Hardware Experiment</option>
-                  </select>
-                )}
-              </div>
-
-              {/* Quantity and Dates Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
-                {/* Quantity */}
-                <div className="order-input-group">
-                  <label>Quantity *</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="clean-field-group">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="clean-field-label" htmlFor="order-req-project">Project *</label>
                     <button
                       type="button"
-                      className="stepper-btn"
+                      onClick={() => setIsCustomProject(!isCustomProject)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#1c21df',
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                    >
+                      {isCustomProject ? 'Select existing' : '+ Custom'}
+                    </button>
+                  </div>
+                  {isCustomProject ? (
+                    <input
+                      id="order-req-project"
+                      type="text"
+                      required
+                      placeholder="e.g. Robotics Project"
+                      autoComplete="off"
+                      value={formData.custom_project}
+                      onChange={(e) => setFormData({ ...formData, custom_project: e.target.value })}
+                      className="clean-input"
+                      autoFocus
+                    />
+                  ) : (
+                    <select
+                      id="order-req-project"
+                      value={formData.project_name || (projectsList[0] || 'General')}
+                      onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
+                      className="clean-input"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {projectsList.map(proj => (
+                        <option key={proj} value={proj}>{proj}</option>
+                      ))}
+                      <option value="General Hardware Experiment">General Experiment</option>
+                    </select>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 3: Quantity, When Needed, Return Date (3 columns) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: '10px' }}>
+                <div className="clean-field-group">
+                  <label className="clean-field-label">Quantity *</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button
+                      type="button"
+                      className="clean-stepper-btn"
                       disabled={formData.quantity <= 1}
                       onClick={() => handleQuantityChange(formData.quantity - 1)}
                     >
-                      -
+                      −
                     </button>
                     <input
                       type="number"
@@ -658,12 +644,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       max={maxAvailable}
                       value={formData.quantity}
                       onChange={(e) => handleQuantityChange(e.target.value)}
-                      className="order-input-field"
-                      style={{ textAlign: 'center', fontWeight: 600 }}
+                      className="clean-input"
+                      style={{ textAlign: 'center', fontWeight: 600, padding: '7px 2px' }}
                     />
                     <button
                       type="button"
-                      className="stepper-btn"
+                      className="clean-stepper-btn"
                       disabled={formData.quantity >= maxAvailable}
                       onClick={() => handleQuantityChange(formData.quantity + 1)}
                     >
@@ -672,87 +658,86 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   </div>
                 </div>
 
-                {/* Needed Date */}
-                <div className="order-input-group">
-                  <label htmlFor="order-needed-date">When Needed *</label>
+                <div className="clean-field-group">
+                  <label className="clean-field-label" htmlFor="order-date-needed">When Needed *</label>
                   <input
-                    id="order-needed-date"
+                    id="order-date-needed"
                     type="date"
                     required
                     min={todayStr}
                     value={formData.needed_date}
                     onChange={(e) => handleNeededDateChange(e.target.value)}
-                    className="order-input-field"
+                    className="clean-input"
                   />
                 </div>
 
-                {/* Return Date */}
-                <div className="order-input-group">
-                  <label htmlFor="order-return-date">Return Date *</label>
+                <div className="clean-field-group">
+                  <label className="clean-field-label" htmlFor="order-date-return">Return Date *</label>
                   <input
-                    id="order-return-date"
+                    id="order-date-return"
                     type="date"
                     required
                     min={formData.needed_date || todayStr}
                     value={formData.return_date}
                     onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
-                    className="order-input-field"
+                    className="clean-input"
                   />
                 </div>
               </div>
 
-              {/* Scope & Purpose */}
-              <div className="order-input-group">
-                <label htmlFor="order-purpose">Scope of Work / Purpose</label>
+              {/* Row 4: Purpose */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-purpose">Purpose (Optional)</label>
                 <textarea
                   id="order-purpose"
                   rows="2"
-                  placeholder="Briefly describe what you'll be building or testing with this equipment..."
+                  placeholder="Brief description of what you will use this equipment for..."
                   value={formData.purpose}
                   onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                  className="order-input-field"
+                  className="clean-input"
                   style={{ resize: 'vertical' }}
                 />
               </div>
 
-              {/* Submit Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
+              {/* Buttons */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                 <button
                   type="submit"
                   disabled={submitting}
                   style={{
                     flex: 1,
-                    padding: '12px 24px',
-                    borderRadius: '10px',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
                     border: 'none',
-                    background: 'linear-gradient(135deg, #1c21df 0%, #3b40f8 100%)',
+                    background: '#1c21df',
                     color: '#ffffff',
                     fontWeight: 600,
-                    fontSize: '0.95rem',
+                    fontSize: '0.88rem',
                     cursor: submitting ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 14px rgba(28, 33, 223, 0.35)',
+                    boxShadow: '0 2px 8px rgba(28, 33, 223, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px'
+                    gap: '6px',
+                    transition: 'background 0.15s ease'
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                     {submitting ? 'hourglass_top' : 'send'}
                   </span>
-                  {submitting ? 'Submitting Order...' : 'Place Requirement'}
+                  {submitting ? 'Submitting...' : 'Submit Request'}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
                   style={{
-                    padding: '12px 20px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    background: '#f8fafc',
-                    color: '#475569',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#ffffff',
+                    color: '#64748b',
                     fontWeight: 600,
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     cursor: 'pointer'
                   }}
                 >
