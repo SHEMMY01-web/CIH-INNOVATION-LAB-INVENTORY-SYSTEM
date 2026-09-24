@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAlert } from '../contexts/AlertContext';
 import { getItemImage } from '../utils/slugify';
 import { useBodyScrollLock } from '../utils/useBodyScrollLock';
+import { isLabAsset } from '../utils/inventoryClassifier';
 
 export default function OrderRequestModal({ isOpen, onClose, initialItem = null, onOrderSuccess }) {
   useBodyScrollLock(isOpen);
@@ -14,6 +15,8 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
   const [isCustomProject, setIsCustomProject] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
+
+  const isAsset = useMemo(() => isLabAsset(selectedItem), [selectedItem]);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -29,14 +32,24 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
   });
 
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const returnDefaultStr = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 5);
+    return d.toISOString().split('T')[0];
+  }, []);
 
   // Sync selectedItem when initialItem prop changes
   useEffect(() => {
     if (initialItem) {
       setSelectedItem(initialItem);
-      setFormData(prev => ({ ...prev, quantity: 1 }));
+      const isInitialAsset = isLabAsset(initialItem);
+      setFormData(prev => ({
+        ...prev,
+        quantity: 1,
+        return_date: isInitialAsset ? (prev.return_date || returnDefaultStr) : (prev.return_date || '')
+      }));
     }
-  }, [initialItem]);
+  }, [initialItem, returnDefaultStr]);
 
   // Load items and projects when modal opens
   useEffect(() => {
@@ -94,17 +107,19 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
     loadData();
 
-    // Default dates: tomorrow for needed_date, 5 days later for return_date
+    // Default dates: tomorrow for needed_date, and default return_date only if asset
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const returnDefault = new Date();
-    returnDefault.setDate(returnDefault.getDate() + 5);
 
-    setFormData(prev => ({
-      ...prev,
-      needed_date: prev.needed_date || tomorrow.toISOString().split('T')[0],
-      return_date: prev.return_date || returnDefault.toISOString().split('T')[0]
-    }));
+    setFormData(prev => {
+      const activeItem = initialItem || selectedItem;
+      const willBeAsset = isLabAsset(activeItem);
+      return {
+        ...prev,
+        needed_date: prev.needed_date || tomorrow.toISOString().split('T')[0],
+        return_date: prev.return_date || (willBeAsset ? returnDefaultStr : '')
+      };
+    });
 
     return () => {
       isMounted = false;
@@ -172,12 +187,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
       return;
     }
 
-    if (!formData.return_date) {
-      showWarning('Please specify the expected return date.', 'Return Date Required');
+    if (isAsset && !formData.return_date) {
+      showWarning('This item is a lab asset (not for sale). Please specify the expected return date.', 'Return Date Required');
       return;
     }
 
-    if (formData.return_date < formData.needed_date) {
+    if (formData.return_date && formData.needed_date && formData.return_date < formData.needed_date) {
       showWarning('Return date must be on or after the needed date.', 'Invalid Date Range');
       return;
     }
@@ -198,7 +213,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
       project_name: finalProjectName,
       quantity: qty,
       needed_date: formData.needed_date,
-      return_date: formData.return_date,
+      return_date: formData.return_date ? formData.return_date : null,
       purpose: formData.purpose.trim() || null,
       status: 'pending'
     };
@@ -464,7 +479,9 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#64748b' }}>Duration</span>
-                  <strong style={{ color: '#0f172a' }}>{successOrder.needed_date} to {successOrder.return_date}</strong>
+                  <strong style={{ color: '#0f172a' }}>
+                    {successOrder.return_date ? `${successOrder.needed_date} to ${successOrder.return_date}` : `Needed ${successOrder.needed_date} • Permanent / Purchase`}
+                  </strong>
                 </div>
               </div>
 
@@ -550,8 +567,21 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {selectedItem?.item_name || 'Select Tool'}
                     </div>
-                    <div style={{ fontSize: '0.74rem', color: '#1c21df', fontWeight: 600 }}>
-                      {selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock
+                    <div style={{ fontSize: '0.74rem', color: '#1c21df', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', marginTop: '1px' }}>
+                      <span>{selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock</span>
+                      {isAsset && (
+                        <span style={{
+                          fontSize: '0.68rem',
+                          color: '#ff5421',
+                          background: '#fff5f2',
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          border: '1px solid #ffdcd4',
+                          fontWeight: 700
+                        }}>
+                          Lab Asset
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -563,7 +593,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       const found = itemsList.find(i => i.id === e.target.value);
                       if (found) {
                         setSelectedItem(found);
-                        setFormData(prev => ({ ...prev, quantity: 1 }));
+                        const nowAsset = isLabAsset(found);
+                        setFormData(prev => ({
+                          ...prev,
+                          quantity: 1,
+                          return_date: nowAsset ? (prev.return_date || returnDefaultStr) : prev.return_date
+                        }));
                       }
                     }}
                     style={{
@@ -749,18 +784,61 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
               {/* Field 7: Return Date (Single Line) */}
               <div className="clean-field-group">
-                <label className="clean-field-label" htmlFor="order-date-return">
-                  Return Date <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="clean-field-label" htmlFor="order-date-return" style={{ marginBottom: 0 }}>
+                    Return Date {isAsset ? (
+                      <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                    ) : (
+                      <span style={{ fontSize: '0.74rem', fontWeight: 400, color: '#64748b' }}>(Optional)</span>
+                    )}
+                  </label>
+                  {isAsset ? (
+                    <span style={{
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      color: '#ff5421',
+                      background: '#fff5f2',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid #ffdcd4'
+                    }}>
+                      Lab Asset • Not For Sale
+                    </span>
+                  ) : (
+                    formData.return_date && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, return_date: '' }))}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#1c21df',
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          padding: 0
+                        }}
+                      >
+                        Clear (Permanent / Buy)
+                      </button>
+                    )
+                  )}
+                </div>
                 <input
                   id="order-date-return"
                   type="date"
-                  required
+                  required={isAsset}
                   min={formData.needed_date || todayStr}
-                  value={formData.return_date}
+                  value={formData.return_date || ''}
                   onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
                   className="clean-input"
+                  style={{ marginTop: '4px' }}
                 />
+                <p style={{ fontSize: '0.73rem', color: '#64748b', margin: '3px 0 0 0', lineHeight: 1.35 }}>
+                  {isAsset
+                    ? 'Lab assets are permanent facility equipment and must be returned after your project use.'
+                    : 'Optional. Leave blank if you plan to purchase or permanently retain this item for your project.'}
+                </p>
               </div>
 
               {/* Field 8: Purpose (Single Line) */}

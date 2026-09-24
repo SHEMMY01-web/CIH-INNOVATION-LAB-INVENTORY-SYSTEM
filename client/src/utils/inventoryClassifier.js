@@ -164,13 +164,15 @@ export function isLabTool(item) {
  */
 export function isLabAsset(item) {
   if (!item) return false;
-  const t = (item.type || '').toLowerCase();
-  if (t.startsWith('asset:')) return true;
+  if (item.is_asset === true || item.isAsset === true) return true;
+  const t = (item.type || '').toLowerCase().trim();
+  if (t.startsWith('asset:') || t === 'asset' || t.includes('asset')) return true;
   const name = (item.item_name || item.name || '').toLowerCase();
   if (
     name.includes('bambu') ||
     name.includes('ender') ||
     name.includes('printing machine') ||
+    name.includes('3d printer') ||
     name.includes('oculus') ||
     name.includes('camera') ||
     name.includes('laptop') ||

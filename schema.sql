@@ -396,7 +396,7 @@ CREATE TABLE IF NOT EXISTS public.item_requests (
   project_name TEXT NOT NULL DEFAULT 'General',
   quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
   needed_date DATE NOT NULL,
-  return_date DATE NOT NULL,
+  return_date DATE,
   purpose TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'declined', 'returned')),
   admin_notes TEXT,
@@ -404,10 +404,28 @@ CREATE TABLE IF NOT EXISTS public.item_requests (
   reviewed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
 
-  CONSTRAINT chk_item_requests_dates CHECK (return_date >= needed_date),
+  CONSTRAINT chk_item_requests_dates CHECK (return_date IS NULL OR return_date >= needed_date),
   CONSTRAINT chk_requester_name_len CHECK (char_length(trim(requester_name)) >= 2 AND char_length(requester_name) <= 120),
   CONSTRAINT chk_project_name_len CHECK (char_length(trim(project_name)) >= 2 AND char_length(project_name) <= 150)
 );
+
+-- Idempotent column and constraint adjustment for existing databases
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'item_requests' AND column_name = 'return_date' AND is_nullable = 'NO'
+  ) THEN
+    ALTER TABLE public.item_requests ALTER COLUMN return_date DROP NOT NULL;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'chk_item_requests_dates'
+  ) THEN
+    ALTER TABLE public.item_requests DROP CONSTRAINT chk_item_requests_dates;
+    ALTER TABLE public.item_requests ADD CONSTRAINT chk_item_requests_dates CHECK (return_date IS NULL OR return_date >= needed_date);
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_item_requests_status ON public.item_requests(status);
 CREATE INDEX IF NOT EXISTS idx_item_requests_created_at ON public.item_requests(created_at DESC);

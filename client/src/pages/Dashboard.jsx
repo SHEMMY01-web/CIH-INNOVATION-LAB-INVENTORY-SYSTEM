@@ -504,7 +504,7 @@ export default function Dashboard() {
                         </td>
                         <td>
                           <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#0f172a' }}>
-                            {req.needed_date} → {req.return_date}
+                            {req.return_date ? `${req.needed_date} → ${req.return_date}` : `${req.needed_date} • Permanent / Buy`}
                           </div>
                           {req.purpose && (
                             <div style={{ fontSize: '0.74rem', color: '#64748b', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={req.purpose}>
@@ -929,7 +929,7 @@ export default function Dashboard() {
                 {actionModal.request.quantity}x {actionModal.request.items?.item_name || 'Equipment'}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
-                Project: <strong>{actionModal.request.project_name}</strong> • Duration: {actionModal.request.needed_date} to {actionModal.request.return_date}
+                Project: <strong>{actionModal.request.project_name}</strong> • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
               </div>
             </div>
 

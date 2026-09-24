@@ -486,7 +486,7 @@ export default function Requests() {
       { label: 'Requester Phone', key: 'requester_phone' },
       { label: 'Project', key: 'project_name' },
       { label: 'Needed Date', key: 'needed_date' },
-      { label: 'Return Date', key: 'return_date' },
+      { label: 'Return Date', key: 'return_date', transform: val => val || 'Permanent / Purchase' },
       { label: 'Purpose', key: 'purpose' },
       { label: 'Status', key: 'status', transform: val => val ? val.toUpperCase() : 'PENDING' },
       { label: 'Date Submitted', key: 'created_at', transform: val => val ? new Date(val).toLocaleString() : '—' },
@@ -1153,7 +1153,7 @@ export default function Requests() {
                                 {req.needed_date || '—'}
                               </td>
                               <td style={{ fontSize: '0.85rem', color: '#334155' }}>
-                                {req.return_date || '—'}
+                                {req.return_date || <span style={{ color: '#64748b', fontSize: '0.8rem', fontStyle: 'italic' }}>Permanent / Buy</span>}
                               </td>
                               <td>
                                 <span style={{
@@ -1486,7 +1486,7 @@ export default function Requests() {
                 {actionModal.request.quantity}x {actionModal.request.items?.item_name || 'Equipment'}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
-                Project: <strong>{actionModal.request.project_name}</strong> • Duration: {actionModal.request.needed_date} to {actionModal.request.return_date}
+                Project: <strong>{actionModal.request.project_name}</strong> • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
               </div>
             </div>
 

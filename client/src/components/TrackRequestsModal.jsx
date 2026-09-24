@@ -390,7 +390,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                       </div>
                       <div>
                         <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Expected Return</span>
-                        <strong style={{ color: '#0f172a' }}>{req.return_date || '—'}</strong>
+                        <strong style={{ color: '#0f172a' }}>{req.return_date || 'Permanent / Purchase'}</strong>
                       </div>
                     </div>
 
