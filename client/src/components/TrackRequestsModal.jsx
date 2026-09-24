@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { getItemImage } from '../utils/slugify';
+import { useBodyScrollLock } from '../utils/useBodyScrollLock';
 
 export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' }) {
+  useBodyScrollLock(isOpen);
   const [emailInput, setEmailInput] = useState(initialEmail);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -116,9 +118,13 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
         alignItems: 'center',
         justifyContent: 'center',
         padding: '16px',
-        backgroundColor: 'rgba(15, 23, 42, 0.55)',
-        backdropFilter: 'blur(6px)',
-        zIndex: 1100
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(8px)',
+        zIndex: 1200,
+        position: 'fixed',
+        inset: 0,
+        touchAction: 'none',
+        overscrollBehavior: 'contain'
       }}
     >
       <div 
@@ -128,11 +134,12 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
           maxHeight: '90vh',
           backgroundColor: '#ffffff',
           borderRadius: '16px',
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'trackModalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
+          animation: 'trackModalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+          touchAction: 'pan-y'
         }}
       >
         <style>{`
@@ -265,7 +272,16 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
         </div>
 
         {/* Requests List Area */}
-        <div style={{ padding: '16px 20px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{
+          padding: '16px 20px',
+          overflowY: 'auto',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
+        }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '36px 0', color: '#64748b' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>

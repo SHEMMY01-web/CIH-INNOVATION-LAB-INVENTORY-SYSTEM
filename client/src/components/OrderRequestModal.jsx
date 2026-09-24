@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAlert } from '../contexts/AlertContext';
 import { getItemImage } from '../utils/slugify';
+import { useBodyScrollLock } from '../utils/useBodyScrollLock';
 
 export default function OrderRequestModal({ isOpen, onClose, initialItem = null, onOrderSuccess }) {
+  useBodyScrollLock(isOpen);
   const { showError, showWarning } = useAlert();
 
   const [itemsList, setItemsList] = useState([]);
@@ -270,9 +272,13 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         alignItems: 'center',
         justifyContent: 'center',
         padding: '16px',
-        backgroundColor: 'rgba(15, 23, 42, 0.5)',
-        backdropFilter: 'blur(6px)',
-        zIndex: 1100
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(8px)',
+        zIndex: 1200,
+        position: 'fixed',
+        inset: 0,
+        touchAction: 'none',
+        overscrollBehavior: 'contain'
       }}
     >
       <div 
@@ -283,11 +289,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           maxHeight: '92vh',
           backgroundColor: '#ffffff',
           borderRadius: '16px',
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+          animation: 'modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          touchAction: 'pan-y'
         }}
       >
         <style>{`
@@ -403,7 +410,13 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+        <div style={{
+          padding: '20px',
+          overflowY: 'auto',
+          flex: 1,
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
+        }}>
           {successOrder ? (
             /* Success State */
             <div style={{ textAlign: 'center', padding: '12px 6px' }}>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { HARDWARE_CATEGORIES, UNIT_OPTIONS, getAvailableUnits } from '../utils/inventoryClassifier';
+import { useBodyScrollLock } from '../utils/useBodyScrollLock';
 
 export default function FilterModal({ 
   isOpen, 
@@ -15,6 +16,7 @@ export default function FilterModal({
   availableUnits: customUnits,
   availableStores: deprecatedStores, // backwards compat
 }) {
+  useBodyScrollLock(isOpen);
   const initial = initialCriteria || currentFilters || {};
 
   // Universal state

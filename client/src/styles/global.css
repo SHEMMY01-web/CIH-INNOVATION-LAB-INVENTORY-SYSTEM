@@ -277,23 +277,24 @@ input[type="checkbox"] {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color, #1c21df) 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--brand-orange, #ff5421) 0%, #e04416 100%);
   color: #ffffff;
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 8px 24px rgba(28, 33, 223, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 90 !important;
+  box-shadow: 0 8px 24px rgba(255, 84, 33, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px) scale(0.85);
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s ease,
-              background 0.25s ease;
+  transition: bottom 0.15s ease-out,
+              opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s ease,
+              background 0.2s ease;
   pointer-events: none;
 }
 
@@ -305,9 +306,9 @@ input[type="checkbox"] {
 }
 
 .floating-scroll-top-btn:hover {
-  background: linear-gradient(135deg, #2a30f5 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #ff6b3d 0%, #ff5421 100%);
   transform: translateY(-4px) scale(1.06);
-  box-shadow: 0 12px 28px rgba(28, 33, 223, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 28px rgba(255, 84, 33, 0.5), 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .floating-scroll-top-btn:active {
@@ -322,6 +323,20 @@ input[type="checkbox"] {
 
 .floating-scroll-top-btn:hover .material-symbols-outlined {
   transform: translateY(-2px);
+}
+
+/* ─── Modal Open Scroll-Lock & Component Isolation ───────────── */
+body.modal-open,
+html.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+}
+
+body.modal-open .floating-scroll-top-btn {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* Accessibility Utilities (WCAG 2.1 AA) */

@@ -3,8 +3,10 @@ import { supabase, invalidateApiCache } from '../lib/supabase';
 import { HARDWARE_CATEGORIES, getStructuredItemType } from '../utils/inventoryClassifier';
 import { useAlert } from '../contexts/AlertContext';
 import { slugify, getItemImage as getDefaultItemImage } from '../utils/slugify';
+import { useBodyScrollLock } from '../utils/useBodyScrollLock';
 
 export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDeleted }) {
+  useBodyScrollLock(isOpen);
   const { showSuccess, showError, showWarning, showConfirm } = useAlert();
   const [formData, setFormData] = useState({
     item_name: '',

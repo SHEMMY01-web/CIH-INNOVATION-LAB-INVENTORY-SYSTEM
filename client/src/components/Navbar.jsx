@@ -38,11 +38,14 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     };
   }, [mobileMenuOpen]);
 
@@ -251,7 +254,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
       <div 
         className={`mobile-drawer ${mobileMenuOpen ? 'is-open' : ''}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={mobileMenuOpen ? "true" : "false"}
         aria-label="Mobile Navigation"
       >
         <div className="mobile-drawer-inner">

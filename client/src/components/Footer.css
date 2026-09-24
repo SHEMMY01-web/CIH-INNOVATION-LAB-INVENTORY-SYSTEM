@@ -83,6 +83,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
+  padding-right: 64px;
 }
 
 .footer-copyright-text {
@@ -170,23 +171,24 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f95738 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #ff5421 0%, #e04416 100%);
   color: #ffffff;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 8px 24px rgba(249, 87, 56, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 90;
+  box-shadow: 0 8px 24px rgba(255, 84, 33, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px) scale(0.85);
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s ease,
-              background 0.25s ease;
+  transition: bottom 0.15s ease-out,
+              opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s ease,
+              background 0.2s ease;
   pointer-events: none;
 }
 
@@ -198,14 +200,14 @@
 }
 
 .floating-scroll-top-btn:hover {
-  background: linear-gradient(135deg, #ff6b4e 0%, #f95738 100%);
+  background: linear-gradient(135deg, #ff6b3d 0%, #ff5421 100%);
   transform: translateY(-4px) scale(1.06);
-  box-shadow: 0 12px 30px rgba(249, 87, 56, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 30px rgba(255, 84, 33, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .floating-scroll-top-btn:active {
   transform: translateY(-1px) scale(0.96);
-  box-shadow: 0 4px 14px rgba(249, 87, 56, 0.4);
+  box-shadow: 0 4px 14px rgba(255, 84, 33, 0.4);
 }
 
 .floating-scroll-top-btn .material-symbols-outlined {
@@ -221,18 +223,19 @@
 /* ─── Responsive adjustments ────────────────────────────── */
 @media (max-width: 768px) {
   .floating-scroll-top-btn {
-    bottom: 24px;
-    right: 20px;
-    width: 44px;
-    height: 44px;
+    bottom: 20px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
   }
 
   .floating-scroll-top-btn .material-symbols-outlined {
     font-size: 24px;
   }
 
+  /* 84px bottom padding creates a dedicated clearance zone so the floating button never covers footer content */
   .cih-footer {
-    padding: 48px 0 24px 0;
+    padding: 44px 0 84px 0;
   }
 
   .cih-footer .footer-container {
@@ -242,7 +245,14 @@
   .footer-bottom-bar {
     flex-direction: column-reverse;
     align-items: flex-start;
-    gap: 24px;
+    gap: 16px;
+    padding-right: 0;
+  }
+
+  .footer-copyright-text {
+    max-width: calc(100% - 64px);
+    line-height: 1.6;
+    padding-bottom: 4px;
   }
 
   .footer-right-cluster {
