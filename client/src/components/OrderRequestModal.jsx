@@ -286,13 +286,14 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px',
+        padding: '12px',
         backgroundColor: 'rgba(15, 23, 42, 0.65)',
         backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         zIndex: 1200,
         position: 'fixed',
         inset: 0,
-        touchAction: 'none',
+        touchAction: 'pan-y',
         overscrollBehavior: 'contain'
       }}
     >
@@ -300,8 +301,9 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         className="order-request-card"
         style={{
           width: '100%',
-          maxWidth: '520px',
-          maxHeight: '92vh',
+          maxWidth: '510px',
+          maxHeight: '90dvh',
+          height: 'auto',
           backgroundColor: '#ffffff',
           borderRadius: '16px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
@@ -376,9 +378,16 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
             opacity: 0.35;
             cursor: not-allowed;
           }
+          .order-request-scroll-body::-webkit-scrollbar {
+            width: 4px;
+          }
+          .order-request-scroll-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+          }
           @media (max-width: 480px) {
             .order-request-card {
-              max-height: 94vh !important;
+              max-height: 90dvh !important;
               border-radius: 14px !important;
             }
           }
@@ -390,7 +399,8 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           borderBottom: '1px solid #f1f5f9',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          flexShrink: 0
         }}>
           <h2 id="order-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
             {successOrder ? 'Requisition Submitted' : 'Request Equipment'}
@@ -416,16 +426,17 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div style={{
-          padding: '16px 18px',
-          overflowY: 'auto',
-          flex: 1,
-          WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain'
-        }}>
-          {successOrder ? (
-            /* Success State */
+        {successOrder ? (
+          /* Success State */
+          <div style={{
+            padding: '20px 18px',
+            overflowY: 'auto',
+            flex: 1,
+            minHeight: 0,
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain'
+          }}>
             <div style={{ textAlign: 'center', padding: '12px 6px' }}>
               <div style={{
                 width: '52px',
@@ -524,10 +535,37 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 </button>
               </div>
             </div>
-          ) : (
-            /* Order Form */
-            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
-              {/* Clean Equipment Summary Chip */}
+          </div>
+        ) : (
+            /* Order Form with Pinned Footer */
+            <form
+              onSubmit={handleSubmit}
+              autoComplete="off"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
+              {/* Scrollable Middle Body */}
+              <div
+                className="order-request-scroll-body"
+                style={{
+                  padding: '14px 18px',
+                  overflowY: 'auto',
+                  flex: 1,
+                  minHeight: 0,
+                  WebkitOverflowScrolling: 'touch',
+                  touchAction: 'pan-y',
+                  overscrollBehavior: 'contain',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '11px'
+                }}
+              >
+                {/* Clean Equipment Summary Chip */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -832,55 +870,66 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   style={{ resize: 'vertical' }}
                 />
               </div>
+            </div>
 
-              {/* Buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  style={{
-                    flex: 1,
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: '#1c21df',
-                    color: '#ffffff',
-                    fontWeight: 600,
-                    fontSize: '0.88rem',
-                    cursor: submitting ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 2px 8px rgba(28, 33, 223, 0.25)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    transition: 'background 0.15s ease'
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                    {submitting ? 'hourglass_top' : 'send'}
-                  </span>
-                  {submitting ? 'Submitting...' : 'Submit Request'}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  style={{
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    background: '#ffffff',
-                    color: '#64748b',
-                    fontWeight: 600,
-                    fontSize: '0.88rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+            {/* Pinned Modal Footer */}
+            <div
+              style={{
+                flexShrink: 0,
+                padding: '12px 18px',
+                borderTop: '1px solid #f1f5f9',
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center',
+                boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.03)'
+              }}
+            >
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  flex: 1,
+                  padding: '11px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#1c21df',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 8px rgba(28, 33, 223, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  {submitting ? 'hourglass_top' : 'send'}
+                </span>
+                {submitting ? 'Submitting...' : 'Submit Request'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '11px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

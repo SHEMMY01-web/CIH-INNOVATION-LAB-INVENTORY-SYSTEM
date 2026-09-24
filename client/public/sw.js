@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate for application code, stylesheets, and HTML shell
  */
 
-const CACHE_VERSION = 'v1.0.6';
+const CACHE_VERSION = 'v1.0.8';
 const STATIC_CACHE = `cih-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `cih-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `cih-fonts-${CACHE_VERSION}`;
@@ -114,12 +114,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 4. HTML Navigation (Single Page App): Network-First, fallback to cached /index.html
+  // 4. HTML Navigation (Single Page App): Network-First with cache update, fallback to cached /index.html
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => {
-        return caches.match('/index.html') || caches.match('/');
-      })
+      fetch(request)
+        .then(async (networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const cache = await caches.open(STATIC_CACHE);
+            cache.put('/index.html', networkResponse.clone());
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          return (await caches.match('/index.html')) || (await caches.match('/'));
+        })
     );
     return;
   }
@@ -266,6 +274,10 @@ async function staleWhileRevalidate(request, cacheName) {
  * Message Event: Invalidate API cache upon inventory mutations to prevent stale stock reads
  */
 self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
   if (event.data?.type === 'INVALIDATE_API_CACHE') {
     event.waitUntil(
       caches.open(API_CACHE)

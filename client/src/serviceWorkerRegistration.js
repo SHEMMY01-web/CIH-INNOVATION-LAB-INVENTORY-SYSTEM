@@ -4,6 +4,18 @@
 
 export function register() {
   if ('serviceWorker' in navigator) {
+    let refreshing = false;
+
+    // When the service worker controlling this page changes (e.g. after update + skipWaiting),
+    // automatically reload the active window so mobile users immediately see the new deployment.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        console.log('[PWA] Controller changed. Seamlessly reloading for latest version...');
+        window.location.reload();
+      }
+    });
+
     window.addEventListener('load', () => {
       const swUrl = '/sw.js';
 
@@ -12,6 +24,9 @@ export function register() {
         .then((registration) => {
           console.log('[PWA] Service Worker registered with scope:', registration.scope);
 
+          // Check for service worker updates immediately on page load
+          registration.update().catch(() => null);
+
           registration.onupdatefound = () => {
             const installingWorker = registration.installing;
             if (installingWorker == null) return;
@@ -19,7 +34,8 @@ export function register() {
             installingWorker.onstatechange = () => {
               if (installingWorker.state === 'installed') {
                 if (navigator.serviceWorker.controller) {
-                  console.log('[PWA] New content is available; please refresh.');
+                  console.log('[PWA] New content is available; activating immediately.');
+                  installingWorker.postMessage({ type: 'SKIP_WAITING' });
                 } else {
                   console.log('[PWA] Content is cached for offline use.');
                 }
