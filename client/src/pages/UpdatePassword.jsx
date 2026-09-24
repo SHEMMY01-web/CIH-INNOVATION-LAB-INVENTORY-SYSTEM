@@ -18,10 +18,10 @@ function getPasswordStrength(password) {
   const levels = [
     { label: 'Too short', color: '#ef4444' },
     { label: 'Weak', color: '#f97316' },
-    { label: 'Fair', color: '#eab308' },
-    { label: 'Good', color: '#22c55e' },
-    { label: 'Strong', color: '#16a34a' },
-    { label: 'Excellent', color: '#059669' }
+    { label: 'Fair', color: '#f59e0b' },
+    { label: 'Good', color: '#60a5fa' },
+    { label: 'Strong', color: '#3b82f6' },
+    { label: 'Excellent', color: '#1c21df' }
   ];
 
   return { score, ...levels[Math.min(score, levels.length - 1)] };

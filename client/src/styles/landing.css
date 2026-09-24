@@ -214,56 +214,19 @@ h1, h2, h3, h4 {
   outline: none;
 }
 
-.hamburger-box {
-  width: 20px;
-  height: 16px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.mobile-menu-toggle.is-active {
+  color: #ff5421;
+  background: rgba(255, 84, 33, 0.12);
+  border-color: rgba(255, 84, 33, 0.35);
 }
 
-.hamburger-inner,
-.hamburger-inner::before,
-.hamburger-inner::after {
-  width: 20px;
-  height: 2px;
-  background-color: #ffffff;
-  border-radius: 2px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute;
+.mobile-menu-toggle svg {
+  display: block;
+  transition: transform 0.2s ease;
 }
 
-.hamburger-inner {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hamburger-inner::before {
-  content: '';
-  top: -6px;
-}
-
-.hamburger-inner::after {
-  content: '';
-  top: 6px;
-}
-
-/* Animated 'X' state */
-.mobile-menu-toggle.is-active .hamburger-inner {
-  background-color: transparent;
-}
-
-.mobile-menu-toggle.is-active .hamburger-inner::before {
-  top: 0;
-  transform: rotate(45deg);
-  background-color: var(--brand-orange);
-}
-
-.mobile-menu-toggle.is-active .hamburger-inner::after {
-  top: 0;
-  transform: rotate(-45deg);
-  background-color: var(--brand-orange);
+.mobile-menu-toggle:hover svg {
+  transform: scale(1.06);
 }
 
 /* Mobile Drawer Backdrop */
@@ -274,7 +237,7 @@ h1, h2, h3, h4 {
   background: rgba(10, 15, 29, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 98;
+  z-index: 999;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -285,39 +248,40 @@ h1, h2, h3, h4 {
   pointer-events: auto;
 }
 
-/* Mobile Drawer Sheet */
+/* Mobile Drawer Sheet - Slides in from the Right */
 .mobile-drawer {
   display: none;
   position: fixed;
-  top: 64px;
-  left: 0;
+  top: 0;
   right: 0;
-  max-height: calc(100vh - 64px);
-  background: rgba(15, 23, 42, 0.98);
+  bottom: 0;
+  width: min(340px, 86vw);
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(10, 15, 29, 0.97);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
-  z-index: 99;
-  transform: translateY(-100%);
-  opacity: 0;
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  transform: translateX(100%);
+  opacity: 1;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .mobile-drawer.is-open {
-  transform: translateY(0);
-  opacity: 1;
+  transform: translateX(0);
 }
 
 .mobile-drawer-inner {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 16px 20px 28px;
+  min-height: 100%;
+  padding: 18px 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  box-sizing: border-box;
 }
 
 .mobile-drawer-header {
@@ -1360,6 +1324,40 @@ h1, h2, h3, h4 {
 
 /* ─── Responsive ────────────────────────────────────────── */
 @media (max-width: 1024px) {
+  .landing-nav {
+    height: 64px;
+  }
+
+  .nav-container {
+    padding: 0 16px;
+  }
+
+  .landing-logo {
+    height: 36px;
+  }
+
+  /* Leave ONLY logo & name on the left; remove requested, my request, and all links */
+  .nav-links {
+    display: none !important;
+  }
+
+  .nav-action-desktop {
+    display: none !important;
+  }
+
+  /* Display right-side hamburger menu toggle */
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  .mobile-drawer-backdrop {
+    display: block;
+  }
+
+  .mobile-drawer {
+    display: block;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1386,6 +1384,10 @@ h1, h2, h3, h4 {
   }
 
   .nav-links {
+    display: none !important;
+  }
+
+  .nav-action-desktop {
     display: none !important;
   }
 

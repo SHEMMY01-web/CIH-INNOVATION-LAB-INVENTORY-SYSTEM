@@ -325,7 +325,7 @@ export default function Projects() {
                           </div>
                           <div style={{ flexShrink: 0, marginLeft: '8px' }}>
                             {isCompleted ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#d1fae5', color: '#065f46', fontSize: '0.75rem', fontWeight: 600, padding: '3px 10px', borderRadius: '999px' }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff2fe', color: '#1c21df', fontSize: '0.75rem', fontWeight: 600, padding: '3px 10px', borderRadius: '999px', border: '1px solid #bfdbfe' }}>
                                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span> Completed
                               </span>
                             ) : (
@@ -357,7 +357,7 @@ export default function Projects() {
                           className="progress-bar-fill" 
                           style={{ 
                             width: isCompleted ? '100%' : '60%', 
-                            background: isCompleted ? '#10b981' : 'var(--primary-color)' 
+                            background: isCompleted ? '#1c21df' : 'var(--primary-color)' 
                           }}
                         />
                       </div>

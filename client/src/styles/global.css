@@ -204,9 +204,9 @@ input[type="checkbox"] {
 }
 
 .status-badge.in-use {
-  background-color: #f0fdf4;
-  color: #15803d;
-  border: 1px solid rgba(22, 163, 74, 0.2);
+  background-color: #eff2fe;
+  color: #1c21df;
+  border: 1px solid rgba(28, 33, 223, 0.2);
 }
 
 .status-badge.maintenance {
@@ -357,4 +357,9 @@ input[type="checkbox"] {
   top: 20px;
   outline: 3px solid #ff5421;
   outline-offset: 3px;
+}
+
+/* Brand Color Uniformity: Required Field Asterisks */
+.required, .required-star, .asterisk, span[data-required="true"], label .required {
+  color: #ff5421 !important;
 }

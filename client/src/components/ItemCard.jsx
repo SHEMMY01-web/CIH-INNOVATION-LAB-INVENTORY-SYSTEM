@@ -42,7 +42,8 @@ export default function ItemCard({ item, onRequest }) {
   else if (lowerName.includes('cable') || lowerName.includes('wire')) categoryIcon = 'cable';
   else if (lowerName.includes('battery') || lowerName.includes('power')) categoryIcon = 'battery_charging_full';
 
-  const isAvailable = (Number(item.amount) > 0) && (item.status === 'available');
+  const statusLower = (item.status || 'available').toString().toLowerCase().trim();
+  const isAvailable = (Number(item.amount) > 0) && (statusLower === 'available');
   
   let statusText = item.status || 'Available';
   if (Number(item.amount) <= 0 || item.status === 'Out of Stock') {

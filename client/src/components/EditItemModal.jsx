@@ -564,7 +564,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                 border: '1px solid var(--border-color, #e2e8f0)'
               }}>
                 <div className="form-group">
-                  <label style={{ color: '#10b981', fontWeight: 600 }}>✓ Working</label>
+                  <label style={{ color: '#1c21df', fontWeight: 600 }}>✓ Working</label>
                   <input 
                     type="number" 
                     min="0"

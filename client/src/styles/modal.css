@@ -114,7 +114,7 @@
 }
 
 .required {
-  color: #d93025;
+  color: #ff5421 !important;
 }
 
 .form-group select,
@@ -475,7 +475,7 @@ input[type="radio"] {
 }
 
 /* Variants */
-.notify-icon.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.notify-icon.success { background: linear-gradient(135deg, #1c21df, #3b82f6); }
 .notify-icon.error   { background: linear-gradient(135deg, #ef4444, #dc2626); }
 .notify-icon.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .notify-icon.info    { background: linear-gradient(135deg, #3b82f6, #2563eb); }
@@ -514,7 +514,7 @@ input[type="radio"] {
   transform: translateY(0);
 }
 
-.notify-btn.success { background: #22c55e; color: #fff; }
+.notify-btn.success { background: #1c21df; color: #fff; }
 .notify-btn.error   { background: #ef4444; color: #fff; }
 .notify-btn.warning { background: #f59e0b; color: #fff; }
 .notify-btn.info    { background: #3b82f6; color: #fff; }

@@ -4,12 +4,14 @@ import { supabase } from '../lib/supabase';
 import ItemCard from '../components/ItemCard';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import OrderRequestModal from '../components/OrderRequestModal';
 import '../styles/landing.css';
 
 export default function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ items: 0, assets: 0, projects: 0, tools: 0 });
+  const [orderModalItem, setOrderModalItem] = useState(null);
 
   // Comments state
   const [comments, setComments] = useState([]);
@@ -149,7 +151,7 @@ export default function Home() {
   return (
     <>
       {/* ─── Navigation ────────────────────────────────────── */}
-      <Navbar />
+      <Navbar onRequestEquipment={() => setOrderModalItem({})} />
 
       <main id="main-content">
         {/* ─── Hero Section with Background Image + Overlay ──── */}
@@ -458,6 +460,13 @@ export default function Home() {
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <Footer />
+
+      {/* ─── Equipment Requisition Modal ───────────────────── */}
+      <OrderRequestModal
+        isOpen={Boolean(orderModalItem)}
+        initialItem={orderModalItem?.id ? orderModalItem : null}
+        onClose={() => setOrderModalItem(null)}
+      />
     </>
   );
 }

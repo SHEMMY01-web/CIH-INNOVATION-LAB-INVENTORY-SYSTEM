@@ -144,6 +144,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
             {onRequestEquipment ? (
               <button
                 type="button"
+                className="nav-action-desktop"
                 onClick={onRequestEquipment}
                 style={{
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
@@ -168,6 +169,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
             ) : (
               <Link
                 to="/catalog"
+                className="nav-action-desktop"
                 style={{
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   color: '#ffffff',
@@ -190,6 +192,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
 
             <button
               type="button"
+              className="nav-action-desktop"
               onClick={() => setTrackModalOpen(true)}
               style={{
                 background: '#eff6ff',
@@ -220,9 +223,18 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
-              <span className="hamburger-box">
-                <span className="hamburger-inner"></span>
-              </span>
+              {mobileMenuOpen ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" y1="6" x2="20" y2="6"></line>
+                  <line x1="4" y1="12" x2="20" y2="12"></line>
+                  <line x1="4" y1="18" x2="20" y2="18"></line>
+                </svg>
+              )}
             </button>
           </div>
         </div>
@@ -235,7 +247,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
         aria-hidden="true"
       />
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer Menu (Slides in from Right) */}
       <div 
         className={`mobile-drawer ${mobileMenuOpen ? 'is-open' : ''}`}
         role="dialog"
@@ -244,7 +256,17 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
       >
         <div className="mobile-drawer-inner">
           <div className="mobile-drawer-header">
-            <div className="mobile-drawer-title">Navigation Menu</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <img 
+                src="/IMAGES/cih-footer-logo.png" 
+                alt="CIH Logo" 
+                style={{ height: '30px', width: 'auto' }} 
+              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>CIH Innovation Lab</span>
+                <span style={{ fontSize: '0.72rem', color: '#ff5421', fontWeight: 600 }}>Menu & Tools</span>
+              </div>
+            </div>
             <button 
               type="button" 
               className="mobile-drawer-close"
@@ -252,6 +274,90 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               aria-label="Close menu"
             >
               <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          {/* Quick Action Buttons in Drawer */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '4px 0 10px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            {onRequestEquipment ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onRequestEquipment();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
+                  fontFamily: 'inherit'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>shopping_cart_checkout</span>
+                <span>Request Tool</span>
+              </button>
+            ) : (
+              <Link
+                to="/catalog"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>shopping_cart_checkout</span>
+                <span>Request Tool</span>
+              </Link>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTrackModalOpen(true);
+              }}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                borderRadius: '10px',
+                border: '1px solid #bfdbfe',
+                background: '#eff6ff',
+                color: '#1c21df',
+                fontWeight: 600,
+                fontSize: '0.86rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
+              <span>My Requests</span>
             </button>
           </div>
 
@@ -367,87 +473,10 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
             )}
           </div>
 
-          <div className="mobile-drawer-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {onRequestEquipment ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onRequestEquipment();
-                }}
-                style={{
-                  width: '100%',
-                  padding: '12px 18px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
-                  fontFamily: 'inherit'
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>shopping_cart_checkout</span>
-                <span>Request Equipment Online</span>
-              </button>
-            ) : (
-              <Link
-                to="/catalog"
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  width: '100%',
-                  padding: '12px 18px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 12px rgba(255, 84, 33, 0.3)',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>shopping_cart_checkout</span>
-                <span>Request Equipment Online</span>
-              </Link>
-            )}
-
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setTrackModalOpen(true);
-              }}
-              style={{
-                width: '100%',
-                padding: '11px 16px',
-                borderRadius: '12px',
-                border: '1px solid #bfdbfe',
-                background: '#eff6ff',
-                color: '#1c21df',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                fontFamily: 'inherit'
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
-              <span>Track My Requests</span>
-            </button>
+          <div className="mobile-drawer-footer" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              CIH Innovation Lab • Engineering Excellence
+            </span>
           </div>
         </div>
       </div>

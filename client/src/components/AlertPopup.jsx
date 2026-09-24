@@ -48,10 +48,10 @@ export default function AlertPopup() {
       case 'success':
         return {
           icon: 'check_circle',
-          color: '#10b981',
-          bg: '#ecfdf5',
-          border: '#a7f3d0',
-          glow: 'rgba(16, 185, 129, 0.2)'
+          color: '#1c21df',
+          bg: '#eff2fe',
+          border: '#bfdbfe',
+          glow: 'rgba(28, 33, 223, 0.2)'
         };
       case 'error':
         return {

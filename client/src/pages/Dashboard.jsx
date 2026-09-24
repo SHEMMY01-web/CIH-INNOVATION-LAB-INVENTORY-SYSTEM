@@ -383,9 +383,9 @@ export default function Dashboard() {
                   style={{
                     padding: '6px 14px',
                     borderRadius: '8px',
-                    border: reqTab === 'approved' ? '1px solid #059669' : '1px solid #e2e8f0',
-                    background: reqTab === 'approved' ? '#ecfdf5' : '#ffffff',
-                    color: reqTab === 'approved' ? '#059669' : '#64748b',
+                    border: reqTab === 'approved' ? '1px solid #1c21df' : '1px solid #e2e8f0',
+                    background: reqTab === 'approved' ? '#eff2fe' : '#ffffff',
+                    color: reqTab === 'approved' ? '#1c21df' : '#64748b',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     cursor: 'pointer'
@@ -538,13 +538,13 @@ export default function Dashboard() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px',
-                              background: '#ecfdf5',
-                              color: '#047857',
+                              background: '#eff2fe',
+                              color: '#1c21df',
                               padding: '3px 8px',
                               borderRadius: '12px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              border: '1px solid #a7f3d0'
+                              border: '1px solid #bfdbfe'
                             }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>check</span>
                               Approved
@@ -580,7 +580,7 @@ export default function Dashboard() {
                                   fontWeight: 600,
                                   borderRadius: '6px',
                                   border: 'none',
-                                  background: '#059669',
+                                  background: '#1c21df',
                                   color: '#ffffff',
                                   cursor: 'pointer',
                                   display: 'inline-flex',
@@ -899,8 +899,8 @@ export default function Dashboard() {
                 width: '40px',
                 height: '40px',
                 borderRadius: '10px',
-                background: actionModal.type === 'approve' ? '#ecfdf5' : '#fef2f2',
-                color: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                background: actionModal.type === 'approve' ? '#eff2fe' : '#fef2f2',
+                color: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -980,7 +980,7 @@ export default function Dashboard() {
                   padding: '8px 20px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                  background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',
                   fontSize: '0.85rem',
                   fontWeight: 600,

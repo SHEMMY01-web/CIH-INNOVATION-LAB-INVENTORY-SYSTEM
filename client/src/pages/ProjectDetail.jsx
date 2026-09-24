@@ -523,13 +523,13 @@ export default function ProjectDetail() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  background: isCompleted ? '#d1fae5' : '#dbeafe',
-                  color: isCompleted ? '#065f46' : '#1e40af',
+                  background: isCompleted ? '#eff2fe' : '#dbeafe',
+                  color: isCompleted ? '#1c21df' : '#1e40af',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   padding: '4px 12px',
                   borderRadius: '999px',
-                  border: `1px solid ${isCompleted ? '#34d399' : '#93c5fd'}`,
+                  border: `1px solid ${isCompleted ? '#bfdbfe' : '#93c5fd'}`,
                   cursor: 'pointer',
                   outline: 'none'
                 }}
@@ -581,7 +581,7 @@ export default function ProjectDetail() {
                       alignItems: 'center',
                       gap: '8px',
                       fontSize: '0.85rem',
-                      color: '#065f46'
+                      color: '#1c21df'
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span> Completed

@@ -354,9 +354,9 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           borderRadius: '20px',
                           fontSize: '0.75rem',
                           fontWeight: 700,
-                          background: isPending ? '#fffbeb' : (isApproved ? '#ecfdf5' : '#fef2f2'),
-                          color: isPending ? '#b45309' : (isApproved ? '#047857' : '#b91c1c'),
-                          border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#a7f3d0' : '#fecaca')}`
+                          background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                          color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
+                          border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
                         }}>
                           {isPending && <span className="pulse-dot" />}
                           {isApproved && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span>}
@@ -387,13 +387,13 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                     )}
 
                     {isApproved && (
-                      <div style={{ marginTop: '10px', padding: '8px 10px', background: '#ecfdf5', borderRadius: '8px', fontSize: '0.76rem', color: '#065f46' }}>
+                      <div style={{ marginTop: '10px', padding: '8px 10px', background: '#eff2fe', borderRadius: '8px', fontSize: '0.76rem', color: '#1c21df', border: '1px solid #bfdbfe' }}>
                         <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: req.admin_notes ? '4px' : '0' }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#10b981' }}>verified</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#1c21df' }}>verified</span>
                           <span>Ready for Pickup at the Innovation Lab!</span>
                         </div>
                         {req.admin_notes && (
-                          <div style={{ fontSize: '0.75rem', color: '#047857', paddingLeft: '22px' }}>
+                          <div style={{ fontSize: '0.75rem', color: '#3b82f6', paddingLeft: '22px' }}>
                             <strong>Pickup Note:</strong> {req.admin_notes}
                           </div>
                         )}

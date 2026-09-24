@@ -357,6 +357,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
             opacity: 0.35;
             cursor: not-allowed;
           }
+          @media (max-width: 480px) {
+            .order-request-card {
+              max-height: 94vh !important;
+              border-radius: 14px !important;
+            }
+          }
         `}</style>
 
         {/* Modal Header */}
@@ -405,13 +411,13 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 width: '52px',
                 height: '52px',
                 borderRadius: '50%',
-                background: '#ecfdf5',
-                color: '#059669',
+                background: '#eff2fe',
+                color: '#1c21df',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '12px',
-                border: '1.5px solid #a7f3d0'
+                border: '1.5px solid #bfdbfe'
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>check</span>
               </div>
@@ -531,7 +537,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {selectedItem?.item_name || 'Select Tool'}
                     </div>
-                    <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: 500 }}>
+                    <div style={{ fontSize: '0.74rem', color: '#1c21df', fontWeight: 600 }}>
                       {selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock
                     </div>
                   </div>
@@ -568,168 +574,183 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 )}
               </div>
 
-              {/* Row 1: Requester Name & Email (2 columns) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="clean-field-group">
-                  <label className="clean-field-label" htmlFor="order-req-name">Full Name *</label>
+              {/* Field 1: Full Name (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-req-name">
+                  Full Name <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                </label>
+                <input
+                  id="order-req-name"
+                  name="full_name"
+                  type="text"
+                  required
+                  placeholder="John Doe"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  value={formData.requester_name}
+                  onChange={(e) => setFormData({ ...formData, requester_name: e.target.value })}
+                  className="clean-input"
+                />
+              </div>
+
+              {/* Field 2: Email Address (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-req-email">
+                  Email Address <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                </label>
+                <input
+                  id="order-req-email"
+                  name="contact_email"
+                  type="email"
+                  required
+                  placeholder="john.doe@example.com"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  value={formData.requester_email}
+                  onChange={(e) => setFormData({ ...formData, requester_email: e.target.value })}
+                  className="clean-input"
+                />
+              </div>
+
+              {/* Field 3: Phone / WhatsApp (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-req-phone">
+                  Phone / WhatsApp
+                </label>
+                <input
+                  id="order-req-phone"
+                  name="contact_phone"
+                  type="tel"
+                  placeholder="+1 (555) 000-0000"
+                  autoComplete="off"
+                  value={formData.requester_phone}
+                  onChange={(e) => setFormData({ ...formData, requester_phone: e.target.value })}
+                  className="clean-input"
+                />
+              </div>
+
+              {/* Field 4: Project (Single Line) */}
+              <div className="clean-field-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="clean-field-label" htmlFor="order-req-project">
+                    Project <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomProject(!isCustomProject)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#1c21df',
+                      fontSize: '0.74rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    {isCustomProject ? 'Select existing' : '+ Custom'}
+                  </button>
+                </div>
+                {isCustomProject ? (
                   <input
-                    id="order-req-name"
-                    name="full_name"
+                    id="order-req-project"
                     type="text"
                     required
-                    placeholder="John Doe"
+                    placeholder="e.g. Robotics Project"
                     autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    value={formData.requester_name}
-                    onChange={(e) => setFormData({ ...formData, requester_name: e.target.value })}
+                    value={formData.custom_project}
+                    onChange={(e) => setFormData({ ...formData, custom_project: e.target.value })}
                     className="clean-input"
+                    autoFocus
                   />
-                </div>
+                ) : (
+                  <select
+                    id="order-req-project"
+                    value={formData.project_name || (projectsList[0] || 'General')}
+                    onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
+                    className="clean-input"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {projectsList.map(proj => (
+                      <option key={proj} value={proj}>{proj}</option>
+                    ))}
+                    <option value="General Hardware Experiment">General Experiment</option>
+                  </select>
+                )}
+              </div>
 
-                <div className="clean-field-group">
-                  <label className="clean-field-label" htmlFor="order-req-email">Email Address *</label>
+              {/* Field 5: Quantity (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label">
+                  Quantity <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="clean-stepper-btn"
+                    disabled={formData.quantity <= 1}
+                    onClick={() => handleQuantityChange(formData.quantity - 1)}
+                  >
+                    −
+                  </button>
                   <input
-                    id="order-req-email"
-                    name="contact_email"
-                    type="email"
-                    required
-                    placeholder="john.doe@example.com"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    value={formData.requester_email}
-                    onChange={(e) => setFormData({ ...formData, requester_email: e.target.value })}
+                    type="number"
+                    min="1"
+                    max={maxAvailable}
+                    value={formData.quantity}
+                    onChange={(e) => handleQuantityChange(e.target.value)}
                     className="clean-input"
+                    style={{ textAlign: 'center', fontWeight: 600, width: '90px' }}
                   />
+                  <button
+                    type="button"
+                    className="clean-stepper-btn"
+                    disabled={formData.quantity >= maxAvailable}
+                    onClick={() => handleQuantityChange(formData.quantity + 1)}
+                  >
+                    +
+                  </button>
+                  <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                    (Max: {maxAvailable} {selectedItem?.store || 'pcs'} available)
+                  </span>
                 </div>
               </div>
 
-              {/* Row 2: Phone & Project (2 columns) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="clean-field-group">
-                  <label className="clean-field-label" htmlFor="order-req-phone">Phone / WhatsApp</label>
-                  <input
-                    id="order-req-phone"
-                    name="contact_phone"
-                    type="tel"
-                    placeholder="+1 (555) 000-0000"
-                    autoComplete="off"
-                    value={formData.requester_phone}
-                    onChange={(e) => setFormData({ ...formData, requester_phone: e.target.value })}
-                    className="clean-input"
-                  />
-                </div>
-
-                <div className="clean-field-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label className="clean-field-label" htmlFor="order-req-project">Project *</label>
-                    <button
-                      type="button"
-                      onClick={() => setIsCustomProject(!isCustomProject)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#1c21df',
-                        fontSize: '0.72rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
-                    >
-                      {isCustomProject ? 'Select existing' : '+ Custom'}
-                    </button>
-                  </div>
-                  {isCustomProject ? (
-                    <input
-                      id="order-req-project"
-                      type="text"
-                      required
-                      placeholder="e.g. Robotics Project"
-                      autoComplete="off"
-                      value={formData.custom_project}
-                      onChange={(e) => setFormData({ ...formData, custom_project: e.target.value })}
-                      className="clean-input"
-                      autoFocus
-                    />
-                  ) : (
-                    <select
-                      id="order-req-project"
-                      value={formData.project_name || (projectsList[0] || 'General')}
-                      onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
-                      className="clean-input"
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {projectsList.map(proj => (
-                        <option key={proj} value={proj}>{proj}</option>
-                      ))}
-                      <option value="General Hardware Experiment">General Experiment</option>
-                    </select>
-                  )}
-                </div>
+              {/* Field 6: When Needed (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-date-needed">
+                  When Needed <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                </label>
+                <input
+                  id="order-date-needed"
+                  type="date"
+                  required
+                  min={todayStr}
+                  value={formData.needed_date}
+                  onChange={(e) => handleNeededDateChange(e.target.value)}
+                  className="clean-input"
+                />
               </div>
 
-              {/* Row 3: Quantity, When Needed, Return Date (3 columns) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: '10px' }}>
-                <div className="clean-field-group">
-                  <label className="clean-field-label">Quantity *</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <button
-                      type="button"
-                      className="clean-stepper-btn"
-                      disabled={formData.quantity <= 1}
-                      onClick={() => handleQuantityChange(formData.quantity - 1)}
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      max={maxAvailable}
-                      value={formData.quantity}
-                      onChange={(e) => handleQuantityChange(e.target.value)}
-                      className="clean-input"
-                      style={{ textAlign: 'center', fontWeight: 600, padding: '7px 2px' }}
-                    />
-                    <button
-                      type="button"
-                      className="clean-stepper-btn"
-                      disabled={formData.quantity >= maxAvailable}
-                      onClick={() => handleQuantityChange(formData.quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <div className="clean-field-group">
-                  <label className="clean-field-label" htmlFor="order-date-needed">When Needed *</label>
-                  <input
-                    id="order-date-needed"
-                    type="date"
-                    required
-                    min={todayStr}
-                    value={formData.needed_date}
-                    onChange={(e) => handleNeededDateChange(e.target.value)}
-                    className="clean-input"
-                  />
-                </div>
-
-                <div className="clean-field-group">
-                  <label className="clean-field-label" htmlFor="order-date-return">Return Date *</label>
-                  <input
-                    id="order-date-return"
-                    type="date"
-                    required
-                    min={formData.needed_date || todayStr}
-                    value={formData.return_date}
-                    onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
-                    className="clean-input"
-                  />
-                </div>
+              {/* Field 7: Return Date (Single Line) */}
+              <div className="clean-field-group">
+                <label className="clean-field-label" htmlFor="order-date-return">
+                  Return Date <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                </label>
+                <input
+                  id="order-date-return"
+                  type="date"
+                  required
+                  min={formData.needed_date || todayStr}
+                  value={formData.return_date}
+                  onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
+                  className="clean-input"
+                />
               </div>
 
-              {/* Row 4: Purpose */}
+              {/* Field 8: Purpose (Single Line) */}
               <div className="clean-field-group">
                 <label className="clean-field-label" htmlFor="order-purpose">Purpose (Optional)</label>
                 <textarea

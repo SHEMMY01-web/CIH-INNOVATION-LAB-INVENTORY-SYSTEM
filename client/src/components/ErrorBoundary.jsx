@@ -245,12 +245,12 @@ export default class ErrorBoundary extends React.Component {
                   </button>
                   <span style={{
                     fontSize: '0.7rem',
-                    color: '#047857',
+                    color: '#1c21df',
                     fontWeight: 600,
-                    background: '#ecfdf5',
+                    background: '#eff2fe',
                     padding: '2px 8px',
                     borderRadius: '12px',
-                    border: '1px solid #a7f3d0'
+                    border: '1px solid #bfdbfe'
                   }}>
                     Admin Only
                   </span>

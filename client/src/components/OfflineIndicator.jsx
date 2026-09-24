@@ -45,7 +45,7 @@ export default function OfflineIndicator() {
         gap: '8px',
         padding: '10px 16px',
         borderRadius: '30px',
-        backgroundColor: isOffline ? '#1e293b' : '#059669',
+        backgroundColor: isOffline ? '#1e293b' : '#1c21df',
         color: '#ffffff',
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15)',
         fontSize: '0.85rem',
@@ -60,7 +60,7 @@ export default function OfflineIndicator() {
         className="material-symbols-outlined"
         style={{
           fontSize: '20px',
-          color: isOffline ? '#f59e0b' : '#6ee7b7'
+          color: isOffline ? '#f59e0b' : '#93c5fd'
         }}
       >
         {isOffline ? 'cloud_off' : 'cloud_done'}

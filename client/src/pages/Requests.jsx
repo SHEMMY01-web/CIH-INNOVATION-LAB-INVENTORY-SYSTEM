@@ -1164,15 +1164,15 @@ export default function Requests() {
                                   borderRadius: '12px',
                                   fontSize: '0.75rem',
                                   fontWeight: 600,
-                                  background: isPending ? '#fffbeb' : (isApproved ? '#ecfdf5' : '#fef2f2'),
-                                  color: isPending ? '#b45309' : (isApproved ? '#047857' : '#b91c1c'),
-                                  border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#a7f3d0' : '#fecaca')}`
+                                  background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                                  color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
+                                  border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
                                 }}>
                                   <span style={{
                                     width: '6px',
                                     height: '6px',
                                     borderRadius: '50%',
-                                    background: isPending ? '#f59e0b' : (isApproved ? '#10b981' : '#ef4444')
+                                    background: isPending ? '#f59e0b' : (isApproved ? '#1c21df' : '#ef4444')
                                   }} />
                                   {status.toUpperCase()}
                                 </span>
@@ -1194,9 +1194,9 @@ export default function Requests() {
                                         gap: '4px',
                                         padding: '5px 10px',
                                         borderRadius: '6px',
-                                        border: '1px solid #10b981',
-                                        background: '#ecfdf5',
-                                        color: '#047857',
+                                        border: '1px solid #bfdbfe',
+                                        background: '#eff2fe',
+                                        color: '#1c21df',
                                         fontSize: '0.75rem',
                                         fontWeight: 600,
                                         cursor: 'pointer'
@@ -1456,8 +1456,8 @@ export default function Requests() {
                 width: '40px',
                 height: '40px',
                 borderRadius: '10px',
-                background: actionModal.type === 'approve' ? '#ecfdf5' : '#fef2f2',
-                color: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                background: actionModal.type === 'approve' ? '#eff2fe' : '#fef2f2',
+                color: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -1537,7 +1537,7 @@ export default function Requests() {
                   padding: '8px 20px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: actionModal.type === 'approve' ? '#059669' : '#dc2626',
+                  background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',
                   fontSize: '0.85rem',
                   fontWeight: 600,
