@@ -320,18 +320,18 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           .clean-field-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
           }
           .clean-field-label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: #475569;
+            color: #334155;
             letter-spacing: 0.01em;
           }
           .clean-input {
             width: 100%;
-            padding: 8px 12px;
-            font-size: 0.88rem;
+            padding: 7px 11px;
+            font-size: 0.86rem;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
             background: #ffffff !important;
@@ -343,10 +343,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           }
           .clean-input:focus {
             border-color: #1c21df;
-            box-shadow: 0 0 0 3px rgba(28, 33, 223, 0.1);
-          }
-          .clean-input::placeholder {
-            color: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(28, 33, 223, 0.08);
           }
           /* Strip Chrome aggressive blue autofill background */
           .clean-input:-webkit-autofill,
@@ -359,7 +356,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           }
           .clean-stepper-btn {
             width: 32px;
-            height: 34px;
+            height: 32px;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
@@ -389,20 +386,15 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
         {/* Modal Header */}
         <div style={{
-          padding: '16px 20px',
+          padding: '14px 18px',
           borderBottom: '1px solid #f1f5f9',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div>
-            <h2 id="order-modal-title" style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-              {successOrder ? 'Requisition Submitted' : 'Request Equipment'}
-            </h2>
-            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0 0' }}>
-              {successOrder ? 'Your order reference details' : 'Specify when you need tools and for which project'}
-            </p>
-          </div>
+          <h2 id="order-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            {successOrder ? 'Requisition Submitted' : 'Request Equipment'}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -426,7 +418,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
         {/* Modal Body */}
         <div style={{
-          padding: '20px',
+          padding: '16px 18px',
           overflowY: 'auto',
           flex: 1,
           WebkitOverflowScrolling: 'touch',
@@ -534,28 +526,28 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
             </div>
           ) : (
             /* Order Form */
-            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
               {/* Clean Equipment Summary Chip */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '8px 12px',
+                padding: '7px 10px',
                 background: '#f8fafc',
-                borderRadius: '10px',
+                borderRadius: '8px',
                 border: '1px solid #e2e8f0',
-                gap: '10px'
+                gap: '8px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                   {selectedItem && (
                     <img 
                       src={getItemImage(selectedItem) || '/IMAGES/placeholder.png'} 
                       alt=""
                       style={{
-                        width: '34px',
-                        height: '34px',
+                        width: '30px',
+                        height: '30px',
                         objectFit: 'contain',
-                        borderRadius: '6px',
+                        borderRadius: '5px',
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         flexShrink: 0
@@ -564,22 +556,22 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     />
                   )}
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {selectedItem?.item_name || 'Select Tool'}
+                    <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {selectedItem?.item_name || 'Select Equipment'}
                     </div>
-                    <div style={{ fontSize: '0.74rem', color: '#1c21df', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', marginTop: '1px' }}>
+                    <div style={{ fontSize: '0.72rem', color: '#1c21df', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span>{selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock</span>
                       {isAsset && (
                         <span style={{
-                          fontSize: '0.68rem',
+                          fontSize: '0.66rem',
                           color: '#ff5421',
                           background: '#fff5f2',
-                          padding: '1px 6px',
+                          padding: '1px 5px',
                           borderRadius: '4px',
                           border: '1px solid #ffdcd4',
-                          fontWeight: 700
+                          fontWeight: 600
                         }}>
-                          Lab Asset
+                          Asset
                         </span>
                       )}
                     </div>
@@ -602,14 +594,14 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       }
                     }}
                     style={{
-                      padding: '4px 8px',
-                      fontSize: '0.75rem',
+                      padding: '3px 6px',
+                      fontSize: '0.72rem',
                       borderRadius: '6px',
                       border: '1px solid #cbd5e1',
                       background: '#ffffff',
                       color: '#475569',
                       cursor: 'pointer',
-                      maxWidth: '140px'
+                      maxWidth: '120px'
                     }}
                     aria-label="Change equipment"
                   >
@@ -632,7 +624,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   name="full_name"
                   type="text"
                   required
-                  placeholder="John Doe"
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck="false"
@@ -652,7 +643,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   name="contact_email"
                   type="email"
                   required
-                  placeholder="john.doe@example.com"
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck="false"
@@ -671,7 +661,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   id="order-req-phone"
                   name="contact_phone"
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
                   autoComplete="off"
                   value={formData.requester_phone}
                   onChange={(e) => setFormData({ ...formData, requester_phone: e.target.value })}
@@ -682,7 +671,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
               {/* Field 4: Project (Single Line) */}
               <div className="clean-field-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label className="clean-field-label" htmlFor="order-req-project">
+                  <label className="clean-field-label" htmlFor="order-req-project" style={{ marginBottom: 0 }}>
                     Project <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
                   </label>
                   <button
@@ -692,7 +681,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       background: 'none',
                       border: 'none',
                       color: '#1c21df',
-                      fontSize: '0.74rem',
+                      fontSize: '0.72rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       padding: 0
@@ -706,7 +695,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     id="order-req-project"
                     type="text"
                     required
-                    placeholder="e.g. Robotics Project"
                     autoComplete="off"
                     value={formData.custom_project}
                     onChange={(e) => setFormData({ ...formData, custom_project: e.target.value })}
@@ -750,7 +738,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     value={formData.quantity}
                     onChange={(e) => handleQuantityChange(e.target.value)}
                     className="clean-input"
-                    style={{ textAlign: 'center', fontWeight: 600, width: '90px' }}
+                    style={{ textAlign: 'center', fontWeight: 600, width: '74px' }}
                   />
                   <button
                     type="button"
@@ -760,9 +748,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   >
                     +
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                    (Max: {maxAvailable} {selectedItem?.store || 'pcs'} available)
-                  </span>
                 </div>
               </div>
 
@@ -789,20 +774,20 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     Return Date {isAsset ? (
                       <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
                     ) : (
-                      <span style={{ fontSize: '0.74rem', fontWeight: 400, color: '#64748b' }}>(Optional)</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 400, color: '#64748b' }}>(Optional)</span>
                     )}
                   </label>
                   {isAsset ? (
                     <span style={{
-                      fontSize: '0.7rem',
+                      fontSize: '0.68rem',
                       fontWeight: 600,
                       color: '#ff5421',
                       background: '#fff5f2',
-                      padding: '2px 8px',
-                      borderRadius: '6px',
+                      padding: '1px 6px',
+                      borderRadius: '4px',
                       border: '1px solid #ffdcd4'
                     }}>
-                      Lab Asset • Not For Sale
+                      Asset • Not For Sale
                     </span>
                   ) : (
                     formData.return_date && (
@@ -819,7 +804,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                           padding: 0
                         }}
                       >
-                        Clear (Permanent / Buy)
+                        Clear
                       </button>
                     )
                   )}
@@ -832,13 +817,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   value={formData.return_date || ''}
                   onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
                   className="clean-input"
-                  style={{ marginTop: '4px' }}
                 />
-                <p style={{ fontSize: '0.73rem', color: '#64748b', margin: '3px 0 0 0', lineHeight: 1.35 }}>
-                  {isAsset
-                    ? 'Lab assets are permanent facility equipment and must be returned after your project use.'
-                    : 'Optional. Leave blank if you plan to purchase or permanently retain this item for your project.'}
-                </p>
               </div>
 
               {/* Field 8: Purpose (Single Line) */}
@@ -847,7 +826,6 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 <textarea
                   id="order-purpose"
                   rows="2"
-                  placeholder="Brief description of what you will use this equipment for..."
                   value={formData.purpose}
                   onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
                   className="clean-input"
