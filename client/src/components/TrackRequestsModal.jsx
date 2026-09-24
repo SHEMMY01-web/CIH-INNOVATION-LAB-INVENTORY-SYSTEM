@@ -230,7 +230,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               <input 
                 type="email"
                 required
-                placeholder="Enter your email to find requests..."
+                placeholder="Enter email address"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 style={{

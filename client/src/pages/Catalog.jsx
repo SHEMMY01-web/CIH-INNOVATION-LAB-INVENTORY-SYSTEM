@@ -145,7 +145,7 @@ export default function Catalog() {
                     type="text" 
                     id="catalog-search-input"
                     aria-label="Search catalog by equipment name or keyword"
-                    placeholder="Search catalog by item name or keyword (e.g. 'we-do', 'soil sensor', 'uno')..." 
+                    placeholder="Search equipment..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
