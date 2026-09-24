@@ -5,6 +5,7 @@ import { AlertProvider } from './contexts/AlertContext';
 import AlertPopup from './components/AlertPopup';
 import OfflineIndicator from './components/OfflineIndicator';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import ScrollToHashElement from './components/ScrollToHashElement';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -58,6 +59,7 @@ function App() {
           <AlertPopup />
           <OfflineIndicator />
           <ScrollToTopButton />
+          <ScrollToHashElement />
           <ErrorBoundary>
             <Suspense fallback={<PageLoader />}>
               <Routes>

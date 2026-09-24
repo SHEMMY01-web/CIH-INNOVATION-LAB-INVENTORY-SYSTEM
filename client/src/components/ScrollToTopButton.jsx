@@ -5,11 +5,14 @@ export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
 
-  // Scroll to top on route change
+  // Scroll to top on route change ONLY when there is no hash target
   useEffect(() => {
+    if (location.hash) {
+      return;
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     setVisible(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   // Check if any modal or overlay is active in the document
   const checkIsModalActive = useCallback(() => {

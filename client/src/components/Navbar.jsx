@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import TrackRequestsModal from './TrackRequestsModal';
 
 export default function Navbar({ activeSection, onRequestEquipment }) {
@@ -8,6 +8,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
   const [trackModalOpen, setTrackModalOpen] = useState(false);
   const [trackEmail, setTrackEmail] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleOpenTrack = (e) => {
@@ -60,11 +61,15 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
 
   const handleNavClick = (targetHash) => {
     setMobileMenuOpen(false);
-    if (location.pathname === '/' && targetHash) {
+    if (!targetHash) return;
+
+    if (location.pathname === '/') {
       const element = document.querySelector(targetHash);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    } else {
+      navigate('/' + targetHash);
     }
   };
 
@@ -109,37 +114,42 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
             >
               Catalog
             </Link>
-            {isHome ? (
-              <>
-                <a 
-                  href="#projects" 
-                  className="nav-link-item"
-                  onClick={() => handleNavClick('#projects')}
-                >
-                  Projects
-                </a>
-                <a 
-                  href="#about" 
-                  className="nav-link-item"
-                  onClick={() => handleNavClick('#about')}
-                >
-                  About Us
-                </a>
-                <a 
-                  href="#comments" 
-                  className="nav-link-item"
-                  onClick={() => handleNavClick('#comments')}
-                >
-                  Feedback
-                </a>
-              </>
-            ) : (
-              <>
-                <Link to="/#projects" className="nav-link-item">Projects</Link>
-                <Link to="/#about" className="nav-link-item">About Us</Link>
-                <Link to="/#comments" className="nav-link-item">Feedback</Link>
-              </>
-            )}
+            <Link 
+              to="/#projects" 
+              className={`nav-link-item ${location.hash === '#projects' ? 'active' : ''}`}
+              onClick={(e) => {
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#projects');
+                }
+              }}
+            >
+              Projects
+            </Link>
+            <Link 
+              to="/#about" 
+              className={`nav-link-item ${location.hash === '#about' ? 'active' : ''}`}
+              onClick={(e) => {
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#about');
+                }
+              }}
+            >
+              About Us
+            </Link>
+            <Link 
+              to="/#comments" 
+              className={`nav-link-item ${location.hash === '#comments' ? 'active' : ''}`}
+              onClick={(e) => {
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#comments');
+                }
+              }}
+            >
+              Feedback
+            </Link>
           </div>
 
           {/* Desktop & Tablet Actions */}
@@ -391,89 +401,62 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
 
-            {isHome ? (
-              <>
-                <a 
-                  href="#projects" 
-                  className="mobile-nav-item"
-                  onClick={() => handleNavClick('#projects')}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">rocket_launch</span>
-                  <div className="mobile-nav-text">
-                    <strong>Projects</strong>
-                    <span>Innovations built by members</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </a>
+            <Link 
+              to="/#projects" 
+              className={`mobile-nav-item ${location.hash === '#projects' ? 'is-active' : ''}`}
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#projects');
+                }
+              }}
+            >
+              <span className="material-symbols-outlined mobile-nav-icon">rocket_launch</span>
+              <div className="mobile-nav-text">
+                <strong>Projects</strong>
+                <span>Innovations built by members</span>
+              </div>
+              <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
+            </Link>
 
-                <a 
-                  href="#about" 
-                  className="mobile-nav-item"
-                  onClick={() => handleNavClick('#about')}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">info</span>
-                  <div className="mobile-nav-text">
-                    <strong>About Us</strong>
-                    <span>Our mission, vision & facility</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </a>
+            <Link 
+              to="/#about" 
+              className={`mobile-nav-item ${location.hash === '#about' ? 'is-active' : ''}`}
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#about');
+                }
+              }}
+            >
+              <span className="material-symbols-outlined mobile-nav-icon">info</span>
+              <div className="mobile-nav-text">
+                <strong>About Us</strong>
+                <span>Our mission, vision & facility</span>
+              </div>
+              <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
+            </Link>
 
-                <a 
-                  href="#comments" 
-                  className="mobile-nav-item"
-                  onClick={() => handleNavClick('#comments')}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">forum</span>
-                  <div className="mobile-nav-text">
-                    <strong>Community Feedback</strong>
-                    <span>Share notes & thoughts</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </a>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/#projects" 
-                  className="mobile-nav-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">rocket_launch</span>
-                  <div className="mobile-nav-text">
-                    <strong>Projects</strong>
-                    <span>Innovations built by members</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </Link>
-
-                <Link 
-                  to="/#about" 
-                  className="mobile-nav-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">info</span>
-                  <div className="mobile-nav-text">
-                    <strong>About Us</strong>
-                    <span>Our mission, vision & facility</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </Link>
-
-                <Link 
-                  to="/#comments" 
-                  className="mobile-nav-item"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="material-symbols-outlined mobile-nav-icon">forum</span>
-                  <div className="mobile-nav-text">
-                    <strong>Community Feedback</strong>
-                    <span>Share notes & thoughts</span>
-                  </div>
-                  <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
-                </Link>
-              </>
-            )}
+            <Link 
+              to="/#comments" 
+              className={`mobile-nav-item ${location.hash === '#comments' ? 'is-active' : ''}`}
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                if (isHome) {
+                  e.preventDefault();
+                  handleNavClick('#comments');
+                }
+              }}
+            >
+              <span className="material-symbols-outlined mobile-nav-icon">forum</span>
+              <div className="mobile-nav-text">
+                <strong>Community Feedback</strong>
+                <span>Share notes & thoughts</span>
+              </div>
+              <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
+            </Link>
           </div>
 
           <div className="mobile-drawer-footer" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center' }}>
