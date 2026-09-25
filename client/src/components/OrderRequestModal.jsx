@@ -305,7 +305,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           maxHeight: '90dvh',
           height: 'auto',
           backgroundColor: '#ffffff',
-          borderRadius: '16px',
+          borderRadius: '6px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
           display: 'flex',
           flexDirection: 'column',
@@ -334,7 +334,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
             width: 100%;
             padding: 7px 11px;
             font-size: 0.86rem;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #e2e8f0;
             background: #ffffff !important;
             color: #0f172a;
@@ -365,7 +365,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
             color: #334155;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            justifyContent: center;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
@@ -388,7 +388,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           @media (max-width: 480px) {
             .order-request-card {
               max-height: 90dvh !important;
-              border-radius: 14px !important;
+              border-radius: 6px !important;
             }
           }
         `}</style>
@@ -461,7 +461,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
               <div style={{
                 background: '#f8fafc',
-                borderRadius: '10px',
+                borderRadius: '6px',
                 border: '1px solid #e2e8f0',
                 padding: '14px 16px',
                 textAlign: 'left',
@@ -501,7 +501,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   style={{
                     flex: 1,
                     padding: '10px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: '1px solid #1c21df',
                     background: '#eff6ff',
                     color: '#1c21df',
@@ -522,7 +522,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   onClick={onClose}
                   style={{
                     padding: '10px 20px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: 'none',
                     background: '#1c21df',
                     color: '#ffffff',
@@ -572,7 +572,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 justifyContent: 'space-between',
                 padding: '7px 10px',
                 background: '#f8fafc',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 border: '1px solid #e2e8f0',
                 gap: '8px'
               }}>
@@ -585,7 +585,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                         width: '30px',
                         height: '30px',
                         objectFit: 'contain',
-                        borderRadius: '5px',
+                        borderRadius: '6px',
                         background: '#ffffff',
                         border: '1px solid #e2e8f0',
                         flexShrink: 0
@@ -605,7 +605,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                           color: '#ff5421',
                           background: '#fff5f2',
                           padding: '1px 5px',
-                          borderRadius: '4px',
+                          borderRadius: '6px',
                           border: '1px solid #ffdcd4',
                           fontWeight: 600
                         }}>
@@ -891,7 +891,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 style={{
                   flex: 1,
                   padding: '11px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: 'none',
                   background: '#1c21df',
                   color: '#ffffff',
@@ -916,7 +916,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 onClick={onClose}
                 style={{
                   padding: '11px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: '1px solid #e2e8f0',
                   background: '#ffffff',
                   color: '#64748b',

@@ -163,7 +163,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '10px',
+                  borderRadius: '6px',
                   padding: '8px 16px',
                   fontSize: '0.85rem',
                   fontWeight: 600,
@@ -186,7 +186,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 style={{
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   color: '#ffffff',
-                  borderRadius: '10px',
+                  borderRadius: '6px',
                   padding: '8px 16px',
                   fontSize: '0.85rem',
                   fontWeight: 600,
@@ -211,7 +211,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 background: '#eff6ff',
                 color: '#1c21df',
                 border: '1px solid #bfdbfe',
-                borderRadius: '10px',
+                borderRadius: '6px',
                 padding: '7px 14px',
                 fontSize: '0.85rem',
                 fontWeight: 600,
@@ -276,8 +276,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 style={{ height: '30px', width: 'auto' }} 
               />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>CIH Innovation Lab</span>
-                <span style={{ fontSize: '0.72rem', color: '#ff5421', fontWeight: 600 }}>Menu & Tools</span>
+                <span style={{ fontSize: '0.96rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>CIH Innovation Lab</span>
               </div>
             </div>
             <button 
@@ -302,7 +301,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 style={{
                   width: '100%',
                   padding: '11px 16px',
-                  borderRadius: '10px',
+                  borderRadius: '6px',
                   border: 'none',
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   color: '#ffffff',
@@ -327,7 +326,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 style={{
                   width: '100%',
                   padding: '11px 16px',
-                  borderRadius: '10px',
+                  borderRadius: '6px',
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   color: '#ffffff',
                   fontWeight: 600,
@@ -355,7 +354,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               style={{
                 width: '100%',
                 padding: '10px 16px',
-                borderRadius: '10px',
+                borderRadius: '6px',
                 border: '1px solid #bfdbfe',
                 background: '#eff6ff',
                 color: '#1c21df',
@@ -381,10 +380,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               onClick={() => handleNavClick()}
             >
               <span className="material-symbols-outlined mobile-nav-icon">home</span>
-              <div className="mobile-nav-text">
-                <strong>Home</strong>
-                <span>Welcome & lab overview</span>
-              </div>
+              <span className="mobile-nav-title">Home</span>
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
 
@@ -394,10 +390,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="material-symbols-outlined mobile-nav-icon">inventory_2</span>
-              <div className="mobile-nav-text">
-                <strong>Equipment Catalog</strong>
-                <span>Browse tools, assets & electronics</span>
-              </div>
+              <span className="mobile-nav-title">Equipment Catalog</span>
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
 
@@ -413,10 +406,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               }}
             >
               <span className="material-symbols-outlined mobile-nav-icon">rocket_launch</span>
-              <div className="mobile-nav-text">
-                <strong>Projects</strong>
-                <span>Innovations built by members</span>
-              </div>
+              <span className="mobile-nav-title">Projects</span>
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
 
@@ -432,10 +422,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               }}
             >
               <span className="material-symbols-outlined mobile-nav-icon">info</span>
-              <div className="mobile-nav-text">
-                <strong>About Us</strong>
-                <span>Our mission, vision & facility</span>
-              </div>
+              <span className="mobile-nav-title">About Us</span>
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
 
@@ -451,10 +438,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               }}
             >
               <span className="material-symbols-outlined mobile-nav-icon">forum</span>
-              <div className="mobile-nav-text">
-                <strong>Community Feedback</strong>
-                <span>Share notes & thoughts</span>
-              </div>
+              <span className="mobile-nav-title">Community Feedback</span>
               <span className="material-symbols-outlined mobile-nav-arrow">chevron_right</span>
             </Link>
           </div>

@@ -190,6 +190,68 @@ export default function ProjectDetail() {
     return count;
   }, [filterCriteria]);
 
+  // Filter application (must be above early returns per Rules of Hooks)
+  const filterList = (list) => {
+    return (list || []).filter(item => {
+      // Unit filter
+      if (filterCriteria.unit && filterCriteria.unit !== 'all' && item.store !== filterCriteria.unit) {
+        return false;
+      }
+      // Category filter
+      if (filterCriteria.category && filterCriteria.category !== 'all') {
+        const cat = classifyItem(item);
+        if (cat !== filterCriteria.category) return false;
+      }
+      // Status filter
+      if (filterCriteria.status === 'in_stock') {
+        const amt = Number(item.amount) || 0;
+        if (amt <= 0 || item.status !== 'available') return false;
+      } else if (filterCriteria.status === 'low_stock') {
+        const amt = Number(item.amount) || 0;
+        if (amt <= 0 || amt > 5 || item.status === 'Out of Stock' || item.status === 'Decommissioned') return false;
+      } else if (filterCriteria.status === 'out_of_stock') {
+        const amt = Number(item.amount) || 0;
+        if (amt > 0 && item.status === 'available') return false;
+      } else if (filterCriteria.status === 'in_use') {
+        if (item.status !== 'In Use') return false;
+      } else if (filterCriteria.status === 'under_maintenance') {
+        if (item.status !== 'Under Maintenance') return false;
+      } else if (filterCriteria.status === 'decommissioned') {
+        if (item.status !== 'Decommissioned') return false;
+      }
+      return true;
+    });
+  };
+
+  const filteredItems = useMemo(() => {
+    return smartSearch(filterList(items), deferredSearch, item => [
+      item.item_name || '',
+      item.model || '',
+      item.type || '',
+      item.supplier || ''
+    ]);
+  }, [items, deferredSearch, filterCriteria]);
+
+  const filteredAssets = useMemo(() => {
+    return smartSearch(filterList(assets), deferredSearch, item => [
+      item.item_name || '',
+      item.model || '',
+      item.type || '',
+      item.supplier || ''
+    ]);
+  }, [assets, deferredSearch, filterCriteria]);
+
+  // Paginated slices (must be above early returns per Rules of Hooks)
+  const paginatedItems = useMemo(() => {
+    const start = (itemsPage - 1) * itemsPageSize;
+    return filteredItems.slice(start, start + itemsPageSize);
+  }, [filteredItems, itemsPage, itemsPageSize]);
+
+  const paginatedAssets = useMemo(() => {
+    const start = (assetsPage - 1) * assetsPageSize;
+    return filteredAssets.slice(start, start + assetsPageSize);
+  }, [filteredAssets, assetsPage, assetsPageSize]);
+
   if (!user) {
     return <Navigate to={isLoggingOut ? "/" : "/login"} replace />;
   }
@@ -257,68 +319,6 @@ export default function ProjectDetail() {
   const handleClearAllFilters = () => {
     setFilterCriteria({ status: 'all', category: 'all', unit: 'all', store: 'all' });
   };
-
-  // Filter application
-  const filterList = (list) => {
-    return list.filter(item => {
-      // Unit filter
-      if (filterCriteria.unit && filterCriteria.unit !== 'all' && item.store !== filterCriteria.unit) {
-        return false;
-      }
-      // Category filter
-      if (filterCriteria.category && filterCriteria.category !== 'all') {
-        const cat = classifyItem(item);
-        if (cat !== filterCriteria.category) return false;
-      }
-      // Status filter
-      if (filterCriteria.status === 'in_stock') {
-        const amt = Number(item.amount) || 0;
-        if (amt <= 0 || item.status !== 'available') return false;
-      } else if (filterCriteria.status === 'low_stock') {
-        const amt = Number(item.amount) || 0;
-        if (amt <= 0 || amt > 5 || item.status === 'Out of Stock' || item.status === 'Decommissioned') return false;
-      } else if (filterCriteria.status === 'out_of_stock') {
-        const amt = Number(item.amount) || 0;
-        if (amt > 0 && item.status === 'available') return false;
-      } else if (filterCriteria.status === 'in_use') {
-        if (item.status !== 'In Use') return false;
-      } else if (filterCriteria.status === 'under_maintenance') {
-        if (item.status !== 'Under Maintenance') return false;
-      } else if (filterCriteria.status === 'decommissioned') {
-        if (item.status !== 'Decommissioned') return false;
-      }
-      return true;
-    });
-  };
-
-  const filteredItems = useMemo(() => {
-    return smartSearch(filterList(items), deferredSearch, item => [
-      item.item_name || '',
-      item.model || '',
-      item.type || '',
-      item.supplier || ''
-    ]);
-  }, [items, deferredSearch, filterCriteria]);
-
-  const filteredAssets = useMemo(() => {
-    return smartSearch(filterList(assets), deferredSearch, item => [
-      item.item_name || '',
-      item.model || '',
-      item.type || '',
-      item.supplier || ''
-    ]);
-  }, [assets, deferredSearch, filterCriteria]);
-
-  // Paginated slices
-  const paginatedItems = useMemo(() => {
-    const start = (itemsPage - 1) * itemsPageSize;
-    return filteredItems.slice(start, start + itemsPageSize);
-  }, [filteredItems, itemsPage, itemsPageSize]);
-
-  const paginatedAssets = useMemo(() => {
-    const start = (assetsPage - 1) * assetsPageSize;
-    return filteredAssets.slice(start, start + assetsPageSize);
-  }, [filteredAssets, assetsPage, assetsPageSize]);
 
   // Open Add Modal
   const openAddModal = (type) => {

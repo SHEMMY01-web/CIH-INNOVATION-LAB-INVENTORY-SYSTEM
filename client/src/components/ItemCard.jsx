@@ -111,7 +111,7 @@ export default function ItemCard({ item, onRequest }) {
                 padding: '8px 12px',
                 fontSize: '0.82rem',
                 fontWeight: 600,
-                borderRadius: '8px',
+                borderRadius: '6px',
                 border: 'none',
                 background: isAvailable ? 'linear-gradient(135deg, #1c21df 0%, #3b40f8 100%)' : '#e2e8f0',
                 color: isAvailable ? '#ffffff' : '#94a3b8',
