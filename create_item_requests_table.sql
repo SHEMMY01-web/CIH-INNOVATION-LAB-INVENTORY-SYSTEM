@@ -220,3 +220,30 @@ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.item_requests;
   END IF;
 END $$;
+
+-- ====================================================================
+-- 9. CREATE PUBLIC STORAGE BUCKET FOR INVENTORY & PROOF IMAGES
+-- ====================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('inventory-images', 'inventory-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Allow anyone to view images publicly (for the catalog & website)
+DROP POLICY IF EXISTS "Public can view inventory images" ON storage.objects;
+CREATE POLICY "Public can view inventory images" ON storage.objects
+  FOR SELECT USING (bucket_id = 'inventory-images');
+
+-- Allow authenticated admins/staff to upload images
+DROP POLICY IF EXISTS "Authenticated users can upload inventory images" ON storage.objects;
+CREATE POLICY "Authenticated users can upload inventory images" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'inventory-images');
+
+-- Allow authenticated admins/staff to update images
+DROP POLICY IF EXISTS "Authenticated users can update inventory images" ON storage.objects;
+CREATE POLICY "Authenticated users can update inventory images" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'inventory-images');
+
+-- Allow authenticated admins/staff to delete images
+DROP POLICY IF EXISTS "Authenticated users can delete inventory images" ON storage.objects;
+CREATE POLICY "Authenticated users can delete inventory images" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'inventory-images');
