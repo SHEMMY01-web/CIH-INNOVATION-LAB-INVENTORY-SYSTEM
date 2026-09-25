@@ -156,8 +156,12 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
     });
   };
 
+  const submittingRef = React.useRef(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current || submitting) return;
+
     if (!selectedItem) {
       showWarning('Please select an item to request.', 'Item Required');
       return;
@@ -203,6 +207,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
       return;
     }
 
+    submittingRef.current = true;
     setSubmitting(true);
 
     const requestPayload = {
@@ -236,14 +241,22 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
         };
 
         try {
+          // Store cleanly in pending queue without duplicate keys
           const existingQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
-          existingQueue.unshift(localRecord);
-          localStorage.setItem('cih_pending_requisitions', JSON.stringify(existingQueue));
+          const queueFiltered = existingQueue.filter(
+            o => o.id !== localRecord.id && 
+                 !(o.item_id === localRecord.item_id && o.needed_date === localRecord.needed_date && o.requester_email === localRecord.requester_email)
+          );
+          queueFiltered.unshift(localRecord);
+          localStorage.setItem('cih_pending_requisitions', JSON.stringify(queueFiltered));
           
           const userOrders = JSON.parse(localStorage.getItem('cih_user_orders') || '[]');
-          const filtered = userOrders.filter(o => o.id !== localRecord.id);
-          filtered.unshift(localRecord);
-          localStorage.setItem('cih_user_orders', JSON.stringify(filtered.slice(0, 30)));
+          const ordersFiltered = userOrders.filter(
+            o => o.id !== localRecord.id && 
+                 !(o.item_id === localRecord.item_id && o.needed_date === localRecord.needed_date && o.requester_email === localRecord.requester_email)
+          );
+          ordersFiltered.unshift(localRecord);
+          localStorage.setItem('cih_user_orders', JSON.stringify(ordersFiltered.slice(0, 30)));
           localStorage.setItem('cih_last_user_email', formData.requester_email.trim());
         } catch (_) {}
 
@@ -254,8 +267,18 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
 
       const confirmedRecord = data || { id: 'REQ-OK', ...requestPayload, items: selectedItem };
       try {
+        // Clean up any old unconfirmed fallback with the same item/date from pending queue
+        const existingQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
+        const cleanedQueue = existingQueue.filter(
+          o => !(o.item_id === confirmedRecord.item_id && o.needed_date === confirmedRecord.needed_date && o.requester_email === confirmedRecord.requester_email)
+        );
+        localStorage.setItem('cih_pending_requisitions', JSON.stringify(cleanedQueue));
+
         const userOrders = JSON.parse(localStorage.getItem('cih_user_orders') || '[]');
-        const filtered = userOrders.filter(o => o.id !== confirmedRecord.id);
+        const filtered = userOrders.filter(
+          o => o.id !== confirmedRecord.id &&
+               !(o.item_id === confirmedRecord.item_id && o.needed_date === confirmedRecord.needed_date && o.requester_email === confirmedRecord.requester_email)
+        );
         filtered.unshift(confirmedRecord);
         localStorage.setItem('cih_user_orders', JSON.stringify(filtered.slice(0, 30)));
         localStorage.setItem('cih_last_user_email', formData.requester_email.trim());
@@ -267,6 +290,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
       console.error('[OrderRequestModal] Submission exception:', err);
       showError('Unable to submit request. Please try again.');
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };

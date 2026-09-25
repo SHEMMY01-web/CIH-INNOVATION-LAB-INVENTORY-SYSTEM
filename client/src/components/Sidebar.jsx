@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { deduplicateRequisitions } from '../utils/requisitionUtils';
 
 export default function Sidebar() {
   const { signOut } = useAuth();
@@ -19,21 +20,15 @@ export default function Sidebar() {
     let isMounted = true;
     const fetchPendingCount = async () => {
       try {
-        const { count, error } = await supabase
+        const { data, error } = await supabase
           .from('item_requests')
-          .select('*', { count: 'exact', head: true })
+          .select('id, item_id, requester_email, needed_date, quantity, project_name, status, created_at')
           .eq('status', 'pending');
         
-        let total = 0;
-        if (!error && typeof count === 'number') {
-          total = count;
-        }
-        try {
-          const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
-          total += localQueue.filter(r => r.status === 'pending').length;
-        } catch (_) {}
+        const clean = deduplicateRequisitions(error ? [] : (data || []), '');
+        const pendingCount = clean.filter(r => (r.status || 'pending').toLowerCase() === 'pending').length;
 
-        if (isMounted) setPendingReqCount(total);
+        if (isMounted) setPendingReqCount(pendingCount);
       } catch (_) {}
     };
 

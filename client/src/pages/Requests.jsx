@@ -13,6 +13,7 @@ import { exportToCSV } from '../utils/exportUtils';
 import { smartSearch } from '../utils/searchUtils';
 import { getItemTypeLabel, enrichItemWithType, enrichItemsWithType } from '../utils/inventoryClassifier';
 import { getItemImage } from '../utils/slugify';
+import { deduplicateRequisitions } from '../utils/requisitionUtils';
 import '../styles/table_layout.css';
 import '../styles/project.css';
 import '../styles/modal.css';
@@ -184,14 +185,8 @@ export default function Requests() {
       console.warn('[Requests] Remote requisitions fetch notice:', e);
     }
 
-    try {
-      const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
-      const existingIds = new Set(remoteRequests.map(r => r.id));
-      const unmerged = localQueue.filter(r => !existingIds.has(r.id));
-      setItemRequests([...unmerged, ...remoteRequests]);
-    } catch (_) {
-      setItemRequests(remoteRequests);
-    }
+    const clean = deduplicateRequisitions(remoteRequests, '');
+    setItemRequests(clean);
   }, []);
 
   useEffect(() => {

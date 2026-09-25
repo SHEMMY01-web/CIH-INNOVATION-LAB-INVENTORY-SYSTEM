@@ -8,6 +8,7 @@ import Topbar from '../components/Topbar';
 import ImageLightbox from '../components/ImageLightbox';
 import { isLabTool, isLabAsset, classifyItem, enrichItemsWithType } from '../utils/inventoryClassifier';
 import { getItemImage } from '../utils/slugify';
+import { deduplicateRequisitions } from '../utils/requisitionUtils';
 import '../styles/dashboard.css';
 
 export default function Dashboard() {
@@ -100,15 +101,8 @@ export default function Dashboard() {
           combinedReqs = reqData;
         }
 
-        // Merge local storage fallback queue if available
-        try {
-          const localQueue = JSON.parse(localStorage.getItem('cih_pending_requisitions') || '[]');
-          const existingIds = new Set(combinedReqs.map(r => r.id));
-          const unmerged = localQueue.filter(r => !existingIds.has(r.id));
-          combinedReqs = [...unmerged, ...combinedReqs];
-        } catch (_) {}
-
-        setRequisitions(combinedReqs);
+        const clean = deduplicateRequisitions(combinedReqs, '');
+        setRequisitions(clean);
       } catch (reqErr) {
         console.warn('[Dashboard] Could not fetch requisitions:', reqErr);
       }
