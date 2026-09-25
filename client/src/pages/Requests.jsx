@@ -200,8 +200,45 @@ export default function Requests() {
     Promise.all([fetchTransactions(), fetchItemsList(), fetchItemRequests()]).catch(err => {
       if (isMounted) console.error('[Requests] Initial load error:', err);
     });
+
+    // Realtime subscription for multi-admin synchronization
+    const channel = supabase
+      .channel('realtime:admin_item_requests')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'item_requests' },
+        () => {
+          if (isMounted) fetchItemRequests();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'transactions' },
+        () => {
+          if (isMounted) fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    // Auto-sync when window regains focus or on 20s background interval
+    const handleFocus = () => {
+      if (isMounted) {
+        fetchItemRequests();
+        fetchTransactions();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(() => {
+      if (isMounted && document.visibilityState === 'visible') {
+        fetchItemRequests();
+      }
+    }, 20000);
+
     return () => {
       isMounted = false;
+      supabase.removeChannel(channel);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
     };
   }, [user, fetchTransactions, fetchItemsList, fetchItemRequests]);
 

@@ -439,7 +439,7 @@ CREATE POLICY "Allow public insert to item_requests" ON public.item_requests
   FOR INSERT WITH CHECK (
     char_length(trim(requester_name)) >= 2 AND
     quantity > 0 AND
-    return_date >= needed_date
+    (return_date IS NULL OR return_date >= needed_date)
   );
 
 -- Anyone can read requisitions (or students can view status)
@@ -455,4 +455,7 @@ CREATE POLICY "Allow authenticated update to item_requests" ON public.item_reque
 DROP POLICY IF EXISTS "Allow authenticated delete to item_requests" ON public.item_requests;
 CREATE POLICY "Allow authenticated delete to item_requests" ON public.item_requests
   FOR DELETE TO authenticated USING (true);
+
+-- Enable Supabase Realtime for instant synchronization across all admin accounts
+ALTER PUBLICATION supabase_realtime ADD TABLE public.item_requests;
 

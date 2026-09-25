@@ -126,8 +126,34 @@ export default function Dashboard() {
     
     fetchDashboardData();
 
+    // Realtime subscription for live dashboard updates
+    const channel = supabase
+      .channel('realtime:dashboard_requests')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'item_requests' },
+        () => {
+          if (isMounted) fetchDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'items' },
+        () => {
+          if (isMounted) fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    const handleFocus = () => {
+      if (isMounted) fetchDashboardData();
+    };
+    window.addEventListener('focus', handleFocus);
+
     return () => {
       isMounted = false;
+      supabase.removeChannel(channel);
+      window.removeEventListener('focus', handleFocus);
     };
   }, [user]);
 

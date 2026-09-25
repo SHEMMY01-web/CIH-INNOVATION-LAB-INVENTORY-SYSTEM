@@ -38,7 +38,33 @@ export default function Sidebar() {
     };
 
     fetchPendingCount();
-    return () => { isMounted = false; };
+
+    // Realtime channel for pending count updates across admins
+    const channel = supabase
+      .channel('realtime:sidebar_requests')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'item_requests' },
+        () => {
+          if (isMounted) fetchPendingCount();
+        }
+      )
+      .subscribe();
+
+    const handleFocus = () => {
+      if (isMounted) fetchPendingCount();
+    };
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(() => {
+      if (isMounted && document.visibilityState === 'visible') fetchPendingCount();
+    }, 25000);
+
+    return () => { 
+      isMounted = false; 
+      supabase.removeChannel(channel);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
