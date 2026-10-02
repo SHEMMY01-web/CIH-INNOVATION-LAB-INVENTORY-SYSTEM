@@ -1241,13 +1241,13 @@ export default function Requests() {
                               borderRadius: '6px',
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
-                              color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
-                              border: `1px solid ${isPending ? '#fde68a' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
+                              background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                              color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
+                              border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
                               whiteSpace: 'nowrap',
                               flexShrink: 0
                             }}>
-                              {isPending && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />}
+                              {isPending && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff5421' }} />}
                               {isApproved && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span>}
                               {isDeclined && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>cancel</span>}
                               <span>{isPending ? 'Pending Action' : (isApproved ? 'Approved' : 'Declined')}</span>
@@ -1332,29 +1332,29 @@ export default function Requests() {
                               </span>
 
                               <span style={{
-                                background: '#fffbeb',
-                                color: '#92400e',
+                                background: '#fff5f2',
+                                color: '#c2410c',
                                 padding: '3px 8px',
                                 borderRadius: '6px',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '4px'
                               }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#d97706' }}>calendar_month</span>
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#ff5421' }}>calendar_month</span>
                                 <span>Needed: {req.needed_date || 'ASAP'}</span>
                               </span>
 
                               {req.return_date ? (
                                 <span style={{
-                                  background: '#f0fdf4',
-                                  color: '#166534',
+                                  background: '#eff2fe',
+                                  color: '#1c21df',
                                   padding: '3px 8px',
                                   borderRadius: '6px',
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '4px'
                                 }}>
-                                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#16a34a' }}>event_repeat</span>
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#1c21df' }}>event_repeat</span>
                                   <span>Return: {req.return_date}</span>
                                 </span>
                               ) : (
@@ -1558,8 +1558,8 @@ export default function Requests() {
                                 </td>
                                 <td>
                                   <span style={{
-                                    background: '#eff6ff',
-                                    color: '#1d4ed8',
+                                    background: '#eff2fe',
+                                    color: '#1c21df',
                                     padding: '3px 8px',
                                     borderRadius: '6px',
                                     fontSize: '0.78rem',
@@ -1591,15 +1591,15 @@ export default function Requests() {
                                     borderRadius: '6px',
                                     fontSize: '0.75rem',
                                     fontWeight: 600,
-                                    background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
-                                    color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
-                                    border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
+                                    background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                                    color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
+                                    border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`
                                   }}>
                                     <span style={{
                                       width: '6px',
                                       height: '6px',
                                       borderRadius: '50%',
-                                      background: isPending ? '#f59e0b' : (isApproved ? '#1c21df' : '#ef4444')
+                                      background: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#ef4444')
                                     }} />
                                     {status.toUpperCase()}
                                   </span>

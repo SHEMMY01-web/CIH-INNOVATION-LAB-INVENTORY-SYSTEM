@@ -702,7 +702,7 @@ export default function Dashboard() {
                                   alt={item.item_name} 
                                   width="36" 
                                   height="36" 
-                                  style={{ objectFit: 'contain', background: '#fff', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
+                                  style={{ objectFit: 'contain', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
                                   onClick={() => setLightboxItem(item)}
                                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />
@@ -776,7 +776,7 @@ export default function Dashboard() {
                                   alt={item.item_name} 
                                   width="36" 
                                   height="36" 
-                                  style={{ objectFit: 'contain', background: '#fff', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
+                                  style={{ objectFit: 'contain', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
                                   onClick={() => setLightboxItem(item)}
                                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />

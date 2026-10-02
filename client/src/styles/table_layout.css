@@ -72,7 +72,7 @@ body {
   display: flex;
   margin: 0 20px;
   background-color: var(--sidebar-active);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -89,7 +89,7 @@ body {
 .toggle-btn.active {
   background-color: var(--primary-color);
   color: white;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 /* Main Content Area */
@@ -279,7 +279,7 @@ body {
 .item-image {
   width: 40px;
   height: 40px;
-  border-radius: 5px;
+  border-radius: 6px;
   object-fit: cover;
   background-color: #eee;
 }

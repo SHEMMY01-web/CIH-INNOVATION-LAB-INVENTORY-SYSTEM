@@ -586,7 +586,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
                 </div>
 
                 <div className="form-group">
-                  <label style={{ color: '#ea580c', fontWeight: 600 }}>⏳ To Be Received</label>
+                  <label style={{ color: '#ff5421', fontWeight: 600 }}>⏳ To Be Received</label>
                   <input 
                     type="number" 
                     min="0"

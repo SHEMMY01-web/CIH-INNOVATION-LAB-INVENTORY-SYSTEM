@@ -33,7 +33,7 @@
   --text-color: #16151c;
   --text-secondary: #a2a1a8;
   --border-color: #e0e0e0;
-  --border-radius: 10px;
+  --border-radius: 6px;
   --font-family: 'Inter', sans-serif;
   --bg-color: #ffffff;
   --surface-color: #ffffff;
@@ -199,7 +199,7 @@ input[type="checkbox"] {
 
 .status-badge.unavailable {
   background-color: #fff2ee;
-  color: #ea580c;
+  color: #ff5421;
   border: 1px solid rgba(255, 84, 33, 0.2);
 }
 

@@ -195,7 +195,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: #f59e0b;
+            background-color: #ff5421;
             display: inline-block;
             animation: pulseDotAnim 2s infinite ease-in-out;
             flex-shrink: 0;
@@ -462,8 +462,8 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               >
                 <span>In Review</span>
                 <span style={{ 
-                  background: '#fffbeb', 
-                  color: '#b45309',
+                  background: '#fff5f2', 
+                  color: '#ff5421',
                   padding: '1px 6px',
                   borderRadius: '6px',
                   fontSize: '0.7rem',
@@ -667,9 +667,9 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             borderRadius: '6px',
                             fontSize: '0.74rem',
                             fontWeight: 700,
-                            background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
-                            color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
-                            border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
+                            background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                            color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
+                            border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
                             whiteSpace: 'nowrap'
                           }}>
                             {isPending && <span className="pulse-dot-amber" />}
@@ -703,12 +703,12 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           <span>{req.project_name || 'General'}</span>
                         </span>
                         <span className="track-meta-chip">
-                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#d97706' }}>calendar_month</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#ff5421' }}>calendar_month</span>
                           <span>Needed: {formatFriendlyDate(req.needed_date)}</span>
                         </span>
                         {req.return_date && (
                           <span className="track-meta-chip">
-                            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#059669' }}>event_repeat</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#1c21df' }}>event_repeat</span>
                             <span>Return: {formatFriendlyDate(req.return_date)}</span>
                           </span>
                         )}
@@ -737,18 +737,18 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           justifyContent: 'space-between',
                           gap: '6px'
                         }}>
-                          <div className="track-stepper-node" style={{ color: '#059669' }}>
+                          <div className="track-stepper-node" style={{ color: '#1c21df' }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
                             <span>1. Requested</span>
                           </div>
                           <span style={{ height: '1px', flex: 1, background: '#cbd5e1' }} />
-                          <div className="track-stepper-node" style={{ color: isDeclined ? '#dc2626' : (isApproved ? '#059669' : '#d97706') }}>
+                          <div className="track-stepper-node" style={{ color: isDeclined ? '#ef4444' : (isApproved ? '#1c21df' : '#ff5421') }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                               {isDeclined ? 'cancel' : (isApproved ? 'check_circle' : 'hourglass_top')}
                             </span>
                             <span>2. {isDeclined ? 'Declined' : 'Admin Review'}</span>
                           </div>
-                          <span style={{ height: '1px', flex: 1, background: isApproved ? '#059669' : '#cbd5e1' }} />
+                          <span style={{ height: '1px', flex: 1, background: isApproved ? '#1c21df' : '#cbd5e1' }} />
                           <div className="track-stepper-node" style={{ color: isApproved ? '#1c21df' : '#94a3b8' }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                               {isApproved ? 'verified' : 'schedule'}
@@ -838,19 +838,19 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                         {isPending && (
                           <div style={{
                             padding: '12px 14px',
-                            background: '#fffbeb',
+                            background: '#fff5f2',
                             borderRadius: '6px',
-                            color: '#92400e',
-                            border: '1px solid #fef3c7',
+                            color: '#c2410c',
+                            border: '1px solid #ffedd5',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '4px'
                           }}>
                             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#f59e0b' }}>schedule</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ff5421' }}>schedule</span>
                               <span>Under Review by Lab Management</span>
                             </div>
-                            <div style={{ color: '#78350f', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
+                            <div style={{ color: '#9a3412', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
                               Your requisition is in the active approval queue. Once approved by a lab administrator, your pickup confirmation and lab desk location will appear here automatically.
                             </div>
                           </div>
@@ -874,7 +874,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             <div style={{ color: '#1e3a8a', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
                               Please present reference code <strong>{shortCode}</strong> to the lab hardware attendant.
                               {req.admin_notes && (
-                                <div style={{ marginTop: '8px', padding: '8px 10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dbeafe', color: '#1d4ed8' }}>
+                                <div style={{ marginTop: '8px', padding: '8px 10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dbeafe', color: '#1c21df' }}>
                                   <strong>Admin Instructions:</strong> {req.admin_notes}
                                 </div>
                               )}

@@ -208,7 +208,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
               className="nav-action-desktop"
               onClick={() => setTrackModalOpen(true)}
               style={{
-                background: '#eff6ff',
+                background: '#eff2fe',
                 color: '#1c21df',
                 border: '1px solid #bfdbfe',
                 borderRadius: '6px',
@@ -356,7 +356,7 @@ export default function Navbar({ activeSection, onRequestEquipment }) {
                 padding: '10px 16px',
                 borderRadius: '6px',
                 border: '1px solid #bfdbfe',
-                background: '#eff6ff',
+                background: '#eff2fe',
                 color: '#1c21df',
                 fontWeight: 600,
                 fontSize: '0.86rem',

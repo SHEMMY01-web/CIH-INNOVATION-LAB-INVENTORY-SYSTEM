@@ -17,10 +17,10 @@ function getPasswordStrength(password) {
 
   const levels = [
     { label: 'Too short', color: '#ef4444' },
-    { label: 'Weak', color: '#f97316' },
-    { label: 'Fair', color: '#f59e0b' },
-    { label: 'Good', color: '#60a5fa' },
-    { label: 'Strong', color: '#3b82f6' },
+    { label: 'Weak', color: '#ff5421' },
+    { label: 'Fair', color: '#ff7a45' },
+    { label: 'Good', color: '#6875f5' },
+    { label: 'Strong', color: '#3b40f8' },
     { label: 'Excellent', color: '#1c21df' }
   ];
 

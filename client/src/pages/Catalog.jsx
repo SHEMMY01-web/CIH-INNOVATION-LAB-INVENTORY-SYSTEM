@@ -196,7 +196,7 @@ export default function Catalog() {
                   onClick={() => window.dispatchEvent(new CustomEvent('open-track-orders'))}
                   style={{
                     marginLeft: 'auto',
-                    background: '#eff6ff',
+                    background: '#eff2fe',
                     color: '#1c21df',
                     borderColor: '#bfdbfe',
                     fontWeight: 600,

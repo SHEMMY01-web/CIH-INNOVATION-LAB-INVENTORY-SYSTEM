@@ -223,7 +223,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedStatus === opt.id ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedStatus === opt.id ? '#eff6ff' : '#ffffff',
+                        background: selectedStatus === opt.id ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedStatus === opt.id ? 600 : 400,
                         color: selectedStatus === opt.id ? '#1c21df' : '#334155'
@@ -258,7 +258,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedClient === 'all' ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedClient === 'all' ? '#eff6ff' : '#ffffff',
+                        background: selectedClient === 'all' ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedClient === 'all' ? 600 : 400,
                         color: selectedClient === 'all' ? '#1c21df' : '#334155'
@@ -284,7 +284,7 @@ export default function FilterModal({
                           padding: '8px 12px',
                           borderRadius: '6px',
                           border: selectedClient === c ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                          background: selectedClient === c ? '#eff6ff' : '#ffffff',
+                          background: selectedClient === c ? '#eff2fe' : '#ffffff',
                           fontSize: '0.86rem',
                           fontWeight: selectedClient === c ? 600 : 400,
                           color: selectedClient === c ? '#1c21df' : '#334155'
@@ -325,7 +325,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedAllocation === opt.id ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedAllocation === opt.id ? '#eff6ff' : '#ffffff',
+                        background: selectedAllocation === opt.id ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedAllocation === opt.id ? 600 : 400,
                         color: selectedAllocation === opt.id ? '#1c21df' : '#334155'
@@ -372,7 +372,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedType === opt.id ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedType === opt.id ? '#eff6ff' : '#ffffff',
+                        background: selectedType === opt.id ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedType === opt.id ? 600 : 400,
                         color: selectedType === opt.id ? '#1c21df' : '#334155'
@@ -406,7 +406,7 @@ export default function FilterModal({
                       padding: '8px 12px',
                       borderRadius: '6px',
                       border: selectedUnit === 'all' ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                      background: selectedUnit === 'all' ? '#eff6ff' : '#ffffff',
+                      background: selectedUnit === 'all' ? '#eff2fe' : '#ffffff',
                       fontSize: '0.86rem',
                       fontWeight: selectedUnit === 'all' ? 600 : 400,
                       color: selectedUnit === 'all' ? '#1c21df' : '#334155'
@@ -432,7 +432,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedUnit === u.value ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedUnit === u.value ? '#eff6ff' : '#ffffff',
+                        background: selectedUnit === u.value ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedUnit === u.value ? 600 : 400,
                         color: selectedUnit === u.value ? '#1c21df' : '#334155'
@@ -479,7 +479,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedStatus === opt.id ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedStatus === opt.id ? '#eff6ff' : '#ffffff',
+                        background: selectedStatus === opt.id ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedStatus === opt.id ? 600 : 400,
                         color: selectedStatus === opt.id ? '#1c21df' : '#334155'
@@ -514,7 +514,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedSupplier === 'all' ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedSupplier === 'all' ? '#eff6ff' : '#ffffff',
+                        background: selectedSupplier === 'all' ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedSupplier === 'all' ? 600 : 400,
                         color: selectedSupplier === 'all' ? '#1c21df' : '#334155'
@@ -540,7 +540,7 @@ export default function FilterModal({
                           padding: '8px 12px',
                           borderRadius: '6px',
                           border: selectedSupplier === s ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                          background: selectedSupplier === s ? '#eff6ff' : '#ffffff',
+                          background: selectedSupplier === s ? '#eff2fe' : '#ffffff',
                           fontSize: '0.86rem',
                           fontWeight: selectedSupplier === s ? 600 : 400,
                           color: selectedSupplier === s ? '#1c21df' : '#334155'
@@ -592,7 +592,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedStatus === opt.id ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedStatus === opt.id ? '#eff6ff' : '#ffffff',
+                        background: selectedStatus === opt.id ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedStatus === opt.id ? 600 : 400,
                         color: selectedStatus === opt.id ? '#1c21df' : '#334155'
@@ -626,7 +626,7 @@ export default function FilterModal({
                       padding: '7px 12px',
                       borderRadius: '6px',
                       border: selectedCategory === 'all' ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                      background: selectedCategory === 'all' ? '#eff6ff' : '#ffffff',
+                      background: selectedCategory === 'all' ? '#eff2fe' : '#ffffff',
                       fontSize: '0.85rem',
                       fontWeight: selectedCategory === 'all' ? 600 : 400,
                       color: selectedCategory === 'all' ? '#1c21df' : '#334155'
@@ -652,7 +652,7 @@ export default function FilterModal({
                         padding: '7px 12px',
                         borderRadius: '6px',
                         border: selectedCategory === cat ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedCategory === cat ? '#eff6ff' : '#ffffff',
+                        background: selectedCategory === cat ? '#eff2fe' : '#ffffff',
                         fontSize: '0.85rem',
                         fontWeight: selectedCategory === cat ? 600 : 400,
                         color: selectedCategory === cat ? '#1c21df' : '#334155'
@@ -686,7 +686,7 @@ export default function FilterModal({
                       padding: '8px 12px',
                       borderRadius: '6px',
                       border: selectedUnit === 'all' ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                      background: selectedUnit === 'all' ? '#eff6ff' : '#ffffff',
+                      background: selectedUnit === 'all' ? '#eff2fe' : '#ffffff',
                       fontSize: '0.86rem',
                       fontWeight: selectedUnit === 'all' ? 600 : 400,
                       color: selectedUnit === 'all' ? '#1c21df' : '#334155'
@@ -712,7 +712,7 @@ export default function FilterModal({
                         padding: '8px 12px',
                         borderRadius: '6px',
                         border: selectedUnit === u.value ? '1.5px solid #1c21df' : '1px solid #e2e8f0',
-                        background: selectedUnit === u.value ? '#eff6ff' : '#ffffff',
+                        background: selectedUnit === u.value ? '#eff2fe' : '#ffffff',
                         fontSize: '0.86rem',
                         fontWeight: selectedUnit === u.value ? 600 : 400,
                         color: selectedUnit === u.value ? '#1c21df' : '#334155'

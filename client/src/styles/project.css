@@ -14,7 +14,7 @@
 
 .project-card {
   background-color: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   padding: 25px;
   text-decoration: none;
