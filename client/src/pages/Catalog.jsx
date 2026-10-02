@@ -221,7 +221,7 @@ export default function Catalog() {
               <button 
                 className="btn-primary" 
                 onClick={() => { setFetchError(null); setLoading(true); window.location.reload(); }}
-                style={{ padding: '10px 24px', borderRadius: '8px' }}
+                style={{ padding: '10px 24px', borderRadius: '6px' }}
               >
                 Retry
               </button>

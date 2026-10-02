@@ -95,7 +95,7 @@ export default function Sidebar() {
               fontSize: '0.72rem',
               fontWeight: 700,
               padding: '1px 7px',
-              borderRadius: '10px',
+              borderRadius: '6px',
               marginLeft: 'auto'
             }} title={`${pendingReqCount} pending online equipment requisitions`}>
               {pendingReqCount}

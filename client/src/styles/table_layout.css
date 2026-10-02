@@ -187,7 +187,7 @@ body {
 .table-container {
   margin: 0 40px 40px 40px;
   background: var(--card-bg);
-  border-radius: 15px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   padding: 20px;
   display: flex;
@@ -208,7 +208,7 @@ body {
   align-items: center;
   background: var(--input-bg);
   padding: 10px 15px;
-  border-radius: 10px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   width: 300px;
 }
@@ -232,7 +232,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -370,7 +370,7 @@ body {
 .skeleton-badge {
   width: 75px;
   height: 24px;
-  border-radius: 20px;
+  border-radius: 6px;
 }
 
 .skeleton-btn {
@@ -398,7 +398,7 @@ body {
 
 .showing-entries select {
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   outline: none;
   background: var(--card-bg);
@@ -417,7 +417,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 6px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -479,7 +479,7 @@ body {
   justify-content: center;
   padding: 60px 20px;
   background-color: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 6px;
   min-height: 400px;
 }
 
@@ -494,3 +494,26 @@ body {
   color: var(--text-color);
   margin: 0;
 }
+
+/* Admin Requisition Card Grid */
+.admin-req-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.admin-req-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-req-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07) !important;
+}
+
+@media (max-width: 640px) {
+  .admin-req-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -85,6 +85,20 @@ export default function Requests() {
   const [reqStatusFilter, setReqStatusFilter] = useState('all');
   const [pageOnline, setPageOnline] = useState(1);
   const [pageSizeOnline, setPageSizeOnline] = useState(10);
+  const [viewModeOnline, setViewModeOnline] = useState(() => {
+    try {
+      return localStorage.getItem('cih_admin_req_view') || (typeof window !== 'undefined' && window.innerWidth < 900 ? 'cards' : 'cards');
+    } catch (_) {
+      return 'cards';
+    }
+  });
+
+  const handleToggleViewMode = (mode) => {
+    setViewModeOnline(mode);
+    try {
+      localStorage.setItem('cih_admin_req_view', mode);
+    } catch (_) {}
+  };
   const [actionModal, setActionModal] = useState({
     isOpen: false,
     type: 'approve',
@@ -823,7 +837,7 @@ export default function Requests() {
                 onClearAll={handleClearAllFilters}
               />
 
-              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '6px' }}>
                 <table className="list-table">
                   <thead>
                     <tr>
@@ -947,7 +961,7 @@ export default function Requests() {
                 onClearAll={handleClearAllFilters}
               />
 
-              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '6px' }}>
                 <table className="list-table">
                   <thead>
                     <tr>
@@ -1048,8 +1062,8 @@ export default function Requests() {
                         onClick={() => { setReqStatusFilter(st); setPageOnline(1); }}
                         style={{
                           padding: '6px 14px',
-                          borderRadius: '20px',
-                          border: reqStatusFilter === st ? '1px solid var(--primary-color)' : '1px solid #e2e8f0',
+                          borderRadius: '6px',
+                          border: reqStatusFilter === st ? '1px solid var(--primary-color)' : '1px solid #cbd5e1',
                           background: reqStatusFilter === st ? 'var(--primary-color)' : '#ffffff',
                           color: reqStatusFilter === st ? '#ffffff' : '#64748b',
                           fontSize: '0.8rem',
@@ -1066,8 +1080,9 @@ export default function Requests() {
                           background: reqStatusFilter === st ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
                           color: reqStatusFilter === st ? '#ffffff' : '#475569',
                           padding: '1px 6px',
-                          borderRadius: '10px',
-                          fontSize: '0.72rem'
+                          borderRadius: '6px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700
                         }}>
                           {count}
                         </span>
@@ -1076,211 +1091,592 @@ export default function Requests() {
                   })}
                 </div>
 
-                <div className="toolbar-actions">
+                <div className="toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  {/* View Mode Toggle: Cards vs Table */}
+                  <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '2px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleViewMode('cards')}
+                      style={{
+                        padding: '6px 10px',
+                        border: 'none',
+                        borderRadius: '6px',
+                        background: viewModeOnline === 'cards' ? '#ffffff' : 'transparent',
+                        color: viewModeOnline === 'cards' ? '#1c21df' : '#64748b',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: viewModeOnline === 'cards' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        transition: 'all 0.15s ease'
+                      }}
+                      title="Card Containers View"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>grid_view</span>
+                      <span>Cards</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleViewMode('table')}
+                      style={{
+                        padding: '6px 10px',
+                        border: 'none',
+                        borderRadius: '6px',
+                        background: viewModeOnline === 'table' ? '#ffffff' : 'transparent',
+                        color: viewModeOnline === 'table' ? '#1c21df' : '#64748b',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: viewModeOnline === 'table' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        transition: 'all 0.15s ease'
+                      }}
+                      title="Spreadsheet Table View"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>table_rows</span>
+                      <span>Table</span>
+                    </button>
+                  </div>
+
                   <button 
                     type="button" 
                     className="action-btn" 
                     onClick={exportOnlineOrders}
+                    style={{ borderRadius: '6px' }}
                   >
                     <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px', marginRight: '4px' }}>download</span> Export Orders
                   </button>
                 </div>
               </div>
 
-              <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '12px' }}>
-                <table className="list-table">
-                  <thead>
-                    <tr>
-                      <th>Equipment / Item</th>
-                      <th>Image</th>
-                      <th>Requester Contact</th>
-                      <th>Target Project</th>
-                      <th>Qty</th>
-                      <th>Needed Date</th>
-                      <th>Return Date</th>
-                      <th>Status</th>
-                      <th style={{ textAlign: 'center' }}>Admin Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      Array.from({ length: 5 }).map((_, idx) => (
-                        <tr key={`skel-online-${idx}`}>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '65%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-img"></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '55%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '50%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '35%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
-                          <td><span className="skeleton-box skeleton-text" style={{ width: '40%' }}></span></td>
-                          <td style={{ textAlign: 'center' }}><span className="skeleton-box skeleton-btn"></span></td>
-                        </tr>
-                      ))
-                    ) : (
-                      <>
-                        {paginatedOnlineRequests.map(req => {
-                          const itemImg = getItemImage(req.items);
-                          const status = (req.status || 'pending').toLowerCase();
-                          const isPending = status === 'pending';
-                          const isApproved = status === 'approved';
+              {/* View 1: Card Grid View */}
+              {viewModeOnline === 'cards' ? (
+                <div className="admin-req-card-grid">
+                  {loading ? (
+                    Array.from({ length: 6 }).map((_, idx) => (
+                      <div key={`skel-card-${idx}`} className="admin-req-card" style={{ padding: '16px', background: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                          <div className="skeleton-box" style={{ width: '44px', height: '44px', borderRadius: '6px' }} />
+                          <div style={{ flex: 1 }}>
+                            <div className="skeleton-box skeleton-text" style={{ width: '60%', height: '14px', marginBottom: '6px' }} />
+                            <div className="skeleton-box skeleton-text" style={{ width: '40%', height: '12px' }} />
+                          </div>
+                        </div>
+                        <div className="skeleton-box skeleton-text" style={{ width: '80%', height: '12px', marginBottom: '8px' }} />
+                        <div className="skeleton-box skeleton-text" style={{ width: '50%', height: '12px' }} />
+                      </div>
+                    ))
+                  ) : paginatedOnlineRequests.length > 0 ? (
+                    paginatedOnlineRequests.map(req => {
+                      const itemImg = getItemImage(req.items);
+                      const status = (req.status || 'pending').toLowerCase();
+                      const isPending = status === 'pending';
+                      const isApproved = status === 'approved';
+                      const isDeclined = status === 'declined';
+                      const shortCode = req.id ? `#REQ-${String(req.id).slice(-6).toUpperCase()}` : '#REQ';
 
-                          return (
-                            <tr key={req.id}>
-                              <td>
-                                <div style={{ fontWeight: 600, color: 'var(--text-color)' }}>
-                                  {req.items?.item_name || 'Equipment'}
-                                </div>
-                                {req.items?.model && (
-                                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                                    Model: {req.items.model}
-                                  </div>
-                                )}
-                              </td>
-                              <td>
-                                {itemImg ? (
-                                  <img 
-                                    src={itemImg} 
-                                    alt="Item" 
-                                    width="40" 
-                                    height="40" 
-                                    style={{ borderRadius: '6px', objectFit: 'contain', background: '#fff', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
-                                    onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: req.items?.item_name })} 
-                                    onError={(e) => { e.target.style.display = 'none'; }} 
-                                  />
-                                ) : (
-                                  <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>image</span>
-                                )}
-                              </td>
-                              <td>
-                                <div style={{ fontWeight: 600 }}>{req.requester_name}</div>
+                      return (
+                        <div 
+                          key={req.id} 
+                          className="admin-req-card"
+                          style={{
+                            background: '#ffffff',
+                            border: isPending ? '1.5px solid #fed7aa' : '1px solid #e2e8f0',
+                            borderRadius: '6px',
+                            boxShadow: isPending ? '0 3px 12px rgba(245, 158, 11, 0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {/* Card Header: Requester + Status Pill */}
+                          <div style={{
+                            padding: '12px 14px',
+                            background: isPending ? '#fffdfa' : '#f8fafc',
+                            borderBottom: '1px solid #e2e8f0',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-between',
+                            gap: '10px'
+                          }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#1c21df' }}>person</span>
+                                <span style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {req.requester_name}
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
                                 {req.requester_email && (
-                                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.requester_email}</div>
+                                  <a 
+                                    href={`mailto:${req.requester_email}`} 
+                                    style={{ fontSize: '0.74rem', color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                                  >
+                                    <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>mail</span>
+                                    {req.requester_email}
+                                  </a>
                                 )}
                                 {req.requester_phone && (
-                                  <div style={{ fontSize: '0.75rem', color: '#1c21df', fontWeight: 500 }}>{req.requester_phone}</div>
+                                  <a 
+                                    href={`tel:${req.requester_phone}`} 
+                                    style={{ fontSize: '0.74rem', color: '#1c21df', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                                  >
+                                    <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>call</span>
+                                    {req.requester_phone}
+                                  </a>
                                 )}
-                              </td>
-                              <td>
+                              </div>
+                            </div>
+
+                            {/* Status Pill */}
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                              color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
+                              border: `1px solid ${isPending ? '#fde68a' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0
+                            }}>
+                              {isPending && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />}
+                              {isApproved && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span>}
+                              {isDeclined && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>cancel</span>}
+                              <span>{isPending ? 'Pending Action' : (isApproved ? 'Approved' : 'Declined')}</span>
+                            </span>
+                          </div>
+
+                          {/* Card Body: Equipment Details */}
+                          <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              {itemImg ? (
+                                <img 
+                                  src={itemImg} 
+                                  alt=""
+                                  width="44" 
+                                  height="44" 
+                                  style={{
+                                    objectFit: 'contain',
+                                    background: '#ffffff',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e2e8f0',
+                                    cursor: 'pointer',
+                                    flexShrink: 0
+                                  }}
+                                  onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: req.items?.item_name })}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              ) : (
+                                <div style={{
+                                  width: '44px',
+                                  height: '44px',
+                                  borderRadius: '6px',
+                                  background: '#f1f5f9',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: '#94a3b8',
+                                  border: '1px solid #e2e8f0',
+                                  flexShrink: 0
+                                }}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>build</span>
+                                </div>
+                              )}
+
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#0f172a', lineHeight: 1.25 }}>
+                                  {req.items?.item_name || 'Equipment'}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
+                                  <span style={{
+                                    fontSize: '0.74rem',
+                                    fontWeight: 700,
+                                    color: '#1c21df',
+                                    background: '#eff2fe',
+                                    padding: '1px 6px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #dbeafe'
+                                  }}>
+                                    {req.quantity} {req.items?.store || 'unit(s)'} requested
+                                  </span>
+                                  {req.items?.amount !== undefined && (
+                                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                      (Stock: {req.items.amount})
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Metadata Badges strip */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '0.75rem' }}>
+                              <span style={{
+                                background: '#f1f5f9',
+                                color: '#334155',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#64748b' }}>folder</span>
+                                <span>{req.project_name || 'General'}</span>
+                              </span>
+
+                              <span style={{
+                                background: '#fffbeb',
+                                color: '#92400e',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#d97706' }}>calendar_month</span>
+                                <span>Needed: {req.needed_date || 'ASAP'}</span>
+                              </span>
+
+                              {req.return_date ? (
                                 <span style={{
-                                  background: '#eff6ff',
-                                  color: '#1d4ed8',
+                                  background: '#f0fdf4',
+                                  color: '#166534',
                                   padding: '3px 8px',
                                   borderRadius: '6px',
-                                  fontSize: '0.78rem',
-                                  fontWeight: 600
-                                }}>
-                                  {req.project_name}
-                                </span>
-                                {req.purpose && (
-                                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={req.purpose}>
-                                    {req.purpose}
-                                  </div>
-                                )}
-                              </td>
-                              <td>
-                                <strong>{req.quantity}</strong> {req.items?.store || 'pcs'}
-                              </td>
-                              <td style={{ fontSize: '0.85rem', color: '#334155' }}>
-                                {req.needed_date || '—'}
-                              </td>
-                              <td style={{ fontSize: '0.85rem', color: '#334155' }}>
-                                {req.return_date || <span style={{ color: '#64748b', fontSize: '0.8rem', fontStyle: 'italic' }}>Permanent / Buy</span>}
-                              </td>
-                              <td>
-                                <span style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '4px',
-                                  padding: '3px 10px',
-                                  borderRadius: '12px',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 600,
-                                  background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
-                                  color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
-                                  border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
+                                  gap: '4px'
                                 }}>
-                                  <span style={{
-                                    width: '6px',
-                                    height: '6px',
-                                    borderRadius: '50%',
-                                    background: isPending ? '#f59e0b' : (isApproved ? '#1c21df' : '#ef4444')
-                                  }} />
-                                  {status.toUpperCase()}
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#16a34a' }}>event_repeat</span>
+                                  <span>Return: {req.return_date}</span>
                                 </span>
-                                {req.admin_notes && (
-                                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '3px', maxWidth: '140px' }} title={req.admin_notes}>
-                                    Note: {req.admin_notes}
+                              ) : (
+                                <span style={{
+                                  background: '#f8fafc',
+                                  color: '#64748b',
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontStyle: 'italic',
+                                  border: '1px solid #e2e8f0'
+                                }}>
+                                  Permanent / Consumable
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Purpose Note */}
+                            {req.purpose && (
+                              <div style={{
+                                background: '#f8fafc',
+                                borderLeft: '3px solid #cbd5e1',
+                                padding: '6px 10px',
+                                borderRadius: '0 6px 6px 0',
+                                fontSize: '0.74rem',
+                                color: '#475569',
+                                lineHeight: 1.35
+                              }}>
+                                <strong>Purpose:</strong> {req.purpose}
+                              </div>
+                            )}
+
+                            {/* Admin Notes if processed */}
+                            {req.admin_notes && (
+                              <div style={{
+                                background: isApproved ? '#f0fdf4' : '#fef2f2',
+                                border: `1px solid ${isApproved ? '#bbf7d0' : '#fecaca'}`,
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                fontSize: '0.73rem',
+                                color: isApproved ? '#166534' : '#991b1b'
+                              }}>
+                                <strong>Admin Note:</strong> {req.admin_notes}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Footer */}
+                          <div style={{
+                            padding: '10px 14px',
+                            borderTop: '1px solid #f1f5f9',
+                            background: isPending ? '#ffffff' : '#fafafa',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px'
+                          }}>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                              {shortCode}
+                            </span>
+
+                            {isPending ? (
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenActionModal(req, 'decline')}
+                                  style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #fecaca',
+                                    background: '#fef2f2',
+                                    color: '#b91c1c',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>close</span>
+                                  Decline
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenActionModal(req, 'approve')}
+                                  style={{
+                                    padding: '6px 16px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    background: '#1c21df',
+                                    color: '#ffffff',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    boxShadow: '0 1px 3px rgba(28, 33, 223, 0.25)',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>check</span>
+                                  Accept
+                                </button>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '0.74rem', color: isApproved ? '#1c21df' : '#94a3b8', fontWeight: 600 }}>
+                                {isApproved ? 'Fulfilled at Lab Desk' : 'Archived / Closed'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px 16px', color: '#64748b', background: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#cbd5e1', display: 'block', marginBottom: '8px' }}>inbox</span>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '0.96rem', color: '#0f172a' }}>No Online Requisitions Found</h4>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                        {reqStatusFilter !== 'all' ? `No orders currently match status "${reqStatusFilter}".` : 'No equipment orders placed yet.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* View 2: Spreadsheet Table View */
+                <div className="data-table-wrapper" style={{ border: '1px solid var(--border-color)', borderRadius: '6px', marginBottom: '16px' }}>
+                  <table className="list-table">
+                    <thead>
+                      <tr>
+                        <th>Equipment / Item</th>
+                        <th>Image</th>
+                        <th>Requester Contact</th>
+                        <th>Target Project</th>
+                        <th>Qty</th>
+                        <th>Needed Date</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                        <th style={{ textAlign: 'center' }}>Admin Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loading ? (
+                        Array.from({ length: 5 }).map((_, idx) => (
+                          <tr key={`skel-online-${idx}`}>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '65%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-img"></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '55%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '50%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '35%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '45%' }}></span></td>
+                            <td><span className="skeleton-box skeleton-text" style={{ width: '40%' }}></span></td>
+                            <td style={{ textAlign: 'center' }}><span className="skeleton-box skeleton-btn"></span></td>
+                          </tr>
+                        ))
+                      ) : (
+                        <>
+                          {paginatedOnlineRequests.map(req => {
+                            const itemImg = getItemImage(req.items);
+                            const status = (req.status || 'pending').toLowerCase();
+                            const isPending = status === 'pending';
+                            const isApproved = status === 'approved';
+
+                            return (
+                              <tr key={req.id}>
+                                <td>
+                                  <div style={{ fontWeight: 600, color: 'var(--text-color)' }}>
+                                    {req.items?.item_name || 'Equipment'}
                                   </div>
-                                )}
-                              </td>
-                              <td style={{ textAlign: 'center' }}>
-                                {isPending ? (
-                                  <div style={{ display: 'inline-flex', gap: '6px' }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenActionModal(req, 'approve')}
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        padding: '5px 10px',
-                                        borderRadius: '6px',
-                                        border: '1px solid #bfdbfe',
-                                        background: '#eff2fe',
-                                        color: '#1c21df',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 600,
-                                        cursor: 'pointer'
-                                      }}
-                                      title="Accept and checkout item"
-                                    >
-                                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>check</span>
-                                      Accept
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenActionModal(req, 'decline')}
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        padding: '5px 10px',
-                                        borderRadius: '6px',
-                                        border: '1px solid #ef4444',
-                                        background: '#fef2f2',
-                                        color: '#b91c1c',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 600,
-                                        cursor: 'pointer'
-                                      }}
-                                      title="Decline requisition"
-                                    >
-                                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>close</span>
-                                      Decline
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                                    {isApproved ? 'Fulfilled' : 'Closed'}
+                                  {req.items?.model && (
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                      Model: {req.items.model}
+                                    </div>
+                                  )}
+                                </td>
+                                <td>
+                                  {itemImg ? (
+                                    <img 
+                                      src={itemImg} 
+                                      alt="Item" 
+                                      width="40" 
+                                      height="40" 
+                                      style={{ borderRadius: '6px', objectFit: 'contain', background: '#fff', border: '1px solid #e2e8f0', cursor: 'pointer' }} 
+                                      onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: req.items?.item_name })} 
+                                      onError={(e) => { e.target.style.display = 'none'; }} 
+                                    />
+                                  ) : (
+                                    <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>image</span>
+                                  )}
+                                </td>
+                                <td>
+                                  <div style={{ fontWeight: 600 }}>{req.requester_name}</div>
+                                  {req.requester_email && (
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.requester_email}</div>
+                                  )}
+                                  {req.requester_phone && (
+                                    <div style={{ fontSize: '0.75rem', color: '#1c21df', fontWeight: 500 }}>{req.requester_phone}</div>
+                                  )}
+                                </td>
+                                <td>
+                                  <span style={{
+                                    background: '#eff6ff',
+                                    color: '#1d4ed8',
+                                    padding: '3px 8px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 600
+                                  }}>
+                                    {req.project_name}
                                   </span>
-                                )}
+                                  {req.purpose && (
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={req.purpose}>
+                                      {req.purpose}
+                                    </div>
+                                  )}
+                                </td>
+                                <td>
+                                  <strong>{req.quantity}</strong> {req.items?.store || 'pcs'}
+                                </td>
+                                <td style={{ fontSize: '0.85rem', color: '#334155' }}>
+                                  {req.needed_date || '—'}
+                                </td>
+                                <td style={{ fontSize: '0.85rem', color: '#334155' }}>
+                                  {req.return_date || <span style={{ color: '#64748b', fontSize: '0.8rem', fontStyle: 'italic' }}>Permanent / Buy</span>}
+                                </td>
+                                <td>
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '3px 10px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                                    color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
+                                    border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
+                                  }}>
+                                    <span style={{
+                                      width: '6px',
+                                      height: '6px',
+                                      borderRadius: '50%',
+                                      background: isPending ? '#f59e0b' : (isApproved ? '#1c21df' : '#ef4444')
+                                    }} />
+                                    {status.toUpperCase()}
+                                  </span>
+                                  {req.admin_notes && (
+                                    <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '3px', maxWidth: '140px' }} title={req.admin_notes}>
+                                      Note: {req.admin_notes}
+                                    </div>
+                                  )}
+                                </td>
+                                <td style={{ textAlign: 'center' }}>
+                                  {isPending ? (
+                                    <div style={{ display: 'inline-flex', gap: '6px' }}>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenActionModal(req, 'approve')}
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          padding: '5px 10px',
+                                          borderRadius: '6px',
+                                          border: '1px solid #bfdbfe',
+                                          background: '#eff2fe',
+                                          color: '#1c21df',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 600,
+                                          cursor: 'pointer'
+                                        }}
+                                        title="Accept and checkout item"
+                                      >
+                                        <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>check</span>
+                                        Accept
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenActionModal(req, 'decline')}
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          padding: '5px 10px',
+                                          borderRadius: '6px',
+                                          border: '1px solid #ef4444',
+                                          background: '#fef2f2',
+                                          color: '#b91c1c',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 600,
+                                          cursor: 'pointer'
+                                        }}
+                                        title="Decline requisition"
+                                      >
+                                        <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>close</span>
+                                        Decline
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                      {isApproved ? 'Fulfilled' : 'Closed'}
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          {filteredOnlineRequests.length === 0 && (
+                            <tr>
+                              <td colSpan="9" style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
+                                No online requisitions found {reqStatusFilter !== 'all' ? `with status "${reqStatusFilter}"` : ''}
                               </td>
                             </tr>
-                          );
-                        })}
-                        {filteredOnlineRequests.length === 0 && (
-                          <tr>
-                            <td colSpan="9" style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
-                              No online requisitions found {reqStatusFilter !== 'all' ? `with status "${reqStatusFilter}"` : ''}
-                            </td>
-                          </tr>
-                        )}
-                      </>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                          )}
+                        </>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               <Pagination
                 currentPage={pageOnline}
@@ -1424,7 +1820,7 @@ export default function Requests() {
                       }}
                       style={{ opacity: 0, position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 2 }}
                     />
-                    <div className="file-input-display" style={{ padding: '10px 14px', border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--card-bg)' }}>
+                    <div className="file-input-display" style={{ padding: '10px 14px', border: '1px dashed #cbd5e1', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--card-bg)' }}>
                       <span style={{ fontSize: '0.9rem', color: proofFile ? 'var(--text-color)' : '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '85%' }}>
                         {proofFile ? proofFile.name : 'Choose proof receipt or photo...'}
                       </span>
@@ -1476,7 +1872,7 @@ export default function Requests() {
         }} onClick={() => !actionModal.loading && setActionModal(prev => ({ ...prev, isOpen: false }))}>
           <div style={{
             background: '#ffffff',
-            borderRadius: '16px',
+            borderRadius: '6px',
             width: '100%',
             maxWidth: '500px',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
@@ -1487,7 +1883,7 @@ export default function Requests() {
               <div style={{
                 width: '40px',
                 height: '40px',
-                borderRadius: '10px',
+                borderRadius: '6px',
                 background: actionModal.type === 'approve' ? '#eff2fe' : '#fef2f2',
                 color: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                 display: 'flex',
@@ -1510,7 +1906,7 @@ export default function Requests() {
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', marginBottom: '16px', fontSize: '0.85rem' }}>
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
               <div style={{ marginBottom: '6px' }}>
                 <strong style={{ color: '#0f172a' }}>{actionModal.request.requester_name}</strong> requested:
               </div>
@@ -1534,7 +1930,7 @@ export default function Requests() {
                 style={{
                   width: '100%',
                   padding: '8px 12px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   fontSize: '0.85rem',
                   fontFamily: 'inherit',
@@ -1550,7 +1946,7 @@ export default function Requests() {
                 onClick={() => setActionModal(prev => ({ ...prev, isOpen: false }))}
                 style={{
                   padding: '8px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   background: '#ffffff',
                   color: '#64748b',
@@ -1567,7 +1963,7 @@ export default function Requests() {
                 onClick={handleConfirmAction}
                 style={{
                   padding: '8px 20px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: 'none',
                   background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',

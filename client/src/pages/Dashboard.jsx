@@ -343,7 +343,7 @@ export default function Dashboard() {
                 <div style={{
                   width: '36px',
                   height: '36px',
-                  borderRadius: '10px',
+                  borderRadius: '6px',
                   background: 'linear-gradient(135deg, #ff5421 0%, #ff7a50 100%)',
                   display: 'flex',
                   alignItems: 'center',
@@ -362,7 +362,7 @@ export default function Dashboard() {
                         background: '#fef2f2',
                         color: '#ef4444',
                         padding: '2px 8px',
-                        borderRadius: '12px',
+                        borderRadius: '6px',
                         border: '1px solid #fecaca',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -380,13 +380,13 @@ export default function Dashboard() {
               </div>
 
               {/* Status Filter Tabs */}
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   onClick={() => setReqTab('pending')}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: reqTab === 'pending' ? '1px solid #1c21df' : '1px solid #e2e8f0',
                     background: reqTab === 'pending' ? '#eef2ff' : '#ffffff',
                     color: reqTab === 'pending' ? '#1c21df' : '#64748b',
@@ -402,7 +402,7 @@ export default function Dashboard() {
                   onClick={() => setReqTab('approved')}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: reqTab === 'approved' ? '1px solid #1c21df' : '1px solid #e2e8f0',
                     background: reqTab === 'approved' ? '#eff2fe' : '#ffffff',
                     color: reqTab === 'approved' ? '#1c21df' : '#64748b',
@@ -418,7 +418,7 @@ export default function Dashboard() {
                   onClick={() => setReqTab('declined')}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: reqTab === 'declined' ? '1px solid #dc2626' : '1px solid #e2e8f0',
                     background: reqTab === 'declined' ? '#fef2f2' : '#ffffff',
                     color: reqTab === 'declined' ? '#dc2626' : '#64748b',
@@ -434,7 +434,7 @@ export default function Dashboard() {
                   onClick={() => setReqTab('all')}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: reqTab === 'all' ? '1px solid #475569' : '1px solid #e2e8f0',
                     background: reqTab === 'all' ? '#f1f5f9' : '#ffffff',
                     color: reqTab === 'all' ? '#0f172a' : '#64748b',
@@ -448,7 +448,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Requisitions Table */}
+            {/* Requisitions Table Container */}
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <table className="data-table">
               <thead>
                 <tr>
@@ -544,7 +545,7 @@ export default function Dashboard() {
                               background: '#fffbeb',
                               color: '#b45309',
                               padding: '3px 8px',
-                              borderRadius: '12px',
+                              borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
                               border: '1px solid #fde68a'
@@ -561,7 +562,7 @@ export default function Dashboard() {
                               background: '#eff2fe',
                               color: '#1c21df',
                               padding: '3px 8px',
-                              borderRadius: '12px',
+                              borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
                               border: '1px solid #bfdbfe'
@@ -578,7 +579,7 @@ export default function Dashboard() {
                               background: '#fef2f2',
                               color: '#b91c1c',
                               padding: '3px 8px',
-                              borderRadius: '12px',
+                              borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
                               border: '1px solid #fecaca'
@@ -648,6 +649,7 @@ export default function Dashboard() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Tables Row */}
@@ -909,7 +911,7 @@ export default function Dashboard() {
             width: '100%',
             maxWidth: '480px',
             background: '#ffffff',
-            borderRadius: '16px',
+            borderRadius: '6px',
             padding: '24px',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
             animation: 'modalSlideUp 0.2s ease-out'
@@ -918,7 +920,7 @@ export default function Dashboard() {
               <div style={{
                 width: '40px',
                 height: '40px',
-                borderRadius: '10px',
+                borderRadius: '6px',
                 background: actionModal.type === 'approve' ? '#eff2fe' : '#fef2f2',
                 color: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                 display: 'flex',
@@ -941,7 +943,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', marginBottom: '16px', fontSize: '0.85rem' }}>
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
               <div style={{ marginBottom: '6px' }}>
                 <strong style={{ color: '#0f172a' }}>{actionModal.request.requester_name}</strong> requested:
               </div>
@@ -965,7 +967,7 @@ export default function Dashboard() {
                 style={{
                   width: '100%',
                   padding: '8px 12px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   fontSize: '0.85rem',
                   fontFamily: 'inherit',
@@ -981,7 +983,7 @@ export default function Dashboard() {
                 onClick={() => setActionModal(prev => ({ ...prev, isOpen: false }))}
                 style={{
                   padding: '8px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   background: '#ffffff',
                   color: '#64748b',
@@ -998,7 +1000,7 @@ export default function Dashboard() {
                 onClick={handleConfirmAction}
                 style={{
                   padding: '8px 20px',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   border: 'none',
                   background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',

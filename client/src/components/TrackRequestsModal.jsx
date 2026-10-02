@@ -66,7 +66,6 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
       setEmailInput(savedEmail);
       fetchUserRequests(savedEmail);
     } else {
-      // Load deduplicated cached orders stored in localStorage for this browser
       const cleanLocal = deduplicateRequisitions([], '');
       if (cleanLocal.length > 0) {
         setRequests(cleanLocal);
@@ -155,8 +154,8 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '12px',
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        padding: '16px',
+        backgroundColor: 'rgba(15, 23, 42, 0.7)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         zIndex: 1200,
@@ -169,12 +168,12 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
       <div 
         style={{
           width: '100%',
-          maxWidth: '540px',
-          maxHeight: '90dvh',
+          maxWidth: '640px',
+          maxHeight: '92dvh',
           height: 'auto',
           backgroundColor: '#ffffff',
           borderRadius: '6px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.08)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -184,98 +183,162 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
       >
         <style>{`
           @keyframes trackModalIn {
-            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
           }
-          @keyframes pulsePending {
+          @keyframes pulseDotAnim {
             0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.3); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.8; }
           }
-          .pulse-dot {
+          .pulse-dot-amber {
             width: 7px;
             height: 7px;
             border-radius: 50%;
             background-color: #f59e0b;
             display: inline-block;
-            animation: pulsePending 2s infinite ease-in-out;
+            animation: pulseDotAnim 2s infinite ease-in-out;
+            flex-shrink: 0;
           }
-          .track-request-row {
+          .track-request-card {
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             background: #ffffff;
-            transition: all 0.15s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
             overflow: hidden;
           }
-          .track-request-row:hover {
+          .track-request-card:hover {
             border-color: #cbd5e1;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
           }
-          .track-request-row.is-expanded {
+          .track-request-card.is-expanded {
             border-color: #1c21df;
-            box-shadow: 0 2px 10px rgba(28, 33, 223, 0.08);
+            box-shadow: 0 4px 14px rgba(28, 33, 223, 0.09);
           }
-          .track-filter-tab {
+          .track-filter-scroll-bar {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+          }
+          .track-filter-scroll-bar::-webkit-scrollbar {
+            display: none;
+          }
+          .track-filter-pill {
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 0.78rem;
             font-weight: 600;
             border: 1px solid transparent;
-            background: none;
+            background: transparent;
             color: #64748b;
             cursor: pointer;
             display: inline-flex;
-            alignItems: center;
+            align-items: center;
             gap: 6px;
+            white-space: nowrap;
             transition: all 0.15s ease;
+            flex-shrink: 0;
           }
-          .track-filter-tab:hover {
+          .track-filter-pill:hover {
             color: #0f172a;
-            background: #f1f5f9;
+            background: #e2e8f0;
           }
-          .track-filter-tab.active {
+          .track-filter-pill.active {
             background: #ffffff;
             color: #1c21df;
-            border-color: #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
           }
-          .track-badge-count {
-            padding: 1px 6px;
+          .track-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
             border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.73rem;
+            font-weight: 500;
+          }
+          .track-stepper-node {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+          }
+          .track-card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+          }
+          .track-card-status-cluster {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+          }
+          .track-card-chips-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-left: 54px;
+          }
+          @media (max-width: 480px) {
+            .track-card-chips-strip {
+              padding-left: 0;
+            }
+          }
+          @media (max-width: 420px) {
+            .track-card-header-row {
+              flex-direction: column;
+              align-items: stretch;
+              gap: 8px;
+            }
+            .track-card-status-cluster {
+              justify-content: space-between;
+              width: 100%;
+              padding-top: 6px;
+              border-top: 1px dashed #f1f5f9;
+            }
           }
         `}</style>
 
-        {/* Modal Header */}
+        {/* Modal Top Header */}
         <div style={{
-          padding: '14px 18px',
+          padding: '14px 20px',
           borderBottom: '1px solid #f1f5f9',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexShrink: 0
+          flexShrink: 0,
+          background: '#ffffff'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: '6px',
-              background: '#eff6ff',
+              background: '#eff2fe',
               color: '#1c21df',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>receipt_long</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>receipt_long</span>
             </div>
             <div>
-              <h2 id="track-modal-title" style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <h2 id="track-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>
                 My Equipment Requests
               </h2>
-              <span style={{ fontSize: '0.73rem', color: '#64748b' }}>
-                Track requisition approvals and pickup notifications
+              <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
+                Track requisition approval status & hardware pickup notifications
               </span>
             </div>
           </div>
@@ -288,11 +351,12 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               border: 'none',
               color: '#94a3b8',
               cursor: 'pointer',
-              padding: '4px',
+              padding: '6px',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'color 0.15s ease'
             }}
             aria-label="Close modal"
           >
@@ -300,13 +364,13 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
           </button>
         </div>
 
-        {/* Search by Email Bar */}
-        <div style={{ padding: '12px 18px 10px 18px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+        {/* Email Lookup Bar */}
+        <div style={{ padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
           <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px' }}>
             <div style={{ position: 'relative', flex: 1 }}>
               <span className="material-symbols-outlined" style={{
                 position: 'absolute',
-                left: '10px',
+                left: '11px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: '18px',
@@ -317,19 +381,20 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               <input 
                 type="email"
                 required
-                placeholder="Enter your email address"
+                placeholder="Enter email address used for requisition"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px 8px 34px',
+                  padding: '9px 12px 9px 36px',
                   borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   background: '#ffffff',
-                  fontSize: '0.85rem',
+                  fontSize: '0.86rem',
                   color: '#0f172a',
                   outline: 'none',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit'
                 }}
               />
             </div>
@@ -337,20 +402,22 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               type="submit"
               disabled={loading}
               style={{
-                padding: '8px 16px',
+                padding: '9px 18px',
                 borderRadius: '6px',
                 border: 'none',
                 background: '#1c21df',
                 color: '#ffffff',
-                fontSize: '0.82rem',
+                fontSize: '0.84rem',
                 fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px'
+                gap: '6px',
+                boxShadow: '0 1px 3px rgba(28, 33, 223, 0.25)',
+                whiteSpace: 'nowrap'
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>
                 {loading ? 'hourglass_top' : 'search'}
               </span>
               <span>Find</span>
@@ -358,48 +425,68 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
           </form>
         </div>
 
-        {/* Organized Filter Tabs Bar */}
+        {/* Filter Tabs Navigation Bar */}
         {requests.length > 0 && (
           <div style={{
-            padding: '8px 18px',
+            padding: '8px 20px',
             background: '#f1f5f9',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '6px',
-            flexWrap: 'wrap'
+            gap: '8px'
           }}>
-            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <div className="track-filter-scroll-bar">
               <button
                 type="button"
-                className={`track-filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
+                className={`track-filter-pill ${activeFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('all')}
               >
-                <span>All</span>
-                <span className="track-badge-count" style={{ background: activeFilter === 'all' ? '#eff6ff' : '#e2e8f0', color: activeFilter === 'all' ? '#1c21df' : '#64748b' }}>
+                <span>All Orders</span>
+                <span style={{ 
+                  background: activeFilter === 'all' ? '#eff2fe' : '#e2e8f0', 
+                  color: activeFilter === 'all' ? '#1c21df' : '#475569',
+                  padding: '1px 6px',
+                  borderRadius: '6px',
+                  fontSize: '0.7rem',
+                  fontWeight: 700
+                }}>
                   {counts.all}
                 </span>
               </button>
 
               <button
                 type="button"
-                className={`track-filter-tab ${activeFilter === 'pending' ? 'active' : ''}`}
+                className={`track-filter-pill ${activeFilter === 'pending' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('pending')}
               >
-                <span>Pending</span>
-                <span className="track-badge-count" style={{ background: '#fffbeb', color: '#b45309' }}>
+                <span>In Review</span>
+                <span style={{ 
+                  background: '#fffbeb', 
+                  color: '#b45309',
+                  padding: '1px 6px',
+                  borderRadius: '6px',
+                  fontSize: '0.7rem',
+                  fontWeight: 700
+                }}>
                   {counts.pending}
                 </span>
               </button>
 
               <button
                 type="button"
-                className={`track-filter-tab ${activeFilter === 'approved' ? 'active' : ''}`}
+                className={`track-filter-pill ${activeFilter === 'approved' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('approved')}
               >
-                <span>Ready / Approved</span>
-                <span className="track-badge-count" style={{ background: '#eff2fe', color: '#1c21df' }}>
+                <span>Ready for Pickup</span>
+                <span style={{ 
+                  background: '#eff2fe', 
+                  color: '#1c21df',
+                  padding: '1px 6px',
+                  borderRadius: '6px',
+                  fontSize: '0.7rem',
+                  fontWeight: 700
+                }}>
                   {counts.approved}
                 </span>
               </button>
@@ -407,11 +494,18 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               {counts.declined > 0 && (
                 <button
                   type="button"
-                  className={`track-filter-tab ${activeFilter === 'declined' ? 'active' : ''}`}
+                  className={`track-filter-pill ${activeFilter === 'declined' ? 'active' : ''}`}
                   onClick={() => setActiveFilter('declined')}
                 >
                   <span>Declined</span>
-                  <span className="track-badge-count" style={{ background: '#fef2f2', color: '#b91c1c' }}>
+                  <span style={{ 
+                    background: '#fef2f2', 
+                    color: '#b91c1c',
+                    padding: '1px 6px',
+                    borderRadius: '6px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700
+                  }}>
                     {counts.declined}
                   </span>
                 </button>
@@ -425,18 +519,19 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                 background: 'none',
                 border: 'none',
                 color: '#64748b',
-                fontSize: '0.74rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
                 padding: '4px 6px',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                flexShrink: 0
               }}
               title="Refresh status from live lab system"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '14px', animation: loading ? 'spin 1s linear infinite' : 'none' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '15px', animation: loading ? 'spin 1s linear infinite' : 'none' }}>
                 refresh
               </span>
               <span>Refresh</span>
@@ -446,21 +541,21 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
 
         {/* Requests List Area */}
         <div style={{
-          padding: '14px 18px',
+          padding: '16px 20px',
           overflowY: 'auto',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px',
+          gap: '12px',
           WebkitOverflowScrolling: 'touch',
           overscrollBehavior: 'contain'
         }}>
           {loading && requests.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite', color: '#1c21df' }}>
+            <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748b' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '34px', animation: 'spin 1s linear infinite', color: '#1c21df' }}>
                 progress_activity
               </span>
-              <div style={{ marginTop: '8px', fontSize: '0.85rem' }}>Retrieving your requests...</div>
+              <div style={{ marginTop: '10px', fontSize: '0.88rem' }}>Loading your requisitions...</div>
             </div>
           ) : filteredRequests.length > 0 ? (
             <>
@@ -477,9 +572,9 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                 return (
                   <div 
                     key={req.id} 
-                    className={`track-request-row ${isExpanded ? 'is-expanded' : ''}`}
+                    className={`track-request-card ${isExpanded ? 'is-expanded' : ''}`}
                   >
-                    {/* Header Row (Click to expand/collapse) */}
+                    {/* Clickable Header Container */}
                     <div
                       onClick={() => setExpandedId(prev => prev === req.id ? null : req.id)}
                       role="button"
@@ -492,140 +587,188 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                         }
                       }}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '11px 12px',
+                        padding: '13px 14px',
                         cursor: 'pointer',
                         userSelect: 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
                         gap: '10px'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
-                        {itemImg ? (
-                          <img 
-                            src={itemImg} 
-                            alt="" 
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              objectFit: 'contain',
+                      {/* Top Row: Thumbnail + Item Name + Status Badge + Chevron */}
+                      <div className="track-card-header-row">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+                          {itemImg ? (
+                            <img 
+                              src={itemImg} 
+                              alt="" 
+                              style={{
+                                width: '42px',
+                                height: '42px',
+                                objectFit: 'contain',
+                                borderRadius: '6px',
+                                border: '1px solid #e2e8f0',
+                                background: '#ffffff',
+                                flexShrink: 0
+                              }}
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div style={{
+                              width: '42px',
+                              height: '42px',
                               borderRadius: '6px',
-                              border: '1px solid #e2e8f0',
-                              background: '#ffffff',
-                              flexShrink: 0
-                            }}
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
-                        ) : (
-                          <div style={{
-                            width: '38px',
-                            height: '38px',
-                            borderRadius: '6px',
-                            background: '#f1f5f9',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#94a3b8',
-                            flexShrink: 0
-                          }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>build</span>
-                          </div>
-                        )}
-
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <h4 style={{
-                              margin: 0,
-                              fontSize: '0.88rem',
-                              fontWeight: 700,
-                              color: '#0f172a',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis'
-                            }}>
-                              {req.items?.item_name || req.item_name || 'Equipment Item'}
-                            </h4>
-                            <span style={{
-                              fontSize: '0.68rem',
-                              fontFamily: 'monospace',
-                              fontWeight: 600,
-                              color: '#64748b',
                               background: '#f1f5f9',
-                              padding: '1px 5px',
-                              borderRadius: '4px'
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#94a3b8',
+                              flexShrink: 0,
+                              border: '1px solid #e2e8f0'
                             }}>
-                              {shortCode}
-                            </span>
-                          </div>
+                              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>build</span>
+                            </div>
+                          )}
 
-                          <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', flexWrap: 'wrap' }}>
-                            <span>Qty: <strong>{req.quantity} {req.items?.store || 'unit(s)'}</strong></span>
-                            <span>•</span>
-                            <span>Project: <strong>{req.project_name || 'General'}</strong></span>
-                            <span>•</span>
-                            <span>Needed: <strong>{req.needed_date || '—'}</strong></span>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <h3 style={{
+                                margin: 0,
+                                fontSize: '0.92rem',
+                                fontWeight: 700,
+                                color: '#0f172a',
+                                lineHeight: 1.3
+                              }}>
+                                {req.items?.item_name || req.item_name || 'Equipment Item'}
+                              </h3>
+                              <span style={{
+                                fontSize: '0.68rem',
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                color: '#475569',
+                                background: '#f1f5f9',
+                                border: '1px solid #e2e8f0',
+                                padding: '1px 6px',
+                                borderRadius: '6px'
+                              }}>
+                                {shortCode}
+                              </span>
+                            </div>
                           </div>
+                        </div>
+
+                        {/* Status Badge & Expand Chevron */}
+                        <div className="track-card-status-cluster">
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '4px 9px',
+                            borderRadius: '6px',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
+                            color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
+                            border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {isPending && <span className="pulse-dot-amber" />}
+                            {isApproved && <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>verified</span>}
+                            {isDeclined && <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>cancel</span>}
+                            <span>{isPending ? 'Pending Review' : (isApproved ? 'Ready for Pickup' : 'Declined')}</span>
+                          </span>
+
+                          <span 
+                            className="material-symbols-outlined"
+                            style={{
+                              fontSize: '20px',
+                              color: '#94a3b8',
+                              transition: 'transform 0.2s ease',
+                              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                            }}
+                          >
+                            expand_more
+                          </span>
                         </div>
                       </div>
 
-                      {/* Right side: Status badge + Chevron */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          padding: '4px 9px',
-                          borderRadius: '6px',
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                          background: isPending ? '#fffbeb' : (isApproved ? '#eff2fe' : '#fef2f2'),
-                          color: isPending ? '#b45309' : (isApproved ? '#1c21df' : '#b91c1c'),
-                          border: `1px solid ${isPending ? '#fef3c7' : (isApproved ? '#bfdbfe' : '#fecaca')}`
-                        }}>
-                          {isPending && <span className="pulse-dot" />}
-                          {isApproved && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>verified</span>}
-                          {isDeclined && <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>cancel</span>}
-                          <span>{isPending ? 'Pending Review' : (isApproved ? 'Ready for Pickup' : 'Declined')}</span>
+                      {/* Bottom Row of Closed Card: Metadata Badges */}
+                      <div className="track-card-chips-strip">
+                        <span className="track-meta-chip">
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#1c21df' }}>inventory_2</span>
+                          <span><strong>{req.quantity}</strong> {req.items?.store || 'unit(s)'}</span>
                         </span>
-                        <span 
-                          className="material-symbols-outlined"
-                          style={{
-                            fontSize: '18px',
-                            color: '#94a3b8',
-                            transition: 'transform 0.2s ease',
-                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                          }}
-                        >
-                          expand_more
+                        <span className="track-meta-chip">
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#64748b' }}>folder</span>
+                          <span>{req.project_name || 'General'}</span>
                         </span>
+                        <span className="track-meta-chip">
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#d97706' }}>calendar_month</span>
+                          <span>Needed: {formatFriendlyDate(req.needed_date)}</span>
+                        </span>
+                        {req.return_date && (
+                          <span className="track-meta-chip">
+                            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#059669' }}>event_repeat</span>
+                            <span>Return: {formatFriendlyDate(req.return_date)}</span>
+                          </span>
+                        )}
                       </div>
                     </div>
 
                     {/* Collapsible Details Body */}
                     {isExpanded && (
                       <div style={{
-                        padding: '12px 14px 14px 14px',
+                        padding: '14px 16px 16px 16px',
                         borderTop: '1px solid #f1f5f9',
                         background: '#fafbfc',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '10px',
-                        fontSize: '0.78rem'
+                        gap: '12px',
+                        fontSize: '0.8rem'
                       }}>
-                        {/* Reference Bar */}
+                        {/* Visual Progress Stepper */}
+                        <div style={{
+                          padding: '10px 14px',
+                          background: '#ffffff',
+                          borderRadius: '6px',
+                          border: '1px solid #e2e8f0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '6px'
+                        }}>
+                          <div className="track-stepper-node" style={{ color: '#059669' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
+                            <span>1. Requested</span>
+                          </div>
+                          <span style={{ height: '1px', flex: 1, background: '#cbd5e1' }} />
+                          <div className="track-stepper-node" style={{ color: isDeclined ? '#dc2626' : (isApproved ? '#059669' : '#d97706') }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                              {isDeclined ? 'cancel' : (isApproved ? 'check_circle' : 'hourglass_top')}
+                            </span>
+                            <span>2. {isDeclined ? 'Declined' : 'Admin Review'}</span>
+                          </div>
+                          <span style={{ height: '1px', flex: 1, background: isApproved ? '#059669' : '#cbd5e1' }} />
+                          <div className="track-stepper-node" style={{ color: isApproved ? '#1c21df' : '#94a3b8' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                              {isApproved ? 'verified' : 'schedule'}
+                            </span>
+                            <span>3. Collection</span>
+                          </div>
+                        </div>
+
+                        {/* Order Reference Strip */}
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '6px 10px',
-                          background: '#f8fafc',
+                          padding: '8px 12px',
+                          background: '#ffffff',
                           borderRadius: '6px',
-                          border: '1px solid #e2e8f0',
-                          fontSize: '0.73rem'
+                          border: '1px solid #e2e8f0'
                         }}>
                           <span style={{ color: '#64748b' }}>
-                            Order Reference: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{shortCode}</strong>
+                            Official Order Reference: <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '0.86rem' }}>{shortCode}</strong>
                           </span>
                           <button
                             type="button"
@@ -634,68 +777,69 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                               handleCopy(req.id, shortCode);
                             }}
                             style={{
-                              background: 'none',
-                              border: 'none',
+                              background: '#eff2fe',
+                              border: '1px solid #bfdbfe',
                               color: '#1c21df',
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '3px',
-                              padding: 0
+                              gap: '4px',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.74rem'
                             }}
                           >
-                            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
                               {isCopied ? 'check' : 'content_copy'}
                             </span>
                             <span>{isCopied ? 'Copied' : 'Copy ID'}</span>
                           </button>
                         </div>
 
-                        {/* Metadata Grid */}
+                        {/* Structured Details Cards */}
                         <div style={{
                           display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))',
                           gap: '8px',
                           background: '#ffffff',
-                          padding: '10px 12px',
+                          padding: '12px',
                           borderRadius: '6px',
                           border: '1px solid #e2e8f0'
                         }}>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Project</span>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Project</span>
                             <strong style={{ color: '#1c21df' }}>{req.project_name || 'General'}</strong>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Required Date</span>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Needed Date</span>
                             <strong style={{ color: '#0f172a' }}>{formatFriendlyDate(req.needed_date)}</strong>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Return Schedule</span>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Expected Return</span>
                             <strong style={{ color: '#0f172a' }}>
-                              {req.return_date ? formatFriendlyDate(req.return_date) : 'Consumable / Non-returnable'}
+                              {req.return_date ? formatFriendlyDate(req.return_date) : 'Consumable / Permanent'}
                             </strong>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Requested On</span>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Submitted On</span>
                             <span style={{ color: '#475569' }}>{formatFriendlyDate(req.created_at)}</span>
                           </div>
 
                           {req.purpose && (
-                            <div style={{ gridColumn: '1 / -1', marginTop: '4px', borderTop: '1px dashed #e2e8f0', paddingTop: '6px' }}>
-                              <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>Purpose</span>
+                            <div style={{ gridColumn: '1 / -1', marginTop: '6px', borderTop: '1px dashed #e2e8f0', paddingTop: '8px' }}>
+                              <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Intended Purpose</span>
                               <span style={{ color: '#334155', fontStyle: 'italic' }}>"{req.purpose}"</span>
                             </div>
                           )}
                         </div>
 
-                        {/* Action Box based on Status */}
+                        {/* Status Action Callout Box */}
                         {isPending && (
                           <div style={{
-                            padding: '10px 12px',
+                            padding: '12px 14px',
                             background: '#fffbeb',
                             borderRadius: '6px',
-                            fontSize: '0.76rem',
                             color: '#92400e',
                             border: '1px solid #fef3c7',
                             display: 'flex',
@@ -703,21 +847,20 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             gap: '4px'
                           }}>
                             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#f59e0b' }}>hourglass_top</span>
-                              <span>Under Review by Lab Team</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#f59e0b' }}>schedule</span>
+                              <span>Under Review by Lab Management</span>
                             </div>
-                            <div style={{ color: '#78350f', paddingLeft: '22px' }}>
-                              Your requisition is in the review queue. When approved by the administrator, pickup instructions will appear here automatically.
+                            <div style={{ color: '#78350f', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
+                              Your requisition is in the active approval queue. Once approved by a lab administrator, your pickup confirmation and lab desk location will appear here automatically.
                             </div>
                           </div>
                         )}
 
                         {isApproved && (
                           <div style={{
-                            padding: '10px 12px',
+                            padding: '12px 14px',
                             background: '#eff2fe',
                             borderRadius: '6px',
-                            fontSize: '0.76rem',
                             color: '#1c21df',
                             border: '1px solid #bfdbfe',
                             display: 'flex',
@@ -725,13 +868,13 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             gap: '6px'
                           }}>
                             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>verified</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>verified</span>
                               <span>Ready for Pickup at the CIH Innovation Lab!</span>
                             </div>
-                            <div style={{ color: '#1e3a8a', paddingLeft: '22px', lineHeight: 1.4 }}>
+                            <div style={{ color: '#1e3a8a', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
                               Please present reference code <strong>{shortCode}</strong> to the lab hardware attendant.
                               {req.admin_notes && (
-                                <div style={{ marginTop: '6px', padding: '6px 8px', background: '#ffffff', borderRadius: '4px', border: '1px solid #dbeafe', color: '#1d4ed8' }}>
+                                <div style={{ marginTop: '8px', padding: '8px 10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dbeafe', color: '#1d4ed8' }}>
                                   <strong>Admin Instructions:</strong> {req.admin_notes}
                                 </div>
                               )}
@@ -741,10 +884,9 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
 
                         {isDeclined && (
                           <div style={{
-                            padding: '10px 12px',
+                            padding: '12px 14px',
                             background: '#fef2f2',
                             borderRadius: '6px',
-                            fontSize: '0.76rem',
                             color: '#991b1b',
                             border: '1px solid #fecaca',
                             display: 'flex',
@@ -752,10 +894,10 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             gap: '4px'
                           }}>
                             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>cancel</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ef4444' }}>cancel</span>
                               <span>Requisition Declined</span>
                             </div>
-                            <div style={{ color: '#7f1d1d', paddingLeft: '22px' }}>
+                            <div style={{ color: '#7f1d1d', paddingLeft: '24px', fontSize: '0.76rem' }}>
                               {req.admin_notes ? (
                                 <span><strong>Reason:</strong> {req.admin_notes}</span>
                               ) : (
@@ -771,71 +913,80 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               })}
             </>
           ) : hasSearched ? (
-            <div style={{ textAlign: 'center', padding: '40px 16px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
               <div style={{
-                width: '44px',
-                height: '44px',
+                width: '48px',
+                height: '48px',
                 borderRadius: '6px',
                 background: '#f1f5f9',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '10px',
+                marginBottom: '12px',
                 color: '#94a3b8'
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
                   {activeFilter === 'all' ? 'search_off' : 'filter_list_off'}
                 </span>
               </div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: '#0f172a' }}>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '0.94rem', color: '#0f172a' }}>
                 {activeFilter === 'all' ? 'No Requisitions Found' : `No ${activeFilter} requests`}
               </h4>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
                 {activeFilter === 'all' 
                   ? <>No equipment orders match <strong>{emailInput}</strong>.</>
-                  : <>You have no requests matching the "{activeFilter}" filter.</>}
+                  : <>You have no requests currently matching the "{activeFilter}" filter.</>}
               </p>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '40px 16px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
               <div style={{
-                width: '44px',
-                height: '44px',
+                width: '48px',
+                height: '48px',
                 borderRadius: '6px',
                 background: '#f1f5f9',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '10px',
+                marginBottom: '12px',
                 color: '#94a3b8'
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>inbox</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>inbox</span>
               </div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: '#0f172a' }}>Track Your Requisitions</h4>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '0.94rem', color: '#0f172a' }}>Track Your Requisitions</h4>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
                 Enter your email address above to view live approval and collection status.
               </p>
             </div>
           )}
         </div>
 
-        {/* Modal Footer */}
-        <div style={{ padding: '12px 18px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+        {/* Modal Bottom Footer */}
+        <div style={{ 
+          padding: '12px 20px', 
+          borderTop: '1px solid #f1f5f9', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          flexShrink: 0,
+          background: '#ffffff'
+        }}>
+          <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
             {lastRefreshed ? `Synced at ${lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'CIH Requisition Portal'}
           </span>
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: '7px 18px',
+              padding: '8px 20px',
               borderRadius: '6px',
               border: '1px solid #cbd5e1',
               background: '#ffffff',
               color: '#334155',
-              fontSize: '0.82rem',
+              fontSize: '0.84rem',
               fontWeight: 600,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'background 0.15s ease'
             }}
           >
             Close
