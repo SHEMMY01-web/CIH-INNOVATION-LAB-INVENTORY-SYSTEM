@@ -92,7 +92,7 @@ export default function Projects() {
     } catch (err) {
       if (isMountedRef.current) {
         console.error('[Projects] Fetch error:', err);
-        showError('Failed to load projects: ' + (err.message || 'Database error'));
+        showError(err, 'projects');
       }
     } finally {
       if (isMountedRef.current) {
@@ -211,7 +211,7 @@ export default function Projects() {
         status: 'active'
       });
     } catch (err) {
-      showError('Error creating project: ' + err.message);
+      showError(err, 'creating project');
     } finally {
       setSubmitting(false);
     }

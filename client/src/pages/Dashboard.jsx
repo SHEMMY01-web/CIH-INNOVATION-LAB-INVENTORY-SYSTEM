@@ -108,7 +108,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error('[Dashboard] Fetch error:', err);
-      showError('Failed to load dashboard metrics: ' + (err.message || 'Database error'));
+      showError(err, 'dashboard metrics');
     } finally {
       setLoading(false);
     }
@@ -309,7 +309,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error('[Dashboard] Action failure:', err);
-      showError('Failed to process requisition action: ' + (err.message || 'Error occurred'));
+      showError(err, 'requisition action');
       setActionModal(prev => ({ ...prev, loading: false }));
     }
   };

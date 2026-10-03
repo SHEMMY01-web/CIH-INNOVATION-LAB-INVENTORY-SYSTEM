@@ -104,7 +104,7 @@ export default function Items() {
     } catch (err) {
       if (isMountedRef.current) {
         console.error('[Items] Fetch error:', err);
-        showError('Failed to load items: ' + (err.message || 'Database error'));
+        showError(err, 'inventory items');
       }
     } finally {
       if (isMountedRef.current) {
@@ -347,7 +347,7 @@ export default function Items() {
       });
       setAddImagePreview(null);
     } catch (err) {
-      showError('Error creating item: ' + err.message);
+      showError(err, 'creating item');
     } finally {
       setSubmitting(false);
     }

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { formatSteError } from '../utils/steError';
 
 const AlertActionsContext = createContext(null);
 const AlertStateContext = createContext(null);
@@ -9,6 +10,17 @@ let globalConfirmHandler = null;
 
 export const brandAlert = (message, title = '', type = 'info') => {
   if (globalAlertHandler) {
+    if (type === 'error') {
+      const ste = formatSteError(message, title);
+      return globalAlertHandler({ 
+        message: ste.formattedText, 
+        title: ste.title, 
+        type: 'error',
+        confirmText: ste.actionButtonText || 'Dismiss',
+        steDetails: ste,
+        onAction: ste.onAction
+      });
+    }
     return globalAlertHandler({ message, title, type });
   }
   console.log(`[Alert - ${type}] ${title ? title + ': ' : ''}${message}`);
@@ -31,17 +43,27 @@ export function AlertProvider({ children }) {
     confirmText: 'Got it',
     cancelText: 'Cancel',
     isDanger: false,
+    steDetails: null,
+    onAction: null,
     resolve: null
   });
 
-  const showAlert = useCallback(({ message, title = '', type = 'info', confirmText = 'Got it' }) => {
+  const showAlert = useCallback(({ 
+    message, 
+    title = '', 
+    type = 'info', 
+    confirmText = 'Got it',
+    cancelText = '',
+    steDetails = null,
+    onAction = null
+  }) => {
     return new Promise((resolve) => {
       // Auto-derive sensible title if omitted
       let derivedTitle = title;
       if (!derivedTitle) {
         switch (type) {
           case 'success': derivedTitle = 'Success'; break;
-          case 'error': derivedTitle = 'Error Encountered'; break;
+          case 'error': derivedTitle = 'System Error'; break;
           case 'warning': derivedTitle = 'Attention'; break;
           default: derivedTitle = 'Notice'; break;
         }
@@ -53,8 +75,10 @@ export function AlertProvider({ children }) {
         message: String(message || ''),
         type,
         confirmText,
-        cancelText: '',
+        cancelText,
         isDanger: false,
+        steDetails,
+        onAction,
         resolve
       });
     });
@@ -76,6 +100,8 @@ export function AlertProvider({ children }) {
         confirmText,
         cancelText,
         isDanger,
+        steDetails: null,
+        onAction: null,
         resolve
       });
     });
@@ -85,8 +111,20 @@ export function AlertProvider({ children }) {
     return showAlert({ message, title, type: 'success', confirmText: 'Awesome' });
   }, [showAlert]);
 
-  const showError = useCallback((message, title = 'Error') => {
-    return showAlert({ message, title, type: 'error', confirmText: 'Dismiss' });
+  const showError = useCallback((messageOrError, title = '') => {
+    // Format any error into ASD-STE100 (Simplified Technical English)
+    const ste = formatSteError(messageOrError, title);
+    const requiresAction = Boolean(ste.onAction);
+
+    return showAlert({
+      message: ste.formattedText,
+      title: ste.title,
+      type: 'error',
+      confirmText: ste.actionButtonText || 'Dismiss',
+      cancelText: requiresAction ? 'Dismiss' : '',
+      steDetails: ste,
+      onAction: ste.onAction
+    });
   }, [showAlert]);
 
   const showWarning = useCallback((message, title = 'Attention') => {
@@ -95,17 +133,31 @@ export function AlertProvider({ children }) {
 
   const handleClose = useCallback((result = false) => {
     setModalState(prev => {
+      // If confirmed and an action handler is attached (e.g. sign out, reload), execute it
+      if (result && typeof prev.onAction === 'function') {
+        try {
+          prev.onAction();
+        } catch (actionErr) {
+          console.error('[AlertContext] Action execution error:', actionErr);
+        }
+      }
       if (prev.resolve) {
         prev.resolve(result);
       }
-      return { ...prev, isOpen: false, resolve: null };
+      return { 
+        ...prev, 
+        isOpen: false, 
+        resolve: null,
+        steDetails: null,
+        onAction: null 
+      };
     });
   }, []);
 
   // Connect global non-React triggers
   useEffect(() => {
-    globalAlertHandler = ({ message, title, type }) => {
-      return showAlert({ message, title, type });
+    globalAlertHandler = ({ message, title, type, confirmText, cancelText, steDetails, onAction }) => {
+      return showAlert({ message, title, type, confirmText, cancelText, steDetails, onAction });
     };
 
     globalConfirmHandler = ({ message, title, isDanger }) => {

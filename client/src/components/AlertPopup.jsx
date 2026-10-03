@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAlertModal } from '../contexts/AlertContext';
 
 export default function AlertPopup() {
   const { modalState, handleClose } = useAlertModal();
   const confirmBtnRef = useRef(null);
+  const [showTechDetails, setShowTechDetails] = useState(false);
 
   const {
     isOpen,
@@ -11,13 +12,17 @@ export default function AlertPopup() {
     message,
     type = 'info',
     confirmText = 'Got it',
-    cancelText = 'Cancel',
-    isDanger = false
+    cancelText = '',
+    isDanger = false,
+    steDetails = null
   } = modalState;
 
-  // Keyboard accessibility
+  // Keyboard accessibility and reset states
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setShowTechDetails(false);
+      return;
+    }
 
     // Focus confirm button when popup opens
     const timer = setTimeout(() => {
@@ -41,6 +46,7 @@ export default function AlertPopup() {
   if (!isOpen) return null;
 
   const isConfirm = type === 'confirm';
+  const hasCancel = Boolean(cancelText);
 
   // Styling tokens per alert type
   const getTypeConfig = () => {
@@ -126,11 +132,11 @@ export default function AlertPopup() {
         aria-describedby="alert-dialog-message"
         style={{
           width: '100%',
-          maxWidth: '440px',
+          maxWidth: '480px',
           background: 'var(--card-bg, #ffffff)',
           borderRadius: '6px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.6)',
-          padding: '28px 24px 24px 24px',
+          padding: '26px 24px 22px 24px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -143,8 +149,8 @@ export default function AlertPopup() {
         {/* Status Icon Badge */}
         <div
           style={{
-            width: '64px',
-            height: '64px',
+            width: '60px',
+            height: '60px',
             borderRadius: '6px',
             backgroundColor: config.bg,
             border: `1.5px solid ${config.border}`,
@@ -152,14 +158,14 @@ export default function AlertPopup() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '18px',
+            marginBottom: '16px',
             flexShrink: 0
           }}
         >
           <span
             className="material-symbols-outlined"
             style={{
-              fontSize: '34px',
+              fontSize: '32px',
               color: config.color,
               lineHeight: 1
             }}
@@ -172,9 +178,9 @@ export default function AlertPopup() {
         <h3
           id="alert-dialog-title"
           style={{
-            margin: '0 0 8px 0',
-            fontSize: '1.25rem',
-            fontWeight: 700,
+            margin: '0 0 12px 0',
+            fontSize: '1.2rem',
+            fontWeight: 600,
             fontFamily: 'var(--font-family, Outfit, sans-serif)',
             color: 'var(--text-color, #0f172a)',
             letterSpacing: '-0.01em'
@@ -183,49 +189,158 @@ export default function AlertPopup() {
           {title}
         </h3>
 
-        {/* Message */}
-        <div
-          id="alert-dialog-message"
-          style={{
-            margin: '0 0 24px 0',
-            fontSize: '0.94rem',
-            lineHeight: 1.55,
-            color: 'var(--text-secondary, #475569)',
-            whiteSpace: 'pre-line',
-            maxHeight: '40vh',
-            overflowY: 'auto',
-            padding: '0 4px',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}
-        >
-          {message}
-        </div>
+        {/* Message: Standard ASD-STE100 Structured 3-Part View or Regular Text */}
+        {steDetails ? (
+          <div
+            id="alert-dialog-message"
+            style={{
+              textAlign: 'left',
+              width: '100%',
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {/* Condition / Problem */}
+            <div style={{
+              padding: '9px 12px',
+              background: '#f8fafc',
+              borderRadius: '6px',
+              border: '1px solid #e2e8f0',
+              fontSize: '0.84rem',
+              lineHeight: 1.45
+            }}>
+              <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748b', fontWeight: 500, marginBottom: '2px' }}>
+                Problem
+              </div>
+              <div style={{ color: '#0f172a', fontWeight: 500 }}>
+                {steDetails.problem}
+              </div>
+            </div>
+
+            {/* Cause */}
+            <div style={{
+              padding: '9px 12px',
+              background: '#fff7ed',
+              borderRadius: '6px',
+              border: '1px solid #fed7aa',
+              fontSize: '0.84rem',
+              lineHeight: 1.45
+            }}>
+              <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#c2410c', fontWeight: 500, marginBottom: '2px' }}>
+                Cause
+              </div>
+              <div style={{ color: '#9a3412', fontWeight: 500 }}>
+                {steDetails.cause}
+              </div>
+            </div>
+
+            {/* Required Action */}
+            <div style={{
+              padding: '9px 12px',
+              background: '#eff2fe',
+              borderRadius: '6px',
+              border: '1px solid #bfdbfe',
+              fontSize: '0.84rem',
+              lineHeight: 1.45
+            }}>
+              <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1c21df', fontWeight: 500, marginBottom: '2px' }}>
+                Required Action
+              </div>
+              <div style={{ color: '#1e3a8a', fontWeight: 500 }}>
+                {steDetails.action}
+              </div>
+            </div>
+
+            {/* Technical Diagnostics Accordion for Lab Administrators */}
+            {steDetails.rawTechnical && (
+              <div style={{ marginTop: '2px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowTechDetails(prev => !prev)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#94a3b8',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer',
+                    padding: '2px 0',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                    {showTechDetails ? 'expand_less' : 'tune'}
+                  </span>
+                  <span>{showTechDetails ? 'Hide technical code' : 'Technical diagnostics'}</span>
+                </button>
+                {showTechDetails && (
+                  <div style={{
+                    marginTop: '4px',
+                    padding: '8px 10px',
+                    background: '#f1f5f9',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    fontFamily: 'monospace',
+                    fontSize: '0.72rem',
+                    color: '#475569',
+                    wordBreak: 'break-all',
+                    maxHeight: '75px',
+                    overflowY: 'auto'
+                  }}>
+                    {steDetails.rawTechnical}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            id="alert-dialog-message"
+            style={{
+              margin: '0 0 20px 0',
+              fontSize: '0.92rem',
+              lineHeight: 1.55,
+              color: 'var(--text-secondary, #475569)',
+              whiteSpace: 'pre-line',
+              maxHeight: '40vh',
+              overflowY: 'auto',
+              padding: '0 4px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            {message}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div
           style={{
             display: 'flex',
-            gap: '12px',
+            gap: '10px',
             width: '100%',
-            justifyContent: isConfirm ? 'flex-end' : 'stretch',
+            justifyContent: (isConfirm || hasCancel) ? 'flex-end' : 'stretch',
             alignItems: 'center',
             boxSizing: 'border-box'
           }}
         >
-          {isConfirm && (
+          {(isConfirm || hasCancel) && (
             <button
               type="button"
               onClick={() => handleClose(false)}
               style={{
                 flex: 1,
-                padding: '11px 18px',
+                padding: '10px 16px',
                 borderRadius: '6px',
                 border: '1px solid var(--border-color, #cbd5e1)',
                 backgroundColor: 'var(--card-bg, #ffffff)',
                 color: 'var(--text-secondary, #475569)',
-                fontWeight: 600,
-                fontSize: '0.92rem',
+                fontWeight: 500,
+                fontSize: '0.88rem',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 whiteSpace: 'nowrap'
@@ -246,19 +361,19 @@ export default function AlertPopup() {
             type="button"
             onClick={() => handleClose(true)}
             style={{
-              flex: isConfirm ? 1 : 'none',
-              width: isConfirm ? 'auto' : '100%',
-              padding: '11px 22px',
+              flex: (isConfirm || hasCancel) ? 1 : 'none',
+              width: (isConfirm || hasCancel) ? 'auto' : '100%',
+              padding: '10px 20px',
               borderRadius: '6px',
               border: 'none',
               backgroundColor: isDanger ? '#ef4444' : 'var(--primary-color, #1c21df)',
               color: '#ffffff',
-              fontWeight: 600,
-              fontSize: '0.92rem',
+              fontWeight: 500,
+              fontSize: '0.88rem',
               cursor: 'pointer',
               boxShadow: isDanger
-                ? '0 4px 12px rgba(239, 68, 68, 0.3)'
-                : '0 4px 14px rgba(28, 33, 223, 0.3)',
+                ? '0 3px 10px rgba(239, 68, 68, 0.3)'
+                : '0 3px 10px rgba(28, 33, 223, 0.3)',
               transition: 'all 0.15s ease',
               whiteSpace: 'nowrap',
               display: 'inline-flex',
@@ -269,14 +384,14 @@ export default function AlertPopup() {
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-1px)';
               e.currentTarget.style.boxShadow = isDanger
-                ? '0 6px 16px rgba(239, 68, 68, 0.4)'
-                : '0 6px 18px rgba(28, 33, 223, 0.4)';
+                ? '0 5px 14px rgba(239, 68, 68, 0.4)'
+                : '0 5px 14px rgba(28, 33, 223, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = isDanger
-                ? '0 4px 12px rgba(239, 68, 68, 0.3)'
-                : '0 4px 14px rgba(28, 33, 223, 0.3)';
+                ? '0 3px 10px rgba(239, 68, 68, 0.3)'
+                : '0 3px 10px rgba(28, 33, 223, 0.3)';
             }}
           >
             {confirmText}
@@ -292,7 +407,7 @@ export default function AlertPopup() {
         @keyframes alertCardPopIn {
           0% {
             opacity: 0;
-            transform: scale(0.92) translateY(8px);
+            transform: scale(0.94) translateY(6px);
           }
           100% {
             opacity: 1;

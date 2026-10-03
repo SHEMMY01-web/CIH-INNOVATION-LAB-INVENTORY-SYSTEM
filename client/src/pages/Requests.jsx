@@ -518,7 +518,7 @@ export default function Requests() {
       }
     } catch (err) {
       console.error('[Requests] Action failed:', err);
-      showError('Action failed: ' + (err.message || 'Unknown error'));
+      showError(err, 'requisition action');
       setActionModal(prev => ({ ...prev, loading: false }));
     }
   };
@@ -721,7 +721,7 @@ export default function Requests() {
       setProofFile(null);
       setProofPreview(null);
     } catch (err) {
-      showError('Error recording transaction: ' + err.message);
+      showError(err, 'recording transaction');
     } finally {
       setSubmitting(false);
     }

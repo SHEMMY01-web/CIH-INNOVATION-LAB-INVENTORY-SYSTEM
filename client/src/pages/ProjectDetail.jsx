@@ -465,7 +465,7 @@ export default function ProjectDetail() {
       setIsAddModalOpen(false);
       await showSuccess(`${addType === 'asset' ? 'Asset' : 'Item'} successfully added to ${project.name}!`);
     } catch (err) {
-      showError('Error adding to project: ' + err.message);
+      showError(err, 'adding to project');
     } finally {
       setSubmitting(false);
     }

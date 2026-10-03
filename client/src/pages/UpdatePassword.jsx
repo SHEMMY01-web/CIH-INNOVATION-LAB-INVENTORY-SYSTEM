@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { formatSteError } from '../utils/steError';
 import '../styles/forgot.css';
 
 const PASSWORD_MIN_LENGTH = 8;
@@ -124,7 +125,8 @@ export default function UpdatePassword() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      setMessage({ text: error.message, type: 'error' });
+      const ste = formatSteError(error, 'password update');
+      setMessage({ text: ste.formattedText, type: 'error' });
       setIsLoading(false);
     } else {
       setMessage({ text: 'Password updated securely! Signing out all sessions...', type: 'success' });

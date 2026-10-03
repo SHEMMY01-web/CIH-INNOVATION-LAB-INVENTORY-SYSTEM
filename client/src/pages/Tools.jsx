@@ -93,7 +93,7 @@ export default function Tools() {
     } catch (err) {
       if (isMountedRef.current) {
         console.error('[Tools] Fetch error:', err);
-        showError('Failed to load tools: ' + (err.message || 'Database error'));
+        showError(err, 'tools');
       }
     } finally {
       if (isMountedRef.current) {
@@ -307,7 +307,7 @@ export default function Tools() {
       });
       setAddImagePreview(null);
     } catch (err) {
-      showError('Error creating tool: ' + err.message);
+      showError(err, 'creating tool');
     } finally {
       setSubmitting(false);
     }

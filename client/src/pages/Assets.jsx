@@ -93,7 +93,7 @@ export default function Assets() {
     } catch (err) {
       if (isMountedRef.current) {
         console.error('[Assets] Fetch error:', err);
-        showError('Failed to load assets: ' + (err.message || 'Database error'));
+        showError(err, 'assets');
       }
     } finally {
       if (isMountedRef.current) {
@@ -308,7 +308,7 @@ export default function Assets() {
       });
       setAddImagePreview(null);
     } catch (err) {
-      showError('Error creating asset: ' + err.message);
+      showError(err, 'creating asset');
     } finally {
       setSubmitting(false);
     }

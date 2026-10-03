@@ -140,7 +140,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
           } catch (err) {
             console.warn('[EditItemModal] Storage upload exception:', err.message);
-            showError('Image upload failed: ' + err.message, 'Upload Failed');
+            showError(err, 'image upload');
           } finally {
             setUploadingImage(false);
           }
@@ -195,7 +195,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
       if (onUpdated) onUpdated(data?.[0] || { ...item, ...updates });
       onClose();
     } catch (err) {
-      showError('Failed to update item: ' + err.message);
+      showError(err, 'updating item');
     } finally {
       setSaving(false);
     }
@@ -233,7 +233,7 @@ export default function EditItemModal({ isOpen, onClose, item, onUpdated, onDele
       if (onDeleted) onDeleted(item.id);
       onClose();
     } catch (err) {
-      showError('Failed to delete item: ' + err.message);
+      showError(err, 'deleting item');
     } finally {
       setDeleting(false);
     }
