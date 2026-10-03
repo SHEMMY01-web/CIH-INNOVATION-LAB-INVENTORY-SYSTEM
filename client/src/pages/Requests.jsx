@@ -1305,7 +1305,7 @@ export default function Requests() {
                                     borderRadius: '6px',
                                     border: '1px solid #dbeafe'
                                   }}>
-                                    {req.quantity} {req.items?.store || 'unit(s)'} requested
+                                    {req.quantity} {req.items?.store || 'unit(s)'}
                                   </span>
                                   {req.items?.amount !== undefined && (
                                     <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
@@ -1463,7 +1463,7 @@ export default function Requests() {
                               </div>
                             ) : (
                               <span style={{ fontSize: '0.74rem', color: isApproved ? '#1c21df' : '#94a3b8', fontWeight: 600 }}>
-                                {isApproved ? 'Fulfilled at Lab Desk' : 'Archived / Closed'}
+                                {isApproved ? 'Fulfilled' : 'Closed'}
                               </span>
                             )}
                           </div>
@@ -1898,11 +1898,6 @@ export default function Requests() {
                 <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>
                   {actionModal.type === 'approve' ? 'Approve Equipment Requisition' : 'Decline Requisition'}
                 </h3>
-                <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                  {actionModal.type === 'approve' 
-                    ? 'Will check out item and decrement stock atomically' 
-                    : 'Stock will be preserved without deduction'}
-                </p>
               </div>
             </div>
 

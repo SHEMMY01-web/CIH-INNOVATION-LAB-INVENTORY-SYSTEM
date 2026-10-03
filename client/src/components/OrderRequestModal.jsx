@@ -490,12 +490,9 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>check</span>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>
                 Request Sent Successfully
               </h3>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 16px 0', lineHeight: 1.45 }}>
-                Your order is on the lab admin dashboard. Once approved, the tools will be prepared for pickup.
-              </p>
 
               <div style={{
                 background: '#f8fafc',

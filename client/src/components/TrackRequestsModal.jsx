@@ -337,9 +337,6 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               <h2 id="track-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>
                 My Equipment Requests
               </h2>
-              <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
-                Track requisition approval status & hardware pickup notifications
-              </span>
             </div>
           </div>
 
@@ -768,7 +765,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           border: '1px solid #e2e8f0'
                         }}>
                           <span style={{ color: '#64748b' }}>
-                            Official Order Reference: <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '0.86rem' }}>{shortCode}</strong>
+                            Reference: <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '0.86rem' }}>{shortCode}</strong>
                           </span>
                           <button
                             type="button"
@@ -849,9 +846,6 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ff5421' }}>schedule</span>
                               <span>Under Review by Lab Management</span>
-                            </div>
-                            <div style={{ color: '#9a3412', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
-                              Your requisition is in the active approval queue. Once approved by a lab administrator, your pickup confirmation and lab desk location will appear here automatically.
                             </div>
                           </div>
                         )}

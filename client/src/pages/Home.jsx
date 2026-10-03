@@ -281,7 +281,6 @@ export default function Home() {
         <div className="section-container">
           <div className="section-header-center">
             <h2 className="section-title">Our <span className="orange">Projects</span></h2>
-            <p className="section-subtitle">A glimpse into what our community has built using the lab's resources.</p>
           </div>
           <div className="projects-grid">
             <div className="project-card">
@@ -371,7 +370,6 @@ export default function Home() {
           <div className="comments-wrapper">
             <div className="comments-header">
               <h2 className="section-title">Community <span className="orange">Feedback</span></h2>
-              <p>Leave your thoughts, suggestions, or feedback about the lab.</p>
             </div>
 
             <form onSubmit={handleCommentSubmit} className="comment-form">

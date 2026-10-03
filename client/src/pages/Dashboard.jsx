@@ -373,9 +373,6 @@ export default function Dashboard() {
                       </span>
                     )}
                   </h3>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                    Orders placed online by students and lab members awaiting administrator review
-                  </p>
                 </div>
               </div>
 
@@ -935,11 +932,6 @@ export default function Dashboard() {
                 <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>
                   {actionModal.type === 'approve' ? 'Approve Equipment Requisition' : 'Decline Requisition'}
                 </h3>
-                <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                  {actionModal.type === 'approve' 
-                    ? 'Will check out item and decrement stock atomically' 
-                    : 'Stock will be preserved without deduction'}
-                </p>
               </div>
             </div>
 

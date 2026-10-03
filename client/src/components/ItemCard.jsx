@@ -85,7 +85,7 @@ export default function ItemCard({ item, onRequest }) {
       <div className="card-content">
         <span className="card-type">{displayType}</span>
         <h3 className="card-title">{item.item_name || 'Unnamed Item'}</h3>
-        <p className="card-model">{item.model && item.model !== '-' ? item.model : 'Standard Lab Stock'}</p>
+        {item.model && item.model !== '-' && <p className="card-model">{item.model}</p>}
         
         <div className="card-footer">
           <div className={`status-badge ${badgeClass}`}>

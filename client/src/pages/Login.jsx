@@ -57,7 +57,6 @@ export default function Login() {
         </Link>
         <div className="auth-header welcome">
           <h1>Welcome,</h1>
-          <p>Please Login here</p>
         </div>
         
         {error && <p id="login-message" style={{color: '#e53935', fontSize: '0.9rem', minHeight: '18px', margin: '0 0 8px 0'}}>{error}</p>}

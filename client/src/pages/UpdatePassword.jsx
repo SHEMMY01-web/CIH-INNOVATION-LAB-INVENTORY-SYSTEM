@@ -158,7 +158,6 @@ export default function UpdatePassword() {
         </Link>
         <div className="auth-header">
           <h1>Update Password</h1>
-          <p>Please enter your new password below.</p>
         </div>
 
         <form onSubmit={handleSubmit}>
