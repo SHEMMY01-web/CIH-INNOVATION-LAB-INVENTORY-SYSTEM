@@ -334,7 +334,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>receipt_long</span>
             </div>
             <div>
-              <h2 id="track-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>
+              <h2 id="track-modal-title" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>
                 My Equipment Requests
               </h2>
             </div>
@@ -405,7 +405,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                 background: '#1c21df',
                 color: '#ffffff',
                 fontSize: '0.84rem',
-                fontWeight: 600,
+                fontWeight: 500,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -446,7 +446,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                   padding: '1px 6px',
                   borderRadius: '6px',
                   fontSize: '0.7rem',
-                  fontWeight: 700
+                  fontWeight: 500
                 }}>
                   {counts.all}
                 </span>
@@ -464,7 +464,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                   padding: '1px 6px',
                   borderRadius: '6px',
                   fontSize: '0.7rem',
-                  fontWeight: 700
+                  fontWeight: 500
                 }}>
                   {counts.pending}
                 </span>
@@ -482,7 +482,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                   padding: '1px 6px',
                   borderRadius: '6px',
                   fontSize: '0.7rem',
-                  fontWeight: 700
+                  fontWeight: 500
                 }}>
                   {counts.approved}
                 </span>
@@ -501,7 +501,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                     padding: '1px 6px',
                     borderRadius: '6px',
                     fontSize: '0.7rem',
-                    fontWeight: 700
+                    fontWeight: 500
                   }}>
                     {counts.declined}
                   </span>
@@ -517,7 +517,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                 border: 'none',
                 color: '#64748b',
                 fontSize: '0.75rem',
-                fontWeight: 600,
+                fontWeight: 500,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -632,7 +632,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                               <h3 style={{
                                 margin: 0,
                                 fontSize: '0.92rem',
-                                fontWeight: 700,
+                                fontWeight: 500,
                                 color: '#0f172a',
                                 lineHeight: 1.3
                               }}>
@@ -641,7 +641,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                               <span style={{
                                 fontSize: '0.68rem',
                                 fontFamily: 'monospace',
-                                fontWeight: 700,
+                                fontWeight: 500,
                                 color: '#475569',
                                 background: '#f1f5f9',
                                 border: '1px solid #e2e8f0',
@@ -663,7 +663,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             padding: '4px 9px',
                             borderRadius: '6px',
                             fontSize: '0.74rem',
-                            fontWeight: 700,
+                            fontWeight: 500,
                             background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
                             color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
                             border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
@@ -693,7 +693,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                       <div className="track-card-chips-strip">
                         <span className="track-meta-chip">
                           <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#1c21df' }}>inventory_2</span>
-                          <span><strong>{req.quantity}</strong> {req.items?.store || 'unit(s)'}</span>
+                          <span>{req.quantity} {req.items?.store || 'unit(s)'}</span>
                         </span>
                         <span className="track-meta-chip">
                           <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#64748b' }}>folder</span>
@@ -765,7 +765,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           border: '1px solid #e2e8f0'
                         }}>
                           <span style={{ color: '#64748b' }}>
-                            Reference: <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '0.86rem' }}>{shortCode}</strong>
+                            Reference: <span style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '0.86rem', fontWeight: 500 }}>{shortCode}</span>
                           </span>
                           <button
                             type="button"
@@ -777,7 +777,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                               background: '#eff2fe',
                               border: '1px solid #bfdbfe',
                               color: '#1c21df',
-                              fontWeight: 600,
+                              fontWeight: 500,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -805,27 +805,27 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                           border: '1px solid #e2e8f0'
                         }}>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Project</span>
-                            <strong style={{ color: '#1c21df' }}>{req.project_name || 'General'}</strong>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 500 }}>Project</span>
+                            <span style={{ color: '#1c21df', fontWeight: 500 }}>{req.project_name || 'General'}</span>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Needed Date</span>
-                            <strong style={{ color: '#0f172a' }}>{formatFriendlyDate(req.needed_date)}</strong>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 500 }}>Needed Date</span>
+                            <span style={{ color: '#0f172a', fontWeight: 500 }}>{formatFriendlyDate(req.needed_date)}</span>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Expected Return</span>
-                            <strong style={{ color: '#0f172a' }}>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 500 }}>Expected Return</span>
+                            <span style={{ color: '#0f172a', fontWeight: 500 }}>
                               {req.return_date ? formatFriendlyDate(req.return_date) : 'Consumable / Permanent'}
-                            </strong>
+                            </span>
                           </div>
                           <div>
-                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Submitted On</span>
+                            <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 500 }}>Submitted On</span>
                             <span style={{ color: '#475569' }}>{formatFriendlyDate(req.created_at)}</span>
                           </div>
 
                           {req.purpose && (
                             <div style={{ gridColumn: '1 / -1', marginTop: '6px', borderTop: '1px dashed #e2e8f0', paddingTop: '8px' }}>
-                              <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>Intended Purpose</span>
+                              <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 500 }}>Intended Purpose</span>
                               <span style={{ color: '#334155', fontStyle: 'italic' }}>"{req.purpose}"</span>
                             </div>
                           )}
@@ -843,7 +843,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             flexDirection: 'column',
                             gap: '4px'
                           }}>
-                            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ff5421' }}>schedule</span>
                               <span>Under Review by Lab Management</span>
                             </div>
@@ -861,15 +861,15 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             flexDirection: 'column',
                             gap: '6px'
                           }}>
-                            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>verified</span>
                               <span>Ready for Pickup at the CIH Innovation Lab!</span>
                             </div>
                             <div style={{ color: '#1e3a8a', paddingLeft: '24px', fontSize: '0.76rem', lineHeight: 1.4 }}>
-                              Please present reference code <strong>{shortCode}</strong> to the lab hardware attendant.
+                              Please present reference code <span style={{ fontFamily: 'monospace', fontWeight: 500 }}>{shortCode}</span> to the lab hardware attendant.
                               {req.admin_notes && (
                                 <div style={{ marginTop: '8px', padding: '8px 10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dbeafe', color: '#1c21df' }}>
-                                  <strong>Admin Instructions:</strong> {req.admin_notes}
+                                  <span style={{ fontWeight: 500 }}>Admin Instructions:</span> {req.admin_notes}
                                 </div>
                               )}
                             </div>
@@ -887,13 +887,13 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
                             flexDirection: 'column',
                             gap: '4px'
                           }}>
-                            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#ef4444' }}>cancel</span>
                               <span>Requisition Declined</span>
                             </div>
                             <div style={{ color: '#7f1d1d', paddingLeft: '24px', fontSize: '0.76rem' }}>
                               {req.admin_notes ? (
-                                <span><strong>Reason:</strong> {req.admin_notes}</span>
+                                <span><span style={{ fontWeight: 500 }}>Reason:</span> {req.admin_notes}</span>
                               ) : (
                                 <span>The requested equipment is currently reserved or unavailable for external requisition.</span>
                               )}
@@ -928,7 +928,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               </h4>
               <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
                 {activeFilter === 'all' 
-                  ? <>No equipment orders match <strong>{emailInput}</strong>.</>
+                  ? <>No equipment orders match <span>{emailInput}</span>.</>
                   : <>You have no requests currently matching the "{activeFilter}" filter.</>}
               </p>
             </div>
@@ -978,7 +978,7 @@ export default function TrackRequestsModal({ isOpen, onClose, initialEmail = '' 
               background: '#ffffff',
               color: '#334155',
               fontSize: '0.84rem',
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: 'pointer',
               transition: 'background 0.15s ease'
             }}

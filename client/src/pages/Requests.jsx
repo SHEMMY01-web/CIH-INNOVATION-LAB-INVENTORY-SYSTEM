@@ -873,7 +873,7 @@ export default function Requests() {
                           const itemImg = getTxImage(tx);
                           return (
                             <tr key={tx.id}>
-                              <td style={{ fontWeight: 600 }}>{tx.items?.item_name || 'Unknown Item'}</td>
+                              <td style={{ fontWeight: 500 }}>{tx.items?.item_name || 'Unknown Item'}</td>
                               <td>
                                 {itemImg ? (
                                   <img src={itemImg} alt="Item" width="40" height="40" style={{ borderRadius: '6px', objectFit: 'contain', background: '#fff', border: '1px solid #e2e8f0', cursor: 'pointer' }} onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: tx.items?.item_name })} onError={(e) => { e.target.style.display = 'none'; }} />
@@ -883,7 +883,7 @@ export default function Requests() {
                               </td>
                               <td>{tx.items?.model || '—'}</td>
                               <td>{tx.items ? getItemTypeLabel(tx.items) : '—'}</td>
-                              <td><strong>{tx.amount}</strong> {tx.items?.store || 'pcs'}</td>
+                              <td>{tx.amount} {tx.items?.store || 'pcs'}</td>
                               <td>{tx.project || 'General'}</td>
                               <td>{tx.requester}</td>
                               <td>{tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : '—'}</td>
@@ -997,7 +997,7 @@ export default function Requests() {
                           const itemImg = getTxImage(tx);
                           return (
                             <tr key={tx.id}>
-                              <td style={{ fontWeight: 600 }}>{tx.items?.item_name || 'Unknown Item'}</td>
+                              <td style={{ fontWeight: 500 }}>{tx.items?.item_name || 'Unknown Item'}</td>
                               <td>
                                 {itemImg ? (
                                   <img src={itemImg} alt="Item" width="40" height="40" style={{ borderRadius: '6px', objectFit: 'contain', background: '#fff', border: '1px solid #e2e8f0', cursor: 'pointer' }} onClick={() => setLightboxItem({ isOpen: true, imageSrc: itemImg, title: tx.items?.item_name })} onError={(e) => { e.target.style.display = 'none'; }} />
@@ -1007,7 +1007,7 @@ export default function Requests() {
                               </td>
                               <td>{tx.items?.model || '—'}</td>
                               <td>{tx.items ? getItemTypeLabel(tx.items) : '—'}</td>
-                              <td><strong>{tx.amount}</strong> {tx.items?.store || 'pcs'}</td>
+                              <td>{tx.amount} {tx.items?.store || 'pcs'}</td>
                               <td>{tx.project || 'General'}</td>
                               <td>{tx.requester}</td>
                               <td>{tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : '—'}</td>
@@ -1067,7 +1067,7 @@ export default function Requests() {
                           background: reqStatusFilter === st ? 'var(--primary-color)' : '#ffffff',
                           color: reqStatusFilter === st ? '#ffffff' : '#64748b',
                           fontSize: '0.8rem',
-                          fontWeight: 600,
+                          fontWeight: 500,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -1082,7 +1082,7 @@ export default function Requests() {
                           padding: '1px 6px',
                           borderRadius: '6px',
                           fontSize: '0.72rem',
-                          fontWeight: 700
+                          fontWeight: 500
                         }}>
                           {count}
                         </span>
@@ -1104,7 +1104,7 @@ export default function Requests() {
                         background: viewModeOnline === 'cards' ? '#ffffff' : 'transparent',
                         color: viewModeOnline === 'cards' ? '#1c21df' : '#64748b',
                         fontSize: '0.78rem',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1127,7 +1127,7 @@ export default function Requests() {
                         background: viewModeOnline === 'table' ? '#ffffff' : 'transparent',
                         color: viewModeOnline === 'table' ? '#1c21df' : '#64748b',
                         fontSize: '0.78rem',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1206,7 +1206,7 @@ export default function Requests() {
                             <div style={{ minWidth: 0, flex: 1 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#1c21df' }}>person</span>
-                                <span style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span style={{ fontWeight: 500, fontSize: '0.92rem', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {req.requester_name}
                                 </span>
                               </div>
@@ -1223,7 +1223,7 @@ export default function Requests() {
                                 {req.requester_phone && (
                                   <a 
                                     href={`tel:${req.requester_phone}`} 
-                                    style={{ fontSize: '0.74rem', color: '#1c21df', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                                    style={{ fontSize: '0.74rem', color: '#1c21df', textDecoration: 'none', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                                   >
                                     <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>call</span>
                                     {req.requester_phone}
@@ -1240,7 +1240,7 @@ export default function Requests() {
                               padding: '3px 8px',
                               borderRadius: '6px',
                               fontSize: '0.72rem',
-                              fontWeight: 700,
+                              fontWeight: 500,
                               background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
                               color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
                               border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`,
@@ -1292,13 +1292,13 @@ export default function Requests() {
                               )}
 
                               <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#0f172a', lineHeight: 1.25 }}>
+                                <div style={{ fontWeight: 500, fontSize: '0.94rem', color: '#0f172a', lineHeight: 1.25 }}>
                                   {req.items?.item_name || 'Equipment'}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
                                   <span style={{
                                     fontSize: '0.74rem',
-                                    fontWeight: 700,
+                                    fontWeight: 500,
                                     color: '#1c21df',
                                     background: '#eff2fe',
                                     padding: '1px 6px',
@@ -1382,7 +1382,7 @@ export default function Requests() {
                                 color: '#475569',
                                 lineHeight: 1.35
                               }}>
-                                <strong>Purpose:</strong> {req.purpose}
+                                <span>Purpose:</span> {req.purpose}
                               </div>
                             )}
 
@@ -1396,7 +1396,7 @@ export default function Requests() {
                                 fontSize: '0.73rem',
                                 color: isApproved ? '#166534' : '#991b1b'
                               }}>
-                                <strong>Admin Note:</strong> {req.admin_notes}
+                                <span>Admin Note:</span> {req.admin_notes}
                               </div>
                             )}
                           </div>
@@ -1427,7 +1427,7 @@ export default function Requests() {
                                     background: '#fef2f2',
                                     color: '#b91c1c',
                                     fontSize: '0.78rem',
-                                    fontWeight: 600,
+                                    fontWeight: 500,
                                     cursor: 'pointer',
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -1448,7 +1448,7 @@ export default function Requests() {
                                     background: '#1c21df',
                                     color: '#ffffff',
                                     fontSize: '0.78rem',
-                                    fontWeight: 600,
+                                    fontWeight: 500,
                                     cursor: 'pointer',
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -1462,7 +1462,7 @@ export default function Requests() {
                                 </button>
                               </div>
                             ) : (
-                              <span style={{ fontSize: '0.74rem', color: isApproved ? '#1c21df' : '#94a3b8', fontWeight: 600 }}>
+                              <span style={{ fontSize: '0.74rem', color: isApproved ? '#1c21df' : '#94a3b8', fontWeight: 500 }}>
                                 {isApproved ? 'Fulfilled' : 'Closed'}
                               </span>
                             )}
@@ -1519,11 +1519,10 @@ export default function Requests() {
                             const status = (req.status || 'pending').toLowerCase();
                             const isPending = status === 'pending';
                             const isApproved = status === 'approved';
-
                             return (
                               <tr key={req.id}>
                                 <td>
-                                  <div style={{ fontWeight: 600, color: 'var(--text-color)' }}>
+                                  <div style={{ fontWeight: 500, color: 'var(--text-color)' }}>
                                     {req.items?.item_name || 'Equipment'}
                                   </div>
                                   {req.items?.model && (
@@ -1548,12 +1547,12 @@ export default function Requests() {
                                   )}
                                 </td>
                                 <td>
-                                  <div style={{ fontWeight: 600 }}>{req.requester_name}</div>
+                                  <div style={{ color: '#334155' }}>{req.requester_name}</div>
                                   {req.requester_email && (
                                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{req.requester_email}</div>
                                   )}
                                   {req.requester_phone && (
-                                    <div style={{ fontSize: '0.75rem', color: '#1c21df', fontWeight: 500 }}>{req.requester_phone}</div>
+                                    <div style={{ fontSize: '0.75rem', color: '#1c21df' }}>{req.requester_phone}</div>
                                   )}
                                 </td>
                                 <td>
@@ -1563,18 +1562,18 @@ export default function Requests() {
                                     padding: '3px 8px',
                                     borderRadius: '6px',
                                     fontSize: '0.78rem',
-                                    fontWeight: 600
+                                    fontWeight: 500
                                   }}>
                                     {req.project_name}
                                   </span>
                                   {req.purpose && (
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={req.purpose}>
-                                      {req.purpose}
+                                      "{req.purpose}"
                                     </div>
                                   )}
                                 </td>
-                                <td>
-                                  <strong>{req.quantity}</strong> {req.items?.store || 'pcs'}
+                                <td style={{ color: '#334155' }}>
+                                  {req.quantity} {req.items?.store || 'pcs'}
                                 </td>
                                 <td style={{ fontSize: '0.85rem', color: '#334155' }}>
                                   {req.needed_date || '—'}
@@ -1590,7 +1589,7 @@ export default function Requests() {
                                     padding: '3px 10px',
                                     borderRadius: '6px',
                                     fontSize: '0.75rem',
-                                    fontWeight: 600,
+                                    fontWeight: 500,
                                     background: isPending ? '#fff5f2' : (isApproved ? '#eff2fe' : '#fef2f2'),
                                     color: isPending ? '#ff5421' : (isApproved ? '#1c21df' : '#b91c1c'),
                                     border: `1px solid ${isPending ? '#ffedd5' : (isApproved ? '#bfdbfe' : '#fecaca')}`
@@ -1625,7 +1624,7 @@ export default function Requests() {
                                           background: '#eff2fe',
                                           color: '#1c21df',
                                           fontSize: '0.75rem',
-                                          fontWeight: 600,
+                                          fontWeight: 500,
                                           cursor: 'pointer'
                                         }}
                                         title="Accept and checkout item"
@@ -1646,7 +1645,7 @@ export default function Requests() {
                                           background: '#fef2f2',
                                           color: '#b91c1c',
                                           fontSize: '0.75rem',
-                                          fontWeight: 600,
+                                          fontWeight: 500,
                                           cursor: 'pointer'
                                         }}
                                         title="Decline requisition"
@@ -1903,18 +1902,18 @@ export default function Requests() {
 
             <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
               <div style={{ marginBottom: '6px' }}>
-                <strong style={{ color: '#0f172a' }}>{actionModal.request.requester_name}</strong> requested:
+                <span style={{ color: '#0f172a', fontWeight: 500 }}>{actionModal.request.requester_name}</span> requested:
               </div>
-              <div style={{ color: '#1c21df', fontWeight: 600 }}>
+              <div style={{ color: '#1c21df', fontWeight: 500 }}>
                 {actionModal.request.quantity}x {actionModal.request.items?.item_name || 'Equipment'}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
-                Project: <strong>{actionModal.request.project_name}</strong> • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
+                Project: {actionModal.request.project_name} • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
               </div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: '#334155', marginBottom: '6px' }}>
                 {actionModal.type === 'approve' ? 'Pickup Notes / Instructions (Optional)' : 'Reason for Declining (Optional)'}
               </label>
               <textarea
@@ -1946,7 +1945,7 @@ export default function Requests() {
                   background: '#ffffff',
                   color: '#64748b',
                   fontSize: '0.85rem',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer'
                 }}
               >
@@ -1963,7 +1962,7 @@ export default function Requests() {
                   background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',
                   fontSize: '0.85rem',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: actionModal.loading ? 'not-allowed' : 'pointer'
                 }}
               >

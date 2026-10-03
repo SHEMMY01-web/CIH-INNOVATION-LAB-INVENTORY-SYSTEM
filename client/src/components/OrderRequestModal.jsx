@@ -440,7 +440,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
           justifyContent: 'space-between',
           flexShrink: 0
         }}>
-          <h2 id="order-modal-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+          <h2 id="order-modal-title" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#0f172a', margin: 0 }}>
             {successOrder ? 'Requisition Submitted' : 'Request Equipment'}
           </h2>
           <button
@@ -490,7 +490,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>check</span>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#0f172a', margin: '0 0 16px 0' }}>
                 Request Sent Successfully
               </h3>
 
@@ -505,21 +505,21 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
                   <span style={{ color: '#64748b' }}>Item</span>
-                  <strong style={{ color: '#0f172a' }}>{selectedItem?.item_name || 'Equipment'}</strong>
+                  <span style={{ color: '#0f172a', fontWeight: 500 }}>{selectedItem?.item_name || 'Equipment'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
                   <span style={{ color: '#64748b' }}>Quantity</span>
-                  <strong style={{ color: '#0f172a' }}>{successOrder.quantity} {selectedItem?.store || 'pcs'}</strong>
+                  <span style={{ color: '#0f172a', fontWeight: 500 }}>{successOrder.quantity} {selectedItem?.store || 'pcs'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', paddingBottom: '6px', borderBottom: '1px solid #edf2f7' }}>
                   <span style={{ color: '#64748b' }}>Project</span>
-                  <strong style={{ color: '#0f172a' }}>{successOrder.project_name}</strong>
+                  <span style={{ color: '#0f172a', fontWeight: 500 }}>{successOrder.project_name}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#64748b' }}>Duration</span>
-                  <strong style={{ color: '#0f172a' }}>
+                  <span style={{ color: '#0f172a', fontWeight: 500 }}>
                     {successOrder.return_date ? `${successOrder.needed_date} to ${successOrder.return_date}` : `Needed ${successOrder.needed_date} • Permanent / Purchase`}
-                  </strong>
+                  </span>
                 </div>
               </div>
 
@@ -540,7 +540,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     border: '1px solid #1c21df',
                     background: '#eff2fe',
                     color: '#1c21df',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     fontSize: '0.88rem',
                     cursor: 'pointer',
                     display: 'flex',
@@ -561,7 +561,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     border: 'none',
                     background: '#1c21df',
                     color: '#ffffff',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     fontSize: '0.88rem',
                     cursor: 'pointer'
                   }}
@@ -629,10 +629,10 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     />
                   )}
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '0.84rem', fontWeight: 500, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {selectedItem?.item_name || 'Select Equipment'}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: '#1c21df', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ fontSize: '0.72rem', color: '#1c21df', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span>{selectedItem?.amount || 0} {selectedItem?.store || 'pcs'} in stock</span>
                       {isAsset && (
                         <span style={{
@@ -642,7 +642,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                           padding: '1px 5px',
                           borderRadius: '6px',
                           border: '1px solid #ffdcd4',
-                          fontWeight: 600
+                          fontWeight: 500
                         }}>
                           Asset
                         </span>
@@ -692,7 +692,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 {/* Field 1: Full Name */}
                 <div className="clean-field-group">
                   <label className="clean-field-label" htmlFor="order-req-name">
-                    Full Name <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                    Full Name <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                   </label>
                   <input
                     id="order-req-name"
@@ -711,7 +711,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 {/* Field 2: Email Address */}
                 <div className="clean-field-group">
                   <label className="clean-field-label" htmlFor="order-req-email">
-                    Email Address <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                    Email Address <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                   </label>
                   <input
                     id="order-req-email"
@@ -747,7 +747,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 <div className="clean-field-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label className="clean-field-label" htmlFor="order-req-project" style={{ marginBottom: 0 }}>
-                      Project <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                      Project <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                     </label>
                     <button
                       type="button"
@@ -757,7 +757,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                         border: 'none',
                         color: '#1c21df',
                         fontSize: '0.72rem',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         cursor: 'pointer',
                         padding: 0
                       }}
@@ -795,7 +795,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 {/* Field 5: Quantity */}
                 <div className="clean-field-group">
                   <label className="clean-field-label">
-                    Quantity <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                    Quantity <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <button
@@ -813,7 +813,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                       value={formData.quantity}
                       onChange={(e) => handleQuantityChange(e.target.value)}
                       className="clean-input"
-                      style={{ textAlign: 'center', fontWeight: 600, width: '74px' }}
+                      style={{ textAlign: 'center', fontWeight: 500, width: '74px' }}
                     />
                     <button
                       type="button"
@@ -829,7 +829,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                 {/* Field 6: When Needed */}
                 <div className="clean-field-group">
                   <label className="clean-field-label" htmlFor="order-date-needed">
-                    When Needed <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                    When Needed <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                   </label>
                   <input
                     id="order-date-needed"
@@ -847,7 +847,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label className="clean-field-label" htmlFor="order-date-return" style={{ marginBottom: 0 }}>
                       Return Date {isAsset ? (
-                        <span style={{ color: '#ff5421', fontWeight: 'bold' }}>*</span>
+                        <span style={{ color: '#ff5421', fontWeight: 500 }}>*</span>
                       ) : (
                         <span style={{ fontSize: '0.72rem', fontWeight: 400, color: '#64748b' }}>(Optional)</span>
                       )}
@@ -855,7 +855,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                     {isAsset ? (
                       <span style={{
                         fontSize: '0.68rem',
-                        fontWeight: 600,
+                        fontWeight: 500,
                         color: '#ff5421',
                         background: '#fff5f2',
                         padding: '1px 6px',
@@ -874,7 +874,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                             border: 'none',
                             color: '#1c21df',
                             fontSize: '0.72rem',
-                            fontWeight: 600,
+                            fontWeight: 500,
                             cursor: 'pointer',
                             padding: 0
                           }}
@@ -933,7 +933,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   border: 'none',
                   background: '#1c21df',
                   color: '#ffffff',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '0.9rem',
                   cursor: submitting ? 'not-allowed' : 'pointer',
                   boxShadow: '0 2px 8px rgba(28, 33, 223, 0.25)',
@@ -958,7 +958,7 @@ export default function OrderRequestModal({ isOpen, onClose, initialItem = null,
                   border: '1px solid #e2e8f0',
                   background: '#ffffff',
                   color: '#64748b',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '0.9rem',
                   cursor: 'pointer'
                 }}

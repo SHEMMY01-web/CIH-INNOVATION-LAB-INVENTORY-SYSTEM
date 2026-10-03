@@ -325,11 +325,11 @@ export default function Projects() {
                           </div>
                           <div style={{ flexShrink: 0, marginLeft: '8px' }}>
                             {isCompleted ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff2fe', color: '#1c21df', fontSize: '0.75rem', fontWeight: 600, padding: '3px 10px', borderRadius: '999px', border: '1px solid #bfdbfe' }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff2fe', color: '#1c21df', fontSize: '0.75rem', fontWeight: 500, padding: '3px 10px', borderRadius: '999px', border: '1px solid #bfdbfe' }}>
                                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span> Completed
                               </span>
                             ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#dbeafe', color: '#1e40af', fontSize: '0.75rem', fontWeight: 600, padding: '3px 10px', borderRadius: '999px' }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#dbeafe', color: '#1e40af', fontSize: '0.75rem', fontWeight: 500, padding: '3px 10px', borderRadius: '999px' }}>
                                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>bolt</span> Active
                               </span>
                             )}
@@ -349,7 +349,7 @@ export default function Projects() {
 
                       <div style={{ fontSize: '0.85rem', color: '#64748b', margin: '12px 0 6px 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '18px' }}>inventory_2</span>
-                        <span><strong>{project.itemCount}</strong> items associated</span>
+                        <span>{project.itemCount} items associated</span>
                       </div>
 
                       <div className="progress-bar-container">

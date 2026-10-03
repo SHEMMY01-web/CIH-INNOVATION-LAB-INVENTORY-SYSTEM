@@ -358,7 +358,7 @@ export default function Dashboard() {
                     {pendingCount > 0 && (
                       <span style={{
                         fontSize: '0.72rem',
-                        fontWeight: 700,
+                        fontWeight: 500,
                         background: '#fef2f2',
                         color: '#ef4444',
                         padding: '2px 8px',
@@ -388,7 +388,7 @@ export default function Dashboard() {
                     background: reqTab === 'pending' ? '#eef2ff' : '#ffffff',
                     color: reqTab === 'pending' ? '#1c21df' : '#64748b',
                     fontSize: '0.8rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer'
                   }}
                 >
@@ -404,7 +404,7 @@ export default function Dashboard() {
                     background: reqTab === 'approved' ? '#eff2fe' : '#ffffff',
                     color: reqTab === 'approved' ? '#1c21df' : '#64748b',
                     fontSize: '0.8rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer'
                   }}
                 >
@@ -420,7 +420,7 @@ export default function Dashboard() {
                     background: reqTab === 'declined' ? '#fef2f2' : '#ffffff',
                     color: reqTab === 'declined' ? '#dc2626' : '#64748b',
                     fontSize: '0.8rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer'
                   }}
                 >
@@ -436,7 +436,7 @@ export default function Dashboard() {
                     background: reqTab === 'all' ? '#f1f5f9' : '#ffffff',
                     color: reqTab === 'all' ? '#0f172a' : '#64748b',
                     fontSize: '0.8rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer'
                   }}
                 >
@@ -492,7 +492,7 @@ export default function Dashboard() {
                               <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>build</span>
                             )}
                             <div>
-                              <div style={{ fontWeight: 600, color: '#0f172a' }}>{req.items?.item_name || 'Item'}</div>
+                              <div style={{ fontWeight: 500, color: '#1e293b' }}>{req.items?.item_name || 'Item'}</div>
                               <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                                 Stock: {req.items?.amount ?? '—'} {req.items?.store || 'pcs'}
                               </div>
@@ -500,18 +500,18 @@ export default function Dashboard() {
                           </div>
                         </td>
                         <td>
-                          <div style={{ fontWeight: 500, color: '#0f172a' }}>{req.requester_name}</div>
+                          <div style={{ color: '#334155' }}>{req.requester_name}</div>
                           <div style={{ fontSize: '0.76rem', color: '#64748b' }}>{req.requester_email || req.requester_phone || 'No contact'}</div>
                         </td>
                         <td>
                           <span style={{
                             display: 'inline-block',
                             background: '#f1f5f9',
-                            color: '#334155',
+                            color: '#475569',
                             padding: '3px 8px',
                             borderRadius: '6px',
                             fontSize: '0.78rem',
-                            fontWeight: 600,
+                            fontWeight: 500,
                             maxWidth: '140px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -521,7 +521,7 @@ export default function Dashboard() {
                           </span>
                         </td>
                         <td>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#0f172a' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#475569' }}>
                             {req.return_date ? `${req.needed_date} → ${req.return_date}` : `${req.needed_date} • Permanent / Buy`}
                           </div>
                           {req.purpose && (
@@ -530,8 +530,8 @@ export default function Dashboard() {
                             </div>
                           )}
                         </td>
-                        <td>
-                          <strong style={{ color: '#0f172a' }}>{req.quantity}</strong> {req.items?.store || 'pcs'}
+                        <td style={{ color: '#334155' }}>
+                          {req.quantity} {req.items?.store || 'pcs'}
                         </td>
                         <td>
                           {isPending && (
@@ -544,7 +544,7 @@ export default function Dashboard() {
                               padding: '3px 8px',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
-                              fontWeight: 600,
+                              fontWeight: 500,
                               border: '1px solid #fde68a'
                             }}>
                               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />
@@ -561,7 +561,7 @@ export default function Dashboard() {
                               padding: '3px 8px',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
-                              fontWeight: 600,
+                              fontWeight: 500,
                               border: '1px solid #bfdbfe'
                             }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>check</span>
@@ -578,7 +578,7 @@ export default function Dashboard() {
                               padding: '3px 8px',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
-                              fontWeight: 600,
+                              fontWeight: 500,
                               border: '1px solid #fecaca'
                             }} title={req.admin_notes || 'Declined'}>
                               <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>close</span>
@@ -595,7 +595,7 @@ export default function Dashboard() {
                                 style={{
                                   padding: '5px 10px',
                                   fontSize: '0.78rem',
-                                  fontWeight: 600,
+                                  fontWeight: 500,
                                   borderRadius: '6px',
                                   border: 'none',
                                   background: '#1c21df',
@@ -617,7 +617,7 @@ export default function Dashboard() {
                                 style={{
                                   padding: '5px 10px',
                                   fontSize: '0.78rem',
-                                  fontWeight: 600,
+                                  fontWeight: 500,
                                   borderRadius: '6px',
                                   border: '1px solid #fca5a5',
                                   background: '#fff',
@@ -937,18 +937,18 @@ export default function Dashboard() {
 
             <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
               <div style={{ marginBottom: '6px' }}>
-                <strong style={{ color: '#0f172a' }}>{actionModal.request.requester_name}</strong> requested:
+                <span style={{ color: '#0f172a', fontWeight: 500 }}>{actionModal.request.requester_name}</span> requested:
               </div>
-              <div style={{ color: '#1c21df', fontWeight: 600 }}>
+              <div style={{ color: '#1c21df', fontWeight: 500 }}>
                 {actionModal.request.quantity}x {actionModal.request.items?.item_name || 'Equipment'}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
-                Project: <strong>{actionModal.request.project_name}</strong> • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
+                Project: {actionModal.request.project_name} • {actionModal.request.return_date ? `Duration: ${actionModal.request.needed_date} to ${actionModal.request.return_date}` : `Needed: ${actionModal.request.needed_date} (Permanent / Purchase)`}
               </div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: '#334155', marginBottom: '6px' }}>
                 {actionModal.type === 'approve' ? 'Pickup Notes / Instructions (Optional)' : 'Reason for Declining (Optional)'}
               </label>
               <textarea
@@ -980,7 +980,7 @@ export default function Dashboard() {
                   background: '#ffffff',
                   color: '#64748b',
                   fontSize: '0.85rem',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer'
                 }}
               >
@@ -997,7 +997,7 @@ export default function Dashboard() {
                   background: actionModal.type === 'approve' ? '#1c21df' : '#dc2626',
                   color: '#ffffff',
                   fontSize: '0.85rem',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: actionModal.loading ? 'not-allowed' : 'pointer'
                 }}
               >

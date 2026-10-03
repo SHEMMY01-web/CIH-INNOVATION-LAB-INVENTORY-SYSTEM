@@ -64,7 +64,7 @@ body {
 .nav-item.active {
   background-color: rgba(255, 84, 33, 0.1);
   color: var(--accent-color);
-  font-weight: 600;
+  font-weight: 500;
   border-right: 4px solid var(--accent-color);
 }
 
@@ -293,7 +293,7 @@ body {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -315,7 +315,7 @@ body {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -490,7 +490,7 @@ body {
 
 .empty-state h3 {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-color);
   margin: 0;
 }

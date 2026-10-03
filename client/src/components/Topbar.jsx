@@ -45,7 +45,7 @@ export default function Topbar({ onSearch }) {
         <div className="user-profile">
           <div className="avatar"></div>
           <div className="user-info">
-            <strong className="user-info-name">{user?.email || 'User'}</strong>
+            <span className="user-info-name" style={{ fontWeight: 500, color: 'var(--text-color)' }}>{user?.email || 'User'}</span>
             <span className="user-info-role">Staff</span>
           </div>
         </div>
